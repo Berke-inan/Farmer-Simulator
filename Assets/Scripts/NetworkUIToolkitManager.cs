@@ -1,52 +1,61 @@
 using UnityEngine;
-using Unity.Netcode;
-using UnityEngine.UIElements; // UI Toolkit kütüphanesi
+using UnityEngine.UIElements;
 
-[RequireComponent(typeof(UIDocument))]
-public class NetworkUIToolkitManager : MonoBehaviour
+public class NetworkUIManager : MonoBehaviour
 {
-    private UIDocument uiDocument;
-    private Button hostButton;
-    private Button clientButton;
     private VisualElement root;
+    private Button hostBtn;
+    private Button continueBtn;
+    private TextField joinCodeField;
+    private Label displayCodeLabel;
 
-    private void Awake()
+    private void OnEnable()
     {
-        // Ekrana eklediğimiz UIDocument bileşenini alıyoruz
-        uiDocument = GetComponent<UIDocument>();
-        root = uiDocument.rootVisualElement;
+        root = GetComponent<UIDocument>().rootVisualElement;
 
-        // UI Builder'da verdiğimiz isimlerle (Name) butonları buluyoruz
-        hostButton = root.Q<Button>("HostButton");
-        clientButton = root.Q<Button>("ClientButton");
+        // UXML'deki isimlerle çekiyoruz
+        hostBtn = root.Q<Button>("HostButton");
+        continueBtn = root.Q<Button>("ContinueButton");
+        joinCodeField = root.Q<TextField>("JoinCodeField");
+        displayCodeLabel = root.Q<Label>("DisplayCodeLabel");
 
-        // Butonlara tıklanma (clicked) olaylarını bağlıyoruz
-        if (hostButton != null) hostButton.clicked += StartHost;
-        if (clientButton != null) clientButton.clicked += StartClient;
+        hostBtn.clicked += OnHostClicked;
+        continueBtn.clicked += OnContinueClicked;
+        root.Q<Button>("ClientButton").clicked += OnClientClicked;
     }
 
-    private void StartHost()
+    private async void OnHostClicked()
     {
-        NetworkManager.Singleton.StartHost();
-        HideMenu();
+        // 1. Relay'i kur ve StartHost'u arkada çalıştır
+        string code = await RelayManager.Instance.SetupAndStartRelay();
+
+        if (!string.IsNullOrEmpty(code))
+        {
+            // 2. Kodu göster ve panoya kopyala
+            displayCodeLabel.text = "KOD: " + code;
+            GUIUtility.systemCopyBuffer = code;
+
+            // 3. UI'ı değiştir: Host butonu gitsin, Devam (Kapat) butonu gelsin
+            hostBtn.style.display = DisplayStyle.None;
+            continueBtn.style.display = DisplayStyle.Flex;
+
+            Debug.Log("Kodu arkadaşına atabilirsin, oyun hazır!");
+        }
     }
 
-    private void StartClient()
+    private void OnContinueClicked()
     {
-        NetworkManager.Singleton.StartClient();
-        HideMenu();
-    }
-
-    private void HideMenu()
-    {
-        // Oyuna girince arayüzü tamamen gizliyoruz (CSS'deki display: none gibi)
+        // Oyun zaten arkada açık, biz sadece menüyü gizliyoruz!
         root.style.display = DisplayStyle.None;
     }
 
-    private void OnDestroy()
+    private void OnClientClicked()
     {
-        // Obje silinirse veya sahne değişirse hafıza sızıntısı olmaması için eventleri temizliyoruz
-        if (hostButton != null) hostButton.clicked -= StartHost;
-        if (clientButton != null) clientButton.clicked -= StartClient;
+        string inputCode = joinCodeField.value;
+        if (!string.IsNullOrEmpty(inputCode))
+        {
+            RelayManager.Instance.JoinRelay(inputCode);
+            root.style.display = DisplayStyle.None; // Katılınca da menüyü kapat
+        }
     }
 }

@@ -42,7 +42,7 @@ public class PlayerCameraController : NetworkBehaviour
         }
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (!IsOwner) return;
 

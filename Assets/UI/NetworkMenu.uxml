@@ -1,10 +1,21 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/NetworkMenu.uss?fileID=7433441132597879392&amp;guid=e935d0e790c50f047bfcac61fba19e6a&amp;type=3#NetworkMenu"/>
+    <Style src="NetworkMenu.uss" />
     <ui:VisualElement name="Container" class="main-container">
         <ui:VisualElement name="MenuBox" class="menu-box">
-            <ui:Label text="Farmer Simulator" name="Title" class="menu-title"/>
-            <ui:Button text="Host Ol" name="HostButton" class="menu-button host-btn"/>
-            <ui:Button text="Oyuna Katıl" name="ClientButton" class="menu-button client-btn"/>
+            
+            <ui:Label text="ÇİFTLİK LOBİSİ" class="menu-title" />
+
+            <ui:Button text="YENİ OYUN KUR (HOST)" name="HostButton" class="menu-button host-btn" />
+            
+            <ui:Label text="" name="DisplayCodeLabel" class="code-display" />
+            
+            <ui:Button text="OYUNU BAŞLAT (DEVAM)" name="ContinueButton" class="menu-button continue-btn" style="display: none;" />
+
+            <ui:VisualElement class="divider" />
+
+            <ui:TextField label="KATILIM KODU:" name="JoinCodeField" class="input-field" placeholder-text="6 Haneli Kod..." />
+            <ui:Button text="OYUNA KATIL (CLIENT)" name="ClientButton" class="menu-button client-btn" />
+
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

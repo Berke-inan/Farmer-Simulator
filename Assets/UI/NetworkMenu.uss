@@ -1,67 +1,84 @@
+/* Ana ekranı kaplayan koyu arka plan */
 .main-container {
     flex-grow: 1;
     justify-content: center;
     align-items: center;
-    background-color: rgba(30, 35, 40, 0.85); /* Arka planı koyulaştırıp blur hissi verir */
+    background-color: rgba(0, 0, 0, 0.75);
 }
 
+/* Menü kutusu - Çiftlik Teması */
 .menu-box {
-    background-color: rgb(244, 235, 218); /* Çiftlik temasına uygun krem/kağıt rengi */
-    padding: 40px;
+    background-color: rgb(244, 235, 218);
+    padding: 30px;
     border-radius: 20px;
-    align-items: center;
-    border-width: 4px;
-    border-color: rgb(139, 90, 43); /* Ahşap rengi kalın çerçeve */
-    width: 400px;
+    border-width: 6px;
+    border-color: rgb(101, 67, 33);
+    width: 420px;
+    align-items: stretch;
 }
 
 .menu-title {
-    font-size: 38px;
-    color: rgb(60, 40, 20);
+    font-size: 36px;
     -unity-font-style: bold;
-    margin-bottom: 40px;
+    color: rgb(60, 40, 20);
     -unity-text-align: middle-center;
+    margin-bottom: 20px;
 }
 
+/* Buton Genel Stili */
 .menu-button {
-    width: 100%;
-    height: 65px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    color: white;
-    font-size: 22px;
-    -unity-font-style: bold;
+    height: 55px;
     border-radius: 12px;
     border-width: 0;
-    transition-duration: 0.2s; /* Üzerine gelince animasyonlu büyümesi için */
+    color: white;
+    font-size: 18px;
+    -unity-font-style: bold;
+    margin-top: 10px;
+    transition-duration: 0.15s;
 }
 
-/* Host Butonu (Yeşil) */
-.host-btn {
-    background-color: rgb(76, 175, 80); 
+/* Host Butonu - Yeşil */
+.host-btn { background-color: rgb(76, 175, 80); }
+.host-btn:hover { scale: 1.05; background-color: rgb(100, 200, 105); }
+
+/* Devam Butonu - Mavi (Başlangıçta gizli olacak) */
+.continue-btn { background-color: rgb(33, 150, 243); }
+.continue-btn:hover { scale: 1.05; background-color: rgb(60, 170, 255); }
+
+/* Katıl Butonu - Turuncu */
+.client-btn { background-color: rgb(243, 156, 18); }
+.client-btn:hover { scale: 1.05; background-color: rgb(255, 180, 50); }
+
+/* Giriş Alanı (TextField) */
+.input-field {
+    margin-top: 15px;
+    color: rgb(60, 40, 20);
+    -unity-font-style: bold;
 }
 
-.host-btn:hover {
-    background-color: rgb(100, 200, 105);
-    scale: 1.05;
+.input-field #unity-text-input {
+    background-color: white;
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: rgb(139, 90, 43);
+    padding: 8px;
+    color: black;
 }
 
-.host-btn:active {
-    background-color: rgb(50, 140, 55);
-    scale: 0.95;
+/* Kodun göründüğü etiket */
+.code-display {
+    margin-top: 15px;
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(139, 0, 0);
+    -unity-text-align: middle-center;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    padding: 5px;
 }
 
-/* Katıl Butonu (Turuncu) */
-.client-btn {
-    background-color: rgb(243, 156, 18); 
-}
-
-.client-btn:hover {
-    background-color: rgb(255, 180, 50);
-    scale: 1.05;
-}
-
-.client-btn:active {
-    background-color: rgb(200, 120, 10);
-    scale: 0.95;
+.divider {
+    height: 3px;
+    background-color: rgba(139, 90, 43, 0.2);
+    margin: 20px 0;
 }
