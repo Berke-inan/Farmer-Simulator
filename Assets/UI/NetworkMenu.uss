@@ -1,0 +1,67 @@
+.main-container {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(30, 35, 40, 0.85); /* Arka planı koyulaştırıp blur hissi verir */
+}
+
+.menu-box {
+    background-color: rgb(244, 235, 218); /* Çiftlik temasına uygun krem/kağıt rengi */
+    padding: 40px;
+    border-radius: 20px;
+    align-items: center;
+    border-width: 4px;
+    border-color: rgb(139, 90, 43); /* Ahşap rengi kalın çerçeve */
+    width: 400px;
+}
+
+.menu-title {
+    font-size: 38px;
+    color: rgb(60, 40, 20);
+    -unity-font-style: bold;
+    margin-bottom: 40px;
+    -unity-text-align: middle-center;
+}
+
+.menu-button {
+    width: 100%;
+    height: 65px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: white;
+    font-size: 22px;
+    -unity-font-style: bold;
+    border-radius: 12px;
+    border-width: 0;
+    transition-duration: 0.2s; /* Üzerine gelince animasyonlu büyümesi için */
+}
+
+/* Host Butonu (Yeşil) */
+.host-btn {
+    background-color: rgb(76, 175, 80); 
+}
+
+.host-btn:hover {
+    background-color: rgb(100, 200, 105);
+    scale: 1.05;
+}
+
+.host-btn:active {
+    background-color: rgb(50, 140, 55);
+    scale: 0.95;
+}
+
+/* Katıl Butonu (Turuncu) */
+.client-btn {
+    background-color: rgb(243, 156, 18); 
+}
+
+.client-btn:hover {
+    background-color: rgb(255, 180, 50);
+    scale: 1.05;
+}
+
+.client-btn:active {
+    background-color: rgb(200, 120, 10);
+    scale: 0.95;
+}
