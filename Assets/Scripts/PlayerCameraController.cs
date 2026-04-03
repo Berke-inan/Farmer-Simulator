@@ -56,7 +56,7 @@ public class PlayerCameraController : NetworkBehaviour
 
         // Kameranın kök objesini (Kafayı) yukarı/aşağı döndür
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        xRotation = Mathf.Clamp(xRotation, -90f, 75f);
         cameraRoot.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
     }
 }
