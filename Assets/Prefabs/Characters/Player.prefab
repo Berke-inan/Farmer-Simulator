@@ -154,8 +154,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
-  walkSpeed: 12
-  runSpeed: 20
+  walkSpeed: 4
+  runSpeed: 10.38
   jumpHeight: 3
   gravity: -9.81
 --- !u!143 &2966061148859928136
