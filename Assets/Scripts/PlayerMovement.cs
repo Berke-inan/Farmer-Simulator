@@ -69,7 +69,7 @@ public class PlayerMovement : NetworkBehaviour
         velocity.y += gravity * Time.deltaTime;
 
         // 2. Yatay Hareket Hesaplaması
-        float currentSpeed = isRunning ? runSpeed : walkSpeed;
+        float currentSpeed = (isRunning && moveInput.y > 0) ? runSpeed : walkSpeed;
         Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
 
         // 3. Vektörleri Birleştirme
@@ -86,6 +86,13 @@ public class PlayerMovement : NetworkBehaviour
             animator.SetFloat("Horizontal", moveInput.x * multiplier, 0.15f, Time.deltaTime);
             animator.SetFloat("Vertical", moveInput.y * multiplier, 0.15f, Time.deltaTime);
         }
+        if (controller.isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+
+            if (animator != null)
+                animator.SetBool("isJumping", false);
+        }
     }
 
     private void Jump()
@@ -93,6 +100,9 @@ public class PlayerMovement : NetworkBehaviour
         if (controller.isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+
+            if (animator != null)
+                animator.SetBool("isJumping", true);
         }
     }
 }

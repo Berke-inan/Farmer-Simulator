@@ -154,10 +154,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
-  walkSpeed: 4
-  runSpeed: 10.38
-  jumpHeight: 3
-  gravity: -9.81
+  walkSpeed: 3
+  runSpeed: 9
+  jumpHeight: 1
+  gravity: -10
 --- !u!143 &2966061148859928136
 CharacterController:
   m_ObjectHideFlags: 0
@@ -256,6 +256,10 @@ MonoBehaviour:
       NameHash: 475924382
       Synchronize: 1
       ParameterType: 1
+    - name: isJumping
+      NameHash: -357477766
+      Synchronize: 1
+      ParameterType: 4
   AnimatorParametersExpanded: 0
 --- !u!95 &5728171432467663253
 Animator:
