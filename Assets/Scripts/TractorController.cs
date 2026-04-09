@@ -23,6 +23,7 @@ public class TractorController : NetworkBehaviour, IInteractable
     public float motorTorque = 1500f;
     public float maxSteerAngle = 30f;
     public float brakeForce = 3000f;
+    public float maxSpeedKmh = 70f;
 
     [Header("Traktöre Binme Ayarları")]
     public Transform driverSeat;
@@ -32,6 +33,7 @@ public class TractorController : NetworkBehaviour, IInteractable
     private float gasBrakeInput;
     private float steeringInput;
     private bool isBraking;
+    private Rigidbody rb;
 
     private NetworkObject currentDriver;
     public bool IsOccupied => currentDriver != null;
@@ -40,6 +42,8 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         inputActions = new InputSystem_Actions();
         if (tpsCamera != null) tpsCamera.gameObject.SetActive(false);
+
+        rb = GetComponent<Rigidbody>();
 
         if (centerOfMass != null)
         {
@@ -172,16 +176,28 @@ public class TractorController : NetworkBehaviour, IInteractable
             wcBR.brakeTorque = 0f;
 
             // DÖNÜŞLERDE GÜÇ KAYBINI ÖNLEME
-            // Çarpan 0.4f'ten 2.0f'e (%200 ekstra güç) çıkarıldı.
-            float turnCompensation = 1f + (Mathf.Abs(steeringInput) * 1.0f);
+            float turnCompensation = 1f + (Mathf.Abs(steeringInput) * 2.0f);
             float compensatedTorque = currentTorque * turnCompensation;
 
-            // Sadece Önden Çekiş (FWD)
-            wcFL.motorTorque = compensatedTorque;
-            wcFR.motorTorque = compensatedTorque;
+            // ARACIN ŞU ANKİ HIZINI KM/S CİNSİNDEN HESAPLAMA
+            // Unity 6'da linearVelocity kullanıyoruz, büyüklüğünü (magnitude) 3.6 ile çarparak km/s buluyoruz.
+            float currentSpeedKmh = rb.linearVelocity.magnitude * 3.6f;
+
+            // HIZ SINIRI KONTROLÜ
+            if (currentSpeedKmh < maxSpeedKmh)
+            {
+                // Sınırın altındaysak gücü ön tekerleklere ver
+                wcFL.motorTorque = compensatedTorque;
+                wcFR.motorTorque = compensatedTorque;
+            }
+            else
+            {
+                // Hız sınırına ulaşıldıysa motor gücünü kes (araç kendi momentumuyla süzülür)
+                wcFL.motorTorque = 0f;
+                wcFR.motorTorque = 0f;
+            }
 
             // ARKA TEKERLEK KİLİTLENMESİNİ (DRAG) ÖNLEME
-            // Gaza basıldığında 0 yerine çok ufak bir güç vererek tekerleklerin fren yapması engellenir.
             float antiDragTorque = (Mathf.Abs(gasBrakeInput) > 0.1f) ? 0.001f : 0f;
             wcBL.motorTorque = antiDragTorque;
             wcBR.motorTorque = antiDragTorque;
