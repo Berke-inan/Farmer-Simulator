@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: -2220253951009973035}
   - component: {fileID: 9215371439374291450}
   - component: {fileID: 5728171432467663253}
+  - component: {fileID: -5414915901522307759}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -34,7 +35,7 @@ Transform:
   m_GameObject: {fileID: 1864111185607732302}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -279,6 +280,21 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-5414915901522307759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864111185607732302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b300096563357e4da3d83488f9f36aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractor
+  ShowTopMostFoldoutHeaderGroup: 1
+  interactionDistance: 3
+  playerCamera: {fileID: 4370075213581412818}
 --- !u!1 &2772005619223278391
 GameObject:
   m_ObjectHideFlags: 0
@@ -379,7 +395,7 @@ Transform:
   m_GameObject: {fileID: 7438096846589699387}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.33, y: 0.44, z: 0}
+  m_LocalPosition: {x: 0, y: 1.65, z: 0.174}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -414,13 +430,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7474331728779255722}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.223165, y: 0, z: 0, w: 0.9747807}
-  m_LocalPosition: {x: -0.33, y: 1.68, z: -3.35}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4370075213581412818}
-  m_LocalEulerAnglesHint: {x: 25.79, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &3816656628638025984
 Camera:
   m_ObjectHideFlags: 0

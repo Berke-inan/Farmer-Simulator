@@ -2,13 +2,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
 
-public class TractorController : MonoBehaviour
+public class TractorController : NetworkBehaviour, IInteractable
 {
-    [Header("Görsel Tekerlekler (3D Modeller)")]
-    public Transform visualFL; // Ön Sol (Front Left)
-    public Transform visualFR; // Ön Sað (Front Right)
-    public Transform visualBL; // Arka Sol (Back Left)
-    public Transform visualBR; // Arka Sað (Back Right)
+    [Header("GÃ¶rsel Tekerlekler (3D Modeller)")]
+    public Transform visualFL;
+    public Transform visualFR;
+    public Transform visualBL;
+    public Transform visualBR;
 
     [Header("Fiziksel Tekerlekler (Wheel Colliders)")]
     public WheelCollider wcFL;
@@ -16,50 +16,140 @@ public class TractorController : MonoBehaviour
     public WheelCollider wcBL;
     public WheelCollider wcBR;
 
-    [Header("Motor Ayarlarý")]
-    public float motorTorque = 1500f;  // Traktörün motor gücü
-    public float maxSteerAngle = 30f;  // Direksiyonun maksimum dönme açýsý
-    public float brakeForce = 3000f;   // Fren yapma gücü
+    [Header("Fizik AyarlarÄ±")]
+    public Transform centerOfMass;
 
-    [Header("Traktöre Binme Ayarlarý")]
-    public Transform driverSeat;       // Sürücü oturma pozisyonu
-    public float interactionDistance = 3f; // Traktöre yaklaþma mesafesi
-    public string interactionKey = "f"; // Traktöre binmek için tuþ
+    [Header("Motor AyarlarÄ±")]
+    public float motorTorque = 1500f;
+    public float maxSteerAngle = 30f;
+    public float brakeForce = 3000f;
+
+    [Header("TraktÃ¶re Binme AyarlarÄ±")]
+    public Transform driverSeat;
+    public Camera tpsCamera;
 
     private InputSystem_Actions inputActions;
     private Vector2 moveInput;
     private bool isBraking;
-    private NetworkObject currentDriver;
-    private bool isOccupied;
-    private Vector3 driverOriginalPosition;
-    private Quaternion driverOriginalRotation;
 
-    public bool IsOccupied => isOccupied;
+    private NetworkObject currentDriver;
+    public bool IsOccupied => currentDriver != null;
 
     private void Awake()
     {
         inputActions = new InputSystem_Actions();
-        isOccupied = false;
+        if (tpsCamera != null) tpsCamera.gameObject.SetActive(false);
+
+        if (centerOfMass != null)
+        {
+            GetComponent<Rigidbody>().centerOfMass = centerOfMass.localPosition;
+        }
     }
 
-    private void OnEnable() { inputActions.Player.Enable(); }
-    private void OnDisable() { inputActions.Player.Disable(); }
+    public void Interact(NetworkObject interactor)
+    {
+        if (!IsOccupied)
+        {
+            MountTractorServerRpc(interactor.NetworkObjectId);
+        }
+        else if (currentDriver == interactor)
+        {
+            DismountTractorServerRpc();
+        }
+    }
+
+    // YENÄ° SÄ°STEM: Herkesin sunucuya istek atabilmesi iÃ§in InvokePermission.Everyone kullanÄ±lÄ±yor
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void MountTractorServerRpc(ulong playerId)
+    {
+        if (IsOccupied) return;
+
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject playerObj))
+        {
+            GetComponent<NetworkObject>().ChangeOwnership(playerObj.OwnerClientId);
+            playerObj.TrySetParent(transform);
+            MountTractorClientRpc(playerId);
+        }
+    }
+
+    // YENÄ° SÄ°STEM: Sunucudan tÃ¼m istemcilere (Client) bilgi gÃ¶ndermek iÃ§in SendTo.Everyone kullanÄ±lÄ±yor
+    [Rpc(SendTo.Everyone)]
+    private void MountTractorClientRpc(ulong playerId)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject playerObj))
+        {
+            currentDriver = playerObj;
+
+            playerObj.transform.position = driverSeat.position;
+            playerObj.transform.rotation = driverSeat.rotation;
+
+            TogglePlayerComponents(playerObj, false);
+
+            if (playerObj.IsOwner)
+            {
+                inputActions.Player.Enable();
+                if (tpsCamera != null) tpsCamera.gameObject.SetActive(true);
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void DismountTractorServerRpc()
+    {
+        if (currentDriver != null)
+        {
+            GetComponent<NetworkObject>().RemoveOwnership();
+            currentDriver.TryRemoveParent();
+            DismountTractorClientRpc();
+        }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void DismountTractorClientRpc()
+    {
+        if (currentDriver != null)
+        {
+            currentDriver.transform.position = transform.position + transform.right * -2f;
+
+            if (currentDriver.IsOwner)
+            {
+                inputActions.Player.Disable();
+                if (tpsCamera != null) tpsCamera.gameObject.SetActive(false);
+            }
+
+            TogglePlayerComponents(currentDriver, true);
+            currentDriver = null;
+        }
+    }
+
+    private void TogglePlayerComponents(NetworkObject player, bool state)
+    {
+        if (player.TryGetComponent(out PlayerMovement movement)) movement.enabled = state;
+        if (player.TryGetComponent(out CharacterController characterController)) characterController.enabled = state;
+
+        Camera playerCamera = player.GetComponentInChildren<Camera>();
+        if (playerCamera != null && player.IsOwner)
+        {
+            playerCamera.gameObject.SetActive(state);
+        }
+    }
 
     private void FixedUpdate()
     {
-        // Eðer traktör dolu ise kontrolü uygulamaya baþla
-        if (!isOccupied) return;
+        // 1. GÃ¶rsel tekerlek gÃ¼ncellemesi HER ZAMAN, herkes iÃ§in Ã§alÄ±ÅŸmalÄ± (return'den Ã¶nceye aldÄ±k)
+        UpdateSingleWheel(wcFL, visualFL);
+        UpdateSingleWheel(wcFR, visualFR);
+        UpdateSingleWheel(wcBL, visualBL);
+        UpdateSingleWheel(wcBR, visualBR);
 
-        // 1. Girdileri Al (WASD tuþlarýný okur)
+        // EÄŸer traktÃ¶r boÅŸsa veya bu bilgisayarÄ±n traktÃ¶r Ã¼zerinde yetkisi yoksa, sÃ¼rÃ¼ÅŸ hesaplamalarÄ±nÄ± yapma
+        if (!IsOccupied || !IsOwner) return;
+
         moveInput = inputActions.Player.Move.ReadValue<Vector2>();
-
-        // Boþluk (Space) tuþuna basýlýp basýlmadýðýný kontrol et
         isBraking = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
 
-        // 2. Motor Gücünü Hesapla (Sadece W ve S tuþlarýndan gelen Y ekseni verisi)
         float currentTorque = moveInput.y * motorTorque;
 
-        // 3. Gücü ve Freni Arka Tekerleklere Uygula (Arkadan Ýtiþli Sistem)
         if (isBraking)
         {
             wcBL.brakeTorque = brakeForce;
@@ -75,82 +165,14 @@ public class TractorController : MonoBehaviour
             wcBR.motorTorque = currentTorque;
         }
 
-        // 4. Direksiyon Açýsýný Ön Tekerleklere Uygula (A ve D tuþlarýndan gelen X ekseni verisi)
         float currentSteerAngle = moveInput.x * maxSteerAngle;
         wcFL.steerAngle = currentSteerAngle;
         wcFR.steerAngle = currentSteerAngle;
-
-        // 5. Görsel Tekerlekleri, Görünmez Fiziksel Tekerleklerle Eþitle
-        UpdateSingleWheel(wcFL, visualFL);
-        UpdateSingleWheel(wcFR, visualFR);
-        UpdateSingleWheel(wcBL, visualBL);
-        UpdateSingleWheel(wcBR, visualBR);
-
-        // 6. Sürücünün konumunu güncelle
-        if (isOccupied && currentDriver != null && driverSeat != null)
-        {
-            currentDriver.transform.position = driverSeat.position;
-            currentDriver.transform.rotation = driverSeat.rotation;
-        }
     }
 
-    public void MountTractor(NetworkObject player)
-    {
-        if (isOccupied) return;
-
-        isOccupied = true;
-        currentDriver = player;
-
-        // Oyuncunun orijinal konumunu kaydet
-        driverOriginalPosition = player.transform.position;
-        driverOriginalRotation = player.transform.rotation;
-
-        // Oyuncuyu traktörün sürücü konumuna taþý
-        if (driverSeat != null)
-        {
-            player.transform.position = driverSeat.position;
-            player.transform.rotation = driverSeat.rotation;
-        }
-
-        // Oyuncu komponentlerini devre dýþý býrak
-        PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
-        PlayerCameraController cameraController = player.GetComponent<PlayerCameraController>();
-        CharacterController characterController = player.GetComponent<CharacterController>();
-
-        if (playerMovement != null) playerMovement.enabled = false;
-        if (cameraController != null) cameraController.enabled = false;
-        if (characterController != null) characterController.enabled = false;
-    }
-
-    public void DismountTractor()
-    {
-        if (currentDriver == null || !isOccupied) return;
-
-        isOccupied = false;
-
-        // Oyuncuyu traktörün önüne býrak
-        currentDriver.transform.position = transform.position + transform.forward * 2f;
-        currentDriver.transform.rotation = transform.rotation;
-
-        // Oyuncu komponentlerini aktif et
-        PlayerMovement playerMovement = currentDriver.GetComponent<PlayerMovement>();
-        PlayerCameraController cameraController = currentDriver.GetComponent<PlayerCameraController>();
-        CharacterController characterController = currentDriver.GetComponent<CharacterController>();
-
-        if (playerMovement != null) playerMovement.enabled = true;
-        if (cameraController != null) cameraController.enabled = true;
-        if (characterController != null) characterController.enabled = true;
-
-        currentDriver = null;
-    }
-
-    // Fizik motorundaki tekerleðin pozisyonunu ve dönme açýsýný alýp, 3D modele aktaran fonksiyon
     private void UpdateSingleWheel(WheelCollider wheelCollider, Transform visualWheel)
     {
-        Vector3 pos;
-        Quaternion rot;
-        wheelCollider.GetWorldPose(out pos, out rot);
-
+        wheelCollider.GetWorldPose(out Vector3 pos, out Quaternion rot);
         visualWheel.position = pos;
         visualWheel.rotation = rot;
     }
