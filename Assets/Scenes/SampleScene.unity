@@ -770,7 +770,7 @@ Transform:
   m_GameObject: {fileID: 779637859}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.16, y: -0.5, z: -0.19}
+  m_LocalPosition: {x: -0.16, y: -0.44, z: -0.19}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -787,8 +787,8 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 2.14
   m_SuspensionSpring:
-    spring: 35000
-    damper: 4500
+    spring: 45000
+    damper: 5500
     targetPosition: 0.5
   m_SuspensionDistance: 0.5
   m_ForceAppPointDistance: -0.1
@@ -805,7 +805,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.5
     m_AsymptoteValue: 0.75
-    m_Stiffness: 1
+    m_Stiffness: 5
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1030,7 +1030,7 @@ Transform:
   m_GameObject: {fileID: 907815316}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -21.30927, y: 3.77594, z: 18.43474}
+  m_LocalPosition: {x: 6.690729, y: 4.2, z: 18.43474}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1093,8 +1093,9 @@ MonoBehaviour:
   wcBR: {fileID: 1552619163}
   centerOfMass: {fileID: 1534825668}
   motorTorque: 1500
-  maxSteerAngle: 30
+  maxSteerAngle: 25
   brakeForce: 3000
+  maxSpeedKmh: 70
   driverSeat: {fileID: 1983551435}
   tpsCamera: {fileID: 797848494}
 --- !u!65 &907815324
@@ -1143,7 +1144,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 32
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!1 &1001367267
 GameObject:
@@ -1277,7 +1278,7 @@ Transform:
   m_GameObject: {fileID: 1376998481}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.42, y: -1.03, z: 5.839999}
+  m_LocalPosition: {x: -0.21, y: -0.77, z: 5.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1294,8 +1295,8 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 1.6
   m_SuspensionSpring:
-    spring: 35000
-    damper: 4500
+    spring: 45000
+    damper: 5500
     targetPosition: 0.5
   m_SuspensionDistance: 0.5
   m_ForceAppPointDistance: -0.1
@@ -1634,7 +1635,7 @@ Transform:
   m_GameObject: {fileID: 1534825667}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -3, z: 2}
+  m_LocalPosition: {x: 0, y: -3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1668,8 +1669,8 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 2.14
   m_SuspensionSpring:
-    spring: 35000
-    damper: 4500
+    spring: 45000
+    damper: 5500
     targetPosition: 0.5
   m_SuspensionDistance: 0.5
   m_ForceAppPointDistance: -0.1
@@ -1686,7 +1687,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.5
     m_AsymptoteValue: 0.75
-    m_Stiffness: 1
+    m_Stiffness: 5
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1705,7 +1706,7 @@ Transform:
   m_GameObject: {fileID: 1552619162}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.49, y: -0.51, z: -0.04}
+  m_LocalPosition: {x: -4.49, y: -0.34, z: -0.04}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1816,7 +1817,7 @@ Transform:
   m_GameObject: {fileID: 1882528090}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.18, y: -0.97, z: 5.82}
+  m_LocalPosition: {x: -4.46, y: -0.73, z: 5.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1833,8 +1834,8 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 1.6
   m_SuspensionSpring:
-    spring: 35000
-    damper: 4500
+    spring: 45000
+    damper: 5500
     targetPosition: 0.5
   m_SuspensionDistance: 0.5
   m_ForceAppPointDistance: -0.1
@@ -1982,13 +1983,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1896327991}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.008900102, y: -0.95854455, z: -0.030123448, w: 0.2832061}
-  m_LocalPosition: {x: -6.59, y: 1.76, z: 8.06}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.5900002, y: 1.76, z: 3.0600004}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -3.6, y: -147.08, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1983551434
 GameObject:
   m_ObjectHideFlags: 0
