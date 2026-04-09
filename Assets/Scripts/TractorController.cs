@@ -29,7 +29,8 @@ public class TractorController : NetworkBehaviour, IInteractable
     public Camera tpsCamera;
 
     private InputSystem_Actions inputActions;
-    private Vector2 moveInput;
+    private float gasBrakeInput;
+    private float steeringInput;
     private bool isBraking;
 
     private NetworkObject currentDriver;
@@ -58,7 +59,6 @@ public class TractorController : NetworkBehaviour, IInteractable
         }
     }
 
-    // YENİ SİSTEM: Herkesin sunucuya istek atabilmesi için InvokePermission.Everyone kullanılıyor
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void MountTractorServerRpc(ulong playerId)
     {
@@ -72,7 +72,6 @@ public class TractorController : NetworkBehaviour, IInteractable
         }
     }
 
-    // YENİ SİSTEM: Sunucudan tüm istemcilere (Client) bilgi göndermek için SendTo.Everyone kullanılıyor
     [Rpc(SendTo.Everyone)]
     private void MountTractorClientRpc(ulong playerId)
     {
@@ -134,40 +133,79 @@ public class TractorController : NetworkBehaviour, IInteractable
         }
     }
 
+    private void Update()
+    {
+        if (wcFL != null && visualFL != null) UpdateSingleWheel(wcFL, visualFL);
+        if (wcFR != null && visualFR != null) UpdateSingleWheel(wcFR, visualFR);
+        if (wcBL != null && visualBL != null) UpdateSingleWheel(wcBL, visualBL);
+        if (wcBR != null && visualBR != null) UpdateSingleWheel(wcBR, visualBR);
+    }
+
     private void FixedUpdate()
     {
-        // 1. Görsel tekerlek güncellemesi HER ZAMAN, herkes için çalışmalı (return'den önceye aldık)
-        UpdateSingleWheel(wcFL, visualFL);
-        UpdateSingleWheel(wcFR, visualFR);
-        UpdateSingleWheel(wcBL, visualBL);
-        UpdateSingleWheel(wcBR, visualBR);
-
-        // Eğer traktör boşsa veya bu bilgisayarın traktör üzerinde yetkisi yoksa, sürüş hesaplamalarını yapma
         if (!IsOccupied || !IsOwner) return;
 
-        moveInput = inputActions.Player.Move.ReadValue<Vector2>();
+        gasBrakeInput = inputActions.Player.GasBrake.ReadValue<float>();
+        steeringInput = inputActions.Player.Steering.ReadValue<float>();
+
         isBraking = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
 
-        float currentTorque = moveInput.y * motorTorque;
+        float currentTorque = gasBrakeInput * motorTorque;
 
         if (isBraking)
         {
+            wcFL.brakeTorque = brakeForce;
+            wcFR.brakeTorque = brakeForce;
             wcBL.brakeTorque = brakeForce;
             wcBR.brakeTorque = brakeForce;
+
+            wcFL.motorTorque = 0f;
+            wcFR.motorTorque = 0f;
             wcBL.motorTorque = 0f;
             wcBR.motorTorque = 0f;
         }
         else
         {
+            wcFL.brakeTorque = 0f;
+            wcFR.brakeTorque = 0f;
             wcBL.brakeTorque = 0f;
             wcBR.brakeTorque = 0f;
-            wcBL.motorTorque = currentTorque;
-            wcBR.motorTorque = currentTorque;
+
+            // DÖNÜŞLERDE GÜÇ KAYBINI ÖNLEME
+            // Çarpan 0.4f'ten 2.0f'e (%200 ekstra güç) çıkarıldı.
+            float turnCompensation = 1f + (Mathf.Abs(steeringInput) * 1.0f);
+            float compensatedTorque = currentTorque * turnCompensation;
+
+            // Sadece Önden Çekiş (FWD)
+            wcFL.motorTorque = compensatedTorque;
+            wcFR.motorTorque = compensatedTorque;
+
+            // ARKA TEKERLEK KİLİTLENMESİNİ (DRAG) ÖNLEME
+            // Gaza basıldığında 0 yerine çok ufak bir güç vererek tekerleklerin fren yapması engellenir.
+            float antiDragTorque = (Mathf.Abs(gasBrakeInput) > 0.1f) ? 0.001f : 0f;
+            wcBL.motorTorque = antiDragTorque;
+            wcBR.motorTorque = antiDragTorque;
         }
 
-        float currentSteerAngle = moveInput.x * maxSteerAngle;
-        wcFL.steerAngle = currentSteerAngle;
-        wcFR.steerAngle = currentSteerAngle;
+        float currentSteerAngle = steeringInput * maxSteerAngle;
+
+        // ACKERMANN GEOMETRİSİ
+        // Tekerleğin çok fazla yan dönmesini engellemek için çarpan 1.3f'ten 1.15f'e düşürüldü.
+        if (steeringInput > 0.1f)
+        {
+            wcFL.steerAngle = currentSteerAngle;
+            wcFR.steerAngle = currentSteerAngle * 1.15f;
+        }
+        else if (steeringInput < -0.1f)
+        {
+            wcFL.steerAngle = currentSteerAngle * 1.15f;
+            wcFR.steerAngle = currentSteerAngle;
+        }
+        else
+        {
+            wcFL.steerAngle = currentSteerAngle;
+            wcFR.steerAngle = currentSteerAngle;
+        }
     }
 
     private void UpdateSingleWheel(WheelCollider wheelCollider, Transform visualWheel)
