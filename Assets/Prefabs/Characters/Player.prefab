@@ -36,7 +36,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.01}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4370075213581412818}
@@ -258,6 +258,10 @@ MonoBehaviour:
       ParameterType: 1
     - name: isJumping
       NameHash: -357477766
+      Synchronize: 1
+      ParameterType: 4
+    - name: isDriving
+      NameHash: 2002837635
       Synchronize: 1
       ParameterType: 4
   AnimatorParametersExpanded: 0
