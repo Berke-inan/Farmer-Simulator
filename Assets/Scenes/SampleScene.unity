@@ -418,7 +418,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: c10d2659d47c1014d86c3cd3b87f6e3b, type: 2}
     - target: {fileID: 919132149155446097, guid: f551e0319837e314192cb82dfa6444d7, type: 3}
       propertyPath: m_Name
-      value: Meshy_AI_wheel_0409124531_texture
+      value: Wheel
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1156,6 +1156,7 @@ GameObject:
   - component: {fileID: 907815326}
   - component: {fileID: 907815328}
   - component: {fileID: 907815327}
+  - component: {fileID: 907815329}
   m_Layer: 0
   m_Name: Tractor
   m_TagString: Untagged
@@ -1253,7 +1254,6 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  tractorHitchPoint: {fileID: 7298532}
 --- !u!65 &907815324
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1380,6 +1380,20 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &907815329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907815316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a0af3911ffafbd4ea19b72a9220ea7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TractorEquipmentManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  tractorHitchPoint: {fileID: 7298532}
 --- !u!1 &933941610
 GameObject:
   m_ObjectHideFlags: 0
@@ -1390,7 +1404,7 @@ GameObject:
   m_Component:
   - component: {fileID: 933941611}
   m_Layer: 0
-  m_Name: LeftWheel (1)
+  m_Name: RightWheel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1499,7 +1513,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1111571844}
   serializedVersion: 5
-  m_Mass: 1
+  m_Mass: 500
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1551,10 +1565,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttachableEquipment
   ShowTopMostFoldoutHeaderGroup: 1
-  hitchPoint: {fileID: 0}
-  wheels: []
-  wheelRadius: 0.4
-  rotationAxis: {x: 1, y: 0, z: 0}
+  hitchPoint: {fileID: 547210365}
+  wheelColliders:
+  - {fileID: 222249023}
+  - {fileID: 1319100010}
+  visualWheels:
+  - {fileID: 291337332}
+  - {fileID: 1195941701}
 --- !u!65 &1111571849
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1705,7 +1722,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: c10d2659d47c1014d86c3cd3b87f6e3b, type: 2}
     - target: {fileID: 919132149155446097, guid: f551e0319837e314192cb82dfa6444d7, type: 3}
       propertyPath: m_Name
-      value: Meshy_AI_wheel_0409124531_texture
+      value: Wheel
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2475,7 +2492,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
