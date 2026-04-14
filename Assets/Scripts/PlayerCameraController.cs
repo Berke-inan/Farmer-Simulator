@@ -1,14 +1,16 @@
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
+using Unity.Cinemachine;
 
 public class PlayerCameraController : NetworkBehaviour
 {
     public float mouseSensitivity = 15f;
 
     public Transform cameraRoot;
-    public Camera playerCamera;
-    public GameObject cinemachineCamera;
+
+    [Header("Oyuncu Sanal Kamerası")]
+    public CinemachineCamera playerCinemachineCam; // Gerçek Camera değil, Cinemachine kamerası
 
     private InputSystem_Actions inputActions;
     private Vector2 lookInput;
@@ -21,16 +23,25 @@ public class PlayerCameraController : NetworkBehaviour
             inputActions = new InputSystem_Actions();
             inputActions.Player.Enable();
 
-            if (playerCamera != null) playerCamera.gameObject.SetActive(true);
-            if (cinemachineCamera != null) cinemachineCamera.SetActive(true);
+            // BİZ DOĞDUK: Kendi sanal kameramızı açıp önceliğini 10 yapıyoruz.
+            // Bu sayede Priority'si 5 olan Lobby kamerasını anında ezip görüntüyü devralıyoruz!
+            if (playerCinemachineCam != null)
+            {
+                playerCinemachineCam.gameObject.SetActive(true);
+                playerCinemachineCam.Priority = 10;
+            }
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
         else
         {
-            if (playerCamera != null) playerCamera.gameObject.SetActive(false);
-            if (cinemachineCamera != null) cinemachineCamera.SetActive(false);
+            // BAŞKA OYUNCU DOĞDU: Bizim ekranımızda onun kamerasının yeri yok, tamamen kapatıyoruz.
+            if (playerCinemachineCam != null)
+            {
+                playerCinemachineCam.Priority = 0;
+                playerCinemachineCam.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -51,10 +62,8 @@ public class PlayerCameraController : NetworkBehaviour
         float mouseX = lookInput.x * mouseSensitivity * Time.deltaTime;
         float mouseY = lookInput.y * mouseSensitivity * Time.deltaTime;
 
-        // Karakterin vücudunu sağa/sola döndür
         transform.Rotate(Vector3.up * mouseX);
 
-        // Kameranın kök objesini (Kafayı) yukarı/aşağı döndür
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 75f);
         cameraRoot.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
