@@ -27,7 +27,10 @@ public class TractorController : NetworkBehaviour, IInteractable
 
     [Header("Traktöre Binme Ayarları")]
     public Transform driverSeat;
-    public Camera tpsCamera;
+
+    [Header("Kamera Kontrolcüsü")]
+    [Tooltip("Traktöre eklediğiniz TractorCameraController scriptini buraya sürükleyin.")]
+    public TractorCameraController cameraController;
 
     private InputSystem_Actions inputActions;
     private float gasBrakeInput;
@@ -41,25 +44,20 @@ public class TractorController : NetworkBehaviour, IInteractable
     private void Awake()
     {
         inputActions = new InputSystem_Actions();
-        if (tpsCamera != null) tpsCamera.gameObject.SetActive(false);
-
         rb = GetComponent<Rigidbody>();
 
         if (centerOfMass != null)
         {
-            GetComponent<Rigidbody>().centerOfMass = centerOfMass.localPosition;
+            rb.centerOfMass = centerOfMass.localPosition;
         }
     }
 
+    // DIŞARIDAN BİNMEK İÇİN (Raycast ile tetiklenir)
     public void Interact(NetworkObject interactor)
     {
         if (!IsOccupied)
         {
             MountTractorServerRpc(interactor.NetworkObjectId);
-        }
-        else if (currentDriver == interactor)
-        {
-            DismountTractorServerRpc();
         }
     }
 
@@ -91,8 +89,24 @@ public class TractorController : NetworkBehaviour, IInteractable
             if (playerObj.IsOwner)
             {
                 inputActions.Player.Enable();
-                if (tpsCamera != null) tpsCamera.gameObject.SetActive(true);
+
+                // BİNDİĞİMİZDE: İnme tuşunu dinlemeye başla
+                inputActions.Player.Interact.started += OnInteractPressed;
+
+                if (cameraController != null)
+                {
+                    cameraController.SetCameraActive(true);
+                }
             }
+        }
+    }
+
+    // İÇERİDEN İNMEK İÇİN (Tuş dinleyicisi tetikler)
+    private void OnInteractPressed(InputAction.CallbackContext context)
+    {
+        if (IsOccupied && IsOwner)
+        {
+            DismountTractorServerRpc();
         }
     }
 
@@ -112,12 +126,18 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (currentDriver != null)
         {
-            currentDriver.transform.position = transform.position + transform.right * -2f;
+            currentDriver.transform.position = transform.position + transform.right * -4f;
 
             if (currentDriver.IsOwner)
             {
+                // İNDİĞİMİZDE: Tuş dinlemeyi bırak ki hata vermesin
+                inputActions.Player.Interact.started -= OnInteractPressed;
                 inputActions.Player.Disable();
-                if (tpsCamera != null) tpsCamera.gameObject.SetActive(false);
+
+                if (cameraController != null)
+                {
+                    cameraController.SetCameraActive(false);
+                }
             }
 
             TogglePlayerComponents(currentDriver, true);
@@ -129,11 +149,25 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (player.TryGetComponent(out PlayerMovement movement)) movement.enabled = state;
         if (player.TryGetComponent(out CharacterController characterController)) characterController.enabled = state;
+        if (player.TryGetComponent(out PlayerInteractor interactor)) interactor.enabled = state;
 
-        Camera playerCamera = player.GetComponentInChildren<Camera>();
-        if (playerCamera != null && player.IsOwner)
+        
+        Animator animator = player.GetComponentInChildren<Animator>();
+        if (animator != null)
         {
-            playerCamera.gameObject.SetActive(state);
+            
+            animator.SetBool("isDriving", !state);
+        }
+
+        if (player.IsOwner)
+        {
+            if (player.TryGetComponent(out PlayerCameraController camController)) camController.enabled = state;
+
+            Unity.Cinemachine.CinemachineCamera playerCam = player.GetComponentInChildren<Unity.Cinemachine.CinemachineCamera>(true);
+            if (playerCam != null)
+            {
+                playerCam.Priority = state ? 10 : 0;
+            }
         }
     }
 
@@ -175,29 +209,22 @@ public class TractorController : NetworkBehaviour, IInteractable
             wcBL.brakeTorque = 0f;
             wcBR.brakeTorque = 0f;
 
-            // DÖNÜŞLERDE GÜÇ KAYBINI ÖNLEME
             float turnCompensation = 1f + (Mathf.Abs(steeringInput) * 2.0f);
             float compensatedTorque = currentTorque * turnCompensation;
 
-            // ARACIN ŞU ANKİ HIZINI KM/S CİNSİNDEN HESAPLAMA
-            // Unity 6'da linearVelocity kullanıyoruz, büyüklüğünü (magnitude) 3.6 ile çarparak km/s buluyoruz.
             float currentSpeedKmh = rb.linearVelocity.magnitude * 3.6f;
 
-            // HIZ SINIRI KONTROLÜ
             if (currentSpeedKmh < maxSpeedKmh)
             {
-                // Sınırın altındaysak gücü ön tekerleklere ver
                 wcFL.motorTorque = compensatedTorque;
                 wcFR.motorTorque = compensatedTorque;
             }
             else
             {
-                // Hız sınırına ulaşıldıysa motor gücünü kes (araç kendi momentumuyla süzülür)
                 wcFL.motorTorque = 0f;
                 wcFR.motorTorque = 0f;
             }
 
-            // ARKA TEKERLEK KİLİTLENMESİNİ (DRAG) ÖNLEME
             float antiDragTorque = (Mathf.Abs(gasBrakeInput) > 0.1f) ? 0.001f : 0f;
             wcBL.motorTorque = antiDragTorque;
             wcBR.motorTorque = antiDragTorque;
@@ -205,8 +232,6 @@ public class TractorController : NetworkBehaviour, IInteractable
 
         float currentSteerAngle = steeringInput * maxSteerAngle;
 
-        // ACKERMANN GEOMETRİSİ
-        // Tekerleğin çok fazla yan dönmesini engellemek için çarpan 1.3f'ten 1.15f'e düşürüldü.
         if (steeringInput > 0.1f)
         {
             wcFL.steerAngle = currentSteerAngle;
