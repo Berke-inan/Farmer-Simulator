@@ -32,6 +32,12 @@ public class TractorController : NetworkBehaviour, IInteractable
     [Tooltip("Traktöre eklediğiniz TractorCameraController scriptini buraya sürükleyin.")]
     public TractorCameraController cameraController;
 
+    [Header("Ağ Tekerlek Senkronizasyonu")]
+    public NetworkVariable<float> netSteerAngle = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public NetworkVariable<float> netWheelRPM = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+    private float clientSpinAngle = 0f;
+
     private InputSystem_Actions inputActions;
     private float gasBrakeInput;
     private float steeringInput;
@@ -52,7 +58,6 @@ public class TractorController : NetworkBehaviour, IInteractable
         }
     }
 
-    // DIŞARIDAN BİNMEK İÇİN (Raycast ile tetiklenir)
     public void Interact(NetworkObject interactor)
     {
         if (!IsOccupied)
@@ -89,8 +94,6 @@ public class TractorController : NetworkBehaviour, IInteractable
             if (playerObj.IsOwner)
             {
                 inputActions.Player.Enable();
-
-                // BİNDİĞİMİZDE: İnme tuşunu dinlemeye başla
                 inputActions.Player.Interact.started += OnInteractPressed;
 
                 if (cameraController != null)
@@ -101,7 +104,6 @@ public class TractorController : NetworkBehaviour, IInteractable
         }
     }
 
-    // İÇERİDEN İNMEK İÇİN (Tuş dinleyicisi tetikler)
     private void OnInteractPressed(InputAction.CallbackContext context)
     {
         if (IsOccupied && IsOwner)
@@ -130,7 +132,6 @@ public class TractorController : NetworkBehaviour, IInteractable
 
             if (currentDriver.IsOwner)
             {
-                // İNDİĞİMİZDE: Tuş dinlemeyi bırak ki hata vermesin
                 inputActions.Player.Interact.started -= OnInteractPressed;
                 inputActions.Player.Disable();
 
@@ -151,11 +152,9 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (player.TryGetComponent(out CharacterController characterController)) characterController.enabled = state;
         if (player.TryGetComponent(out PlayerInteractor interactor)) interactor.enabled = state;
 
-        
         Animator animator = player.GetComponentInChildren<Animator>();
         if (animator != null)
         {
-            
             animator.SetBool("isDriving", !state);
         }
 
@@ -173,19 +172,63 @@ public class TractorController : NetworkBehaviour, IInteractable
 
     private void Update()
     {
-        if (wcFL != null && visualFL != null) UpdateSingleWheel(wcFL, visualFL);
-        if (wcFR != null && visualFR != null) UpdateSingleWheel(wcFR, visualFR);
-        if (wcBL != null && visualBL != null) UpdateSingleWheel(wcBL, visualBL);
-        if (wcBR != null && visualBR != null) UpdateSingleWheel(wcBR, visualBR);
+        if (IsOwner)
+        {
+            // Owner (Aracı Süren) normal fiziksel tekerlekleri kullanır
+            if (wcFL != null && visualFL != null) UpdateSingleWheel(wcFL, visualFL);
+            if (wcFR != null && visualFR != null) UpdateSingleWheel(wcFR, visualFR);
+            if (wcBL != null && visualBL != null) UpdateSingleWheel(wcBL, visualBL);
+            if (wcBR != null && visualBR != null) UpdateSingleWheel(wcBR, visualBR);
+        }
+        else
+        {
+            // İzleyen Client'lar ağdan gelen verilerle tekerlekleri görsel olarak çevirir
+            AnimateWheelsForClient();
+        }
+    }
+
+    private void AnimateWheelsForClient()
+    {
+        // Devir (RPM) değerini saniyedeki dereceye çevir
+        float degreesPerSecond = netWheelRPM.Value * 360f / 60f;
+        clientSpinAngle += degreesPerSecond * Time.deltaTime;
+
+        // WheelCollider'lara direksiyon açısını ver (GetWorldPose direksiyonu doğru okusun diye)
+        if (wcFL != null) wcFL.steerAngle = netSteerAngle.Value;
+        if (wcFR != null) wcFR.steerAngle = netSteerAngle.Value;
+
+        // Pozisyon ve direksiyon açısı WheelCollider'dan alınır, ileri dönüş (spin) üzerine eklenir
+        if (wcFL != null && visualFL != null) UpdateClientWheel(wcFL, visualFL, clientSpinAngle);
+        if (wcFR != null && visualFR != null) UpdateClientWheel(wcFR, visualFR, clientSpinAngle);
+        if (wcBL != null && visualBL != null) UpdateClientWheel(wcBL, visualBL, clientSpinAngle);
+        if (wcBR != null && visualBR != null) UpdateClientWheel(wcBR, visualBR, clientSpinAngle);
+    }
+
+    private void UpdateClientWheel(WheelCollider wc, Transform visual, float spinAngle)
+    {
+        wc.GetWorldPose(out Vector3 pos, out Quaternion rot);
+        visual.position = pos;
+
+        // rot: Süspansiyon ve direksiyon rotasyonu
+        // Dönüşü lokal X ekseninde mevcut rotasyonun üzerine ekliyoruz
+        visual.rotation = rot * Quaternion.Euler(spinAngle, 0f, 0f);
     }
 
     private void FixedUpdate()
     {
-        if (!IsOccupied || !IsOwner) return;
+        if (!IsOwner) return;
+
+        // Her durumda tekerlek devrini ve açısını ağa gönder (traktör boşken bayırdan aşağı kayabilir)
+        if (wcFL != null)
+        {
+            netWheelRPM.Value = wcFL.rpm;
+            netSteerAngle.Value = wcFL.steerAngle;
+        }
+
+        if (!IsOccupied) return;
 
         gasBrakeInput = inputActions.Player.GasBrake.ReadValue<float>();
         steeringInput = inputActions.Player.Steering.ReadValue<float>();
-
         isBraking = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
 
         float currentTorque = gasBrakeInput * motorTorque;
