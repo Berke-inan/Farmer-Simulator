@@ -19,6 +19,12 @@ public class TractorController : NetworkBehaviour, IInteractable
     public float brakeForce = 3000f;
     public float maxSpeedKmh = 70f;
 
+    // --- YENİ EKLENEN: Direksiyon Dönüş Hızı ---
+    [Tooltip("Direksiyonun ne kadar hızlı döneceği (Düşük sayı = Daha yavaş ve ağır direksiyon)")]
+    public float steerSpeed = 1.5f;
+    private float smoothedSteeringInput = 0f; // Mevcut yumuşatılmış girdi
+    // ------------------------------------------
+
     [Header("Traktöre Binme Ayarları")]
     public Transform driverSeat;
     public TractorCameraController cameraController;
@@ -27,10 +33,8 @@ public class TractorController : NetworkBehaviour, IInteractable
     public NetworkVariable<float> netSteerAngle = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public NetworkVariable<float> netWheelRPM = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
-    // --- YENİ EKLENEN: Diğer scriptlerin okuyabileceği sürüş bilgileri ---
     public float CurrentGasInput { get; private set; }
     public bool IsDrivenByMe => currentDriver != null && IsOwner;
-    // ----------------------------------------------------------------------
 
     private float clientSpinAngle = 0f;
     private InputSystem_Actions inputActions;
@@ -183,12 +187,18 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (!IsOccupied)
         {
             CurrentGasInput = 0f;
+            smoothedSteeringInput = 0f; // Kimse yoksa direksiyonu merkeze çek
             return;
         }
 
         CurrentGasInput = inputActions.Player.GasBrake.ReadValue<float>();
         steeringInput = inputActions.Player.Steering.ReadValue<float>();
         isBraking = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
+
+        // --- YENİ EKLENEN: Direksiyon Yumuşatma İşlemi ---
+        // Mevcut girişi, hedef girişe (steeringInput) steerSpeed hızında yaklaştırıyoruz
+        smoothedSteeringInput = Mathf.MoveTowards(smoothedSteeringInput, steeringInput, Time.fixedDeltaTime * steerSpeed);
+        // ------------------------------------------------
 
         float currentTorque = CurrentGasInput * motorTorque;
 
@@ -201,7 +211,7 @@ public class TractorController : NetworkBehaviour, IInteractable
         {
             wcFL.brakeTorque = wcFR.brakeTorque = wcBL.brakeTorque = wcBR.brakeTorque = 0f;
 
-            float turnCompensation = 1f + (Mathf.Abs(steeringInput) * 0.2f);
+            float turnCompensation = 1f + (Mathf.Abs(smoothedSteeringInput) * 0.2f);
             float compensatedTorque = currentTorque * turnCompensation;
 
             if (rb.linearVelocity.magnitude * 3.6f < maxSpeedKmh)
@@ -217,13 +227,14 @@ public class TractorController : NetworkBehaviour, IInteractable
             wcBL.motorTorque = wcBR.motorTorque = antiDragTorque;
         }
 
-        float currentSteerAngle = steeringInput * maxSteerAngle;
-        if (steeringInput > 0.1f)
+        // --- DEĞİŞTİ: Artık smoothedSteeringInput kullanıyoruz ---
+        float currentSteerAngle = smoothedSteeringInput * maxSteerAngle;
+        if (smoothedSteeringInput > 0.1f)
         {
             wcFL.steerAngle = currentSteerAngle;
             wcFR.steerAngle = currentSteerAngle * 1.15f;
         }
-        else if (steeringInput < -0.1f)
+        else if (smoothedSteeringInput < -0.1f)
         {
             wcFL.steerAngle = currentSteerAngle * 1.15f;
             wcFR.steerAngle = currentSteerAngle;
