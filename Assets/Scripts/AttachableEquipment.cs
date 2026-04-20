@@ -4,6 +4,13 @@ using Unity.Netcode;
 [RequireComponent(typeof(Rigidbody))]
 public class AttachableEquipment : NetworkBehaviour
 {
+    // YENÝ EKLENEN: Ekipman Tipleri
+    public enum EquipmentType { Trailer, Header }
+
+    [Header("Ekipman Kimliði")]
+    [Tooltip("Bu ekipman arkaya takýlacak bir Römork mu, öne takýlacak bir Biçer mi?")]
+    public EquipmentType type;
+
     [Header("Baðlantý Ayarlarý")]
     public Transform hitchPoint;
 
@@ -21,7 +28,6 @@ public class AttachableEquipment : NetworkBehaviour
         rb = GetComponent<Rigidbody>();
 
         // 1. KESÝN ÇÖZÜM: Römorkun fiziksel uyku modunu tamamen kapat!
-        // Böylece traktör durduðunda römork "taþ" kesilmeyecek.
         rb.sleepThreshold = 0f;
 
         initialOffsets = new Quaternion[wheelColliders.Length];
@@ -43,8 +49,6 @@ public class AttachableEquipment : NetworkBehaviour
         {
             if (wheelColliders[i] != null && visualWheels.Length > i && visualWheels[i] != null)
             {
-                // motorTorque = 0.0001f; satýrýný sildik! Hayalet dönüþ bitti.
-
                 wheelColliders[i].GetWorldPose(out Vector3 pos, out Quaternion rot);
                 visualWheels[i].position = pos;
                 visualWheels[i].rotation = rot * initialOffsets[i];
