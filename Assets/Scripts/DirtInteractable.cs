@@ -1,29 +1,44 @@
 using Unity.Netcode;
 using UnityEngine;
 
+[System.Serializable]
+public class TohumAsamaVerisi
+{
+    public string tohumAdi;
+
+    [Tooltip("Bu tohumun bir sonraki aşamaya geçmesi için gereken süre (Saniye)")]
+    public float asamaGecisSuresi = 10f; // Süre değişkeni buraya taşındı
+
+    public GameObject[] asamalar;
+}
+
 public class DirtInteractable : NetworkBehaviour, IInteractable
 {
-    [Header("Görseller")]
-    [Tooltip("Sırasıyla ekin görsellerini atayın. Element 0 = ID 1 (Beyaz), Element 1 = ID 2 (Sarı) vs.")]
-    public GameObject[] ekinGorselleri;
+    [Header("Ekin Ayarları")]
+    public TohumAsamaVerisi[] tohumListesi;
 
-    // 0 değeri toprağın boş olduğunu temsil eder
     private NetworkVariable<int> ekiliTohumID = new NetworkVariable<int>(0);
+    private NetworkVariable<int> mevcutAsama = new NetworkVariable<int>(0);
+
+    private float buyumeSayaci = 0f;
 
     public override void OnNetworkSpawn()
     {
-        ekiliTohumID.OnValueChanged += OnTohumDegisti;
-        GorselleriGuncelle(ekiliTohumID.Value);
+        ekiliTohumID.OnValueChanged += OnVeriDegisti;
+        mevcutAsama.OnValueChanged += OnVeriDegisti;
+
+        GorselleriGuncelle();
     }
 
     public override void OnNetworkDespawn()
     {
-        ekiliTohumID.OnValueChanged -= OnTohumDegisti;
+        ekiliTohumID.OnValueChanged -= OnVeriDegisti;
+        mevcutAsama.OnValueChanged -= OnVeriDegisti;
     }
 
     public void Interact(NetworkObject interactor)
     {
-        if (ekiliTohumID.Value != 0) return; // Zaten ekili
+        if (ekiliTohumID.Value != 0) return;
 
         if (interactor.TryGetComponent(out PlayerInventory inventory))
         {
@@ -38,36 +53,69 @@ public class DirtInteractable : NetworkBehaviour, IInteractable
     private void TohumEkServerRpc(int ekilecekID)
     {
         ekiliTohumID.Value = ekilecekID;
+        mevcutAsama.Value = 0;
+        buyumeSayaci = 0f;
     }
 
-    private void OnTohumDegisti(int eskiDeger, int yeniDeger)
+    void Update()
     {
-        GorselleriGuncelle(yeniDeger);
-    }
+        if (!IsServer) return;
 
-    private void GorselleriGuncelle(int tohumID)
-    {
-        // Önce tüm görselleri gizle
-        for (int i = 0; i < ekinGorselleri.Length; i++)
+        if (ekiliTohumID.Value > 0)
         {
-            if (ekinGorselleri[i] != null)
+            int tohumIndex = ekiliTohumID.Value - 1;
+
+            if (tohumIndex >= 0 && tohumIndex < tohumListesi.Length)
             {
-                ekinGorselleri[i].SetActive(false);
+                int maksimumAsama = tohumListesi[tohumIndex].asamalar.Length - 1;
+
+                if (mevcutAsama.Value < maksimumAsama)
+                {
+                    buyumeSayaci += Time.deltaTime;
+
+                    // Sayacı kontrol ederken, artık doğrudan o tohumun kendi özel süresine bakılıyor
+                    float hedefSure = tohumListesi[tohumIndex].asamaGecisSuresi;
+
+                    if (buyumeSayaci >= hedefSure)
+                    {
+                        buyumeSayaci = 0f;
+                        mevcutAsama.Value++;
+                    }
+                }
+            }
+        }
+    }
+
+    private void OnVeriDegisti(int eskiDeger, int yeniDeger)
+    {
+        GorselleriGuncelle();
+    }
+
+    private void GorselleriGuncelle()
+    {
+        for (int i = 0; i < tohumListesi.Length; i++)
+        {
+            for (int j = 0; j < tohumListesi[i].asamalar.Length; j++)
+            {
+                if (tohumListesi[i].asamalar[j] != null)
+                {
+                    tohumListesi[i].asamalar[j].SetActive(false);
+                }
             }
         }
 
-        // Eğer tohumID 0'dan büyükse ilgili görseli aç
-        if (tohumID > 0)
+        if (ekiliTohumID.Value > 0)
         {
-            // ID'ler 1'den, array indeksleri 0'dan başladığı için (tohumID - 1) yapılıyor.
-            int arrayIndex = tohumID - 1;
+            int tohumIndex = ekiliTohumID.Value - 1;
 
-            // Güvenlik kontrolü: Array sınırları içinde mi?
-            if (arrayIndex >= 0 && arrayIndex < ekinGorselleri.Length)
+            if (tohumIndex >= 0 && tohumIndex < tohumListesi.Length)
             {
-                if (ekinGorselleri[arrayIndex] != null)
+                int asamaIndex = Mathf.Clamp(mevcutAsama.Value, 0, tohumListesi[tohumIndex].asamalar.Length - 1);
+
+                GameObject aktifGorsel = tohumListesi[tohumIndex].asamalar[asamaIndex];
+                if (aktifGorsel != null)
                 {
-                    ekinGorselleri[arrayIndex].SetActive(true);
+                    aktifGorsel.SetActive(true);
                 }
             }
         }
