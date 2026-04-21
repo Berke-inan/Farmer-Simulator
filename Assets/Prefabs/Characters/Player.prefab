@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 9215371439374291450}
   - component: {fileID: 5728171432467663253}
   - component: {fileID: -5414915901522307759}
+  - component: {fileID: 5718718330254482848}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -112,7 +113,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1223083310
+  GlobalObjectIdHash: 2204666212
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -154,8 +155,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
-  walkSpeed: 3
-  runSpeed: 9
+  walkSpeed: 10
+  runSpeed: 30
   jumpHeight: 1
   gravity: -10
 --- !u!143 &2966061148859928136
@@ -302,6 +303,20 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   interactionDistance: 15
   playerCamera: {fileID: 4370075213581412818}
+--- !u!114 &5718718330254482848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864111185607732302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c5f5fe993f2ef249a4bfd9bf7266a64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+  ShowTopMostFoldoutHeaderGroup: 1
+  currentSeedID: 0
 --- !u!1 &2772005619223278391
 GameObject:
   m_ObjectHideFlags: 0

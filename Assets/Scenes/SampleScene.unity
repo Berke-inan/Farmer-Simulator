@@ -1646,6 +1646,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66cba96b5b6148d4781d8f31960fa324, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkUIToolkitManager
+  autoStartHostForTesting: 1
 --- !u!114 &589119220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2392,7 +2393,7 @@ MonoBehaviour:
   initialAccelSound: {fileID: 8300000, guid: 0c3c087d1825c7a49aea9f6b32678cc6, type: 3}
   throttleResumeSound: {fileID: 8300000, guid: 0106aed54420bb04c8b5769f9d1725cb, type: 3}
   decelerationSound: {fileID: 8300000, guid: ed681374f23252945b5752025c14d743, type: 3}
-  masterVolume: 1
+  masterVolume: 0.08
   fadeSpeed: 5
   maxPitch: 1.5
   maxSpeedForPitch: 70
@@ -5126,7 +5127,7 @@ MonoBehaviour:
     Enabled: 0
     DefaultMode: 2
   DefaultBlend:
-    Style: 1
+    Style: 0
     Time: 2
     CustomCurve:
       serializedVersion: 2
