@@ -28,12 +28,8 @@ public class CubeInteractable : NetworkBehaviour, IInteractable
 
         if (spawnedSphere.TryGetComponent(out NetworkObject sphereObj))
         {
+            // Sadece sahipliği vererek ağa dahil et, RPC göndermeye gerek kalmadı
             sphereObj.SpawnWithOwnership(clientId);
-
-            if (spawnedSphere.TryGetComponent(out SphereFollower follower))
-            {
-                follower.SetTargetClientRpc(clientId);
-            }
         }
     }
 }
