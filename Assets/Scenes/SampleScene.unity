@@ -4439,7 +4439,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeInteractable
   ShowTopMostFoldoutHeaderGroup: 1
-  spherePrefab: {fileID: 9040190651783658693, guid: b627b2b3cbc653a48b2f416554064d64, type: 3}
+  spherePrefab: {fileID: 7226053109832198535, guid: 133e067dc97b6834c916501bd4efabdc, type: 3}
   verilecekTohumID: 1
 --- !u!4 &1631088619 stripped
 Transform:
