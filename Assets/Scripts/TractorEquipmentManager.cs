@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
 
@@ -10,7 +10,7 @@ public class TractorEquipmentManager : NetworkBehaviour
     public Transform frontHitchPoint; // Biçer için (Ön)
 
     private AttachableEquipment equipmentInRange;
-    private string currentTriggerSide = ""; // "Front" veya "Rear"
+    //private string currentTriggerSide = ""; // "Front" veya "Rear"
     private ConfigurableJoint currentJoint;
     private TractorController tractorController;
 

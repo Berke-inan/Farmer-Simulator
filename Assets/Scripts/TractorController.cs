@@ -109,7 +109,7 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (currentDriver != null)
         {
-            currentDriver.transform.position = transform.position + transform.right * -4f;
+            currentDriver.transform.position = transform.position + transform.right * -4f + Vector3.down * 3.5f;
             if (currentDriver.IsOwner)
             {
                 inputActions.Player.Interact.started -= OnInteractPressed;

@@ -300,7 +300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractor
   ShowTopMostFoldoutHeaderGroup: 1
-  interactionDistance: 3
+  interactionDistance: 15
   playerCamera: {fileID: 4370075213581412818}
 --- !u!1 &2772005619223278391
 GameObject:
