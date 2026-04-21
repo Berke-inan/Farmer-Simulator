@@ -11,34 +11,34 @@ public class SphereFollower : NetworkBehaviour
 
     void Update()
     {
-        // Obje henüz ağda tam olarak spawn olmadıysa işlem yapma
+        // Obje henüz ağda tam olarak spawn olmadıysa işlem yapılmaz
         if (!IsSpawned) return;
 
-        // Hedef kamera henüz bulunamadıysa bulmayı dene
+        // Hedef kamera henüz bulunamadıysa arama işlemi yapılır
         if (targetCamera == null)
         {
-            // RPC ile gelen veri yerine, objenin doğrudan sahibini (OwnerClientId) kullan
-            if (NetworkManager.Singleton.ConnectedClients.TryGetValue(OwnerClientId, out NetworkClient client))
-            {
-                if (client.PlayerObject != null)
-                {
-                    PlayerInteractor interactor = client.PlayerObject.GetComponent<PlayerInteractor>();
+            // Ağ üzerinden objenin sahibini (Owner) bul
+            NetworkObject playerObj = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(OwnerClientId);
 
-                    if (interactor != null && interactor.playerCamera != null)
-                    {
-                        targetCamera = interactor.playerCamera;
-                    }
-                    else
-                    {
-                        // Kamera bulunamazsa yedek olarak gövdeyi hedef al
-                        targetCamera = client.PlayerObject.transform;
-                    }
+            if (playerObj != null)
+            {
+                // Sahibin üzerindeki PlayerInteractor scriptinden kameraya ulaş
+                if (playerObj.TryGetComponent(out PlayerInteractor interactor) && interactor.playerCamera != null)
+                {
+                    targetCamera = interactor.playerCamera;
+                }
+                else
+                {
+                    // Kamera yoksa gövde hedef alınır
+                    targetCamera = playerObj.transform;
                 }
             }
-            return; // Arama işlemi tamamlandığında bir sonraki frame (kare) takip başlayacak
+
+            // Arama bitti, takibe bir sonraki karede başlanır
+            return;
         }
 
-        // Hedef kamera bulunduysa yumuşak bir şekilde takip et
+        // Hedef kamera bulunduğunda yumuşak takip (Lerp) işlemi
         Vector3 targetPos = targetCamera.position + targetCamera.TransformDirection(offset);
         transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * followSpeed);
     }
