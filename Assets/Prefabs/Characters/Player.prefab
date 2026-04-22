@@ -157,7 +157,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   walkSpeed: 10
   runSpeed: 30
-  jumpHeight: 10
+  jumpHeight: 5
   gravity: -10
 --- !u!143 &2966061148859928136
 CharacterController:

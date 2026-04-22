@@ -77,7 +77,16 @@ PrefabInstance:
       addedObject: {fileID: -1863869590904597460}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7408817525843428500}
+      addedObject: {fileID: 4828579398828383694}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5390506949437469592}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 562801622352838114}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -1077355658375115819}
   m_SourcePrefab: {fileID: 100100000, guid: 47669afe5b5430141b917ee78924102d, type: 3}
 --- !u!1 &7226053109832198535 stripped
 GameObject:
@@ -109,7 +118,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &7408817525843428500
+--- !u!114 &4828579398828383694
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -118,9 +127,82 @@ MonoBehaviour:
   m_GameObject: {fileID: 7226053109832198535}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4ce2ac5161103a4b8c062d232e97294, type: 3}
+  m_Script: {fileID: 11500000, guid: 5d41fa61c8ca5f348b4a8319794d4241, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SphereFollower
+  m_EditorClassIdentifier: Assembly-CSharp::PickableTool
   ShowTopMostFoldoutHeaderGroup: 1
-  offset: {x: 0.8, y: -0.5, z: 1}
+  aletTipi: 1
+  offset: {x: 0.5, y: -0.4, z: 1}
   followSpeed: 10
+  isEquipped:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+--- !u!54 &5390506949437469592
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226053109832198535}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &562801622352838114
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226053109832198535}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.019498564, y: 0.01900969, z: 0.0752144}
+  m_Center: {x: 0, y: 0.0004951549, z: -0.00019485508}
+--- !u!114 &-1077355658375115819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226053109832198535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90054ed25bde0e44eb3805f8c9bcafa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TohumEylemi
+  ShowTopMostFoldoutHeaderGroup: 1
+  tohumID: 1
+  kalanMiktar:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 4

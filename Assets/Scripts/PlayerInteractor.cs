@@ -5,17 +5,26 @@ using UnityEngine.InputSystem;
 public class PlayerInteractor : NetworkBehaviour
 {
     public float interactionDistance = 3f;
-    public Transform playerCamera; // FPS kameranı buraya sürükle
+    public Transform playerCamera; // FPS kamerası
 
     private InputSystem_Actions inputActions;
+    private PlayerInventory inventory;
 
     public override void OnNetworkSpawn()
     {
         if (!IsOwner) return;
 
+        // Yere atma işlemi için envanter referansını al
+        inventory = GetComponent<PlayerInventory>();
+
         inputActions = new InputSystem_Actions();
         inputActions.Enable();
+
+        // E tuşu (Interact) tetiklendiğinde
         inputActions.Player.Interact.started += ctx => HandleInteraction();
+
+        // G tuşu (Drop) tetiklendiğinde
+        inputActions.Player.Drop.started += ctx => DropItem();
     }
 
     public override void OnNetworkDespawn()
@@ -23,6 +32,7 @@ public class PlayerInteractor : NetworkBehaviour
         if (IsOwner && inputActions != null)
         {
             inputActions.Player.Interact.started -= ctx => HandleInteraction();
+            inputActions.Player.Drop.started -= ctx => DropItem();
             inputActions.Disable();
         }
     }
@@ -39,6 +49,15 @@ public class PlayerInteractor : NetworkBehaviour
             {
                 interactable.Interact(NetworkObject); // Varsa etkileşimi tetikle
             }
+        }
+    }
+
+    private void DropItem()
+    {
+        // Envanter referansı varsa eldekini yere at fonksiyonunu çağır
+        if (inventory != null)
+        {
+            inventory.EldekiniYereAt();
         }
     }
 }

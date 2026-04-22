@@ -1,5 +1,39 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2981268023796716772
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9048536903025517198}
+  m_Layer: 0
+  m_Name: CornLevels
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9048536903025517198
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2981268023796716772}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8347269942587957950}
+  - {fileID: 6622520907842466740}
+  - {fileID: 4820632771080353983}
+  m_Father: {fileID: 1272503544637589666}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7034590324831946504
 GameObject:
   m_ObjectHideFlags: 0
@@ -13,7 +47,7 @@ GameObject:
   - component: {fileID: 3195452520309511058}
   - component: {fileID: 1237069724144663867}
   - component: {fileID: 2852599046895444892}
-  - component: {fileID: 5476782889923513635}
+  - component: {fileID: 4063574546958294890}
   m_Layer: 0
   m_Name: Dirt
   m_TagString: Untagged
@@ -34,9 +68,7 @@ Transform:
   m_LocalScale: {x: 5, y: 1, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8347269942587957950}
-  - {fileID: 6622520907842466740}
-  - {fileID: 4820632771080353983}
+  - {fileID: 9048536903025517198}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5123095095051982452
@@ -142,7 +174,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &5476782889923513635
+--- !u!114 &4063574546958294890
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -151,10 +183,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 7034590324831946504}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e100daa7e11e1c4687aefe9708682a8, type: 3}
+  m_Script: {fileID: 11500000, guid: cab115b4fa03efe438e9f93288387ac3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DirtInteractable
+  m_EditorClassIdentifier: Assembly-CSharp::SoilTile
   ShowTopMostFoldoutHeaderGroup: 1
+  normalToprakGorseli: {fileID: 7034590324831946504}
+  capalanmisToprakGorseli: {fileID: 3879856139261668244, guid: 78024cfc1d541c049b1026a2a8699b04, type: 3}
   tohumListesi:
   - tohumAdi: Corn
     asamaGecisSuresi: 4
@@ -193,7 +227,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5660872037722333455}
-  m_Father: {fileID: 1272503544637589666}
+  m_Father: {fileID: 9048536903025517198}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5348761628126475717
 MonoBehaviour:
@@ -207,7 +241,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2073023951
+  GlobalObjectIdHash: 3880556868
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -226,7 +260,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1272503544637589666}
+    m_TransformParent: {fileID: 9048536903025517198}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalScale.x
@@ -250,7 +284,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.000000023841855
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -262,11 +296,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -318,7 +352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 1206073119
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -415,7 +449,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1272503544637589666}
+    m_TransformParent: {fileID: 9048536903025517198}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalScale.x
@@ -439,7 +473,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.000000023841855
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -451,11 +485,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: af4a4f23ecb59fe4c9fa8b43b6a7bbb2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -502,7 +536,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 822279960
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
