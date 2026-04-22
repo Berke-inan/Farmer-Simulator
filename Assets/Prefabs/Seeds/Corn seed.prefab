@@ -87,6 +87,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       insertIndex: -1
       addedObject: {fileID: -1077355658375115819}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8117164284601253198}
   m_SourcePrefab: {fileID: 100100000, guid: 47669afe5b5430141b917ee78924102d, type: 3}
 --- !u!1 &7226053109832198535 stripped
 GameObject:
@@ -206,3 +209,19 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 4
+--- !u!114 &8117164284601253198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226053109832198535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54d2be72f47e52646bd2f778f4a00b4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BalyalanabilirObje
+  ShowTopMostFoldoutHeaderGroup: 1
+  objeTipi: Misir
+  balyaPrefab: {fileID: 4403703280173854512, guid: 758c98022b990fb448c053ecc8376c27, type: 3}
+  aramaYaricapi: 100
