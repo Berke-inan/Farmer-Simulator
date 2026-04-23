@@ -7,6 +7,10 @@ public class TractorCameraController : NetworkBehaviour
     [Header("Kamera Referansı")]
     public CinemachineCamera tractorCam;
 
+    [Header("Dinamik Takip Noktası")]
+    [Tooltip("Traktörün içindeki boş CameraTarget objesini buraya sürükleyin")]
+    public Transform cameraTarget;
+
     [Header("Öncelik Ayarları")]
     public int activePriority = 20;
 
@@ -22,6 +26,17 @@ public class TractorCameraController : NetworkBehaviour
 
             // Başlangıçta önceliğini 0 yaparak sırasını beklemesini sağlıyoruz
             tractorCam.Priority = 0;
+
+            // ========================================================
+            // KESİN ÇÖZÜM: KODLA OTOMATİK ZORUNLU BAĞLANTI
+            // Cinemachine'e "Traktörün gövdesini değil, bizim o hareketli 
+            // CameraTarget noktamızı takip et" emrini veriyoruz.
+            // ========================================================
+            if (cameraTarget != null)
+            {
+                tractorCam.Follow = cameraTarget;
+                tractorCam.LookAt = cameraTarget;
+            }
         }
     }
 
