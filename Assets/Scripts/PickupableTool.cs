@@ -10,7 +10,11 @@ public class PickupableTool : NetworkBehaviour, IInteractable
     public Vector3 offset = new Vector3(0.5f, -0.4f, 1f);
     public float followSpeed = 10f;
 
+    [Header("Depolama Ayarları")]
+    public bool isStoreable = true;
+
     public NetworkVariable<bool> isEquipped = new NetworkVariable<bool>(false);
+    public NetworkVariable<bool> isStored = new NetworkVariable<bool>(false);
 
     private Transform targetCamera;
     private Collider aletCollider;
@@ -24,23 +28,27 @@ public class PickupableTool : NetworkBehaviour, IInteractable
 
     public override void OnNetworkSpawn()
     {
-        isEquipped.OnValueChanged += OnEquipStateChanged;
-        DurumuGuncelle(isEquipped.Value);
+        isEquipped.OnValueChanged += OnStateChanged;
+        isStored.OnValueChanged += OnStateChanged;
+        DurumuGuncelle();
     }
 
     public override void OnNetworkDespawn()
     {
-        isEquipped.OnValueChanged -= OnEquipStateChanged;
+        isEquipped.OnValueChanged -= OnStateChanged;
+        isStored.OnValueChanged -= OnStateChanged;
     }
 
-    private void OnEquipStateChanged(bool eski, bool yeni) { DurumuGuncelle(yeni); }
+    private void OnStateChanged(bool eski, bool yeni) { DurumuGuncelle(); }
 
-    private void DurumuGuncelle(bool equipped)
+    private void DurumuGuncelle()
     {
-        if (equipped)
+        // Elde veya depodaysa fizikleri ve collider'ı TAMAMEN kapat
+        if (isEquipped.Value || isStored.Value)
         {
             if (rb != null) rb.isKinematic = true;
             if (aletCollider != null) aletCollider.enabled = false;
+            if (isStored.Value) targetCamera = null;
         }
         else
         {
@@ -52,7 +60,8 @@ public class PickupableTool : NetworkBehaviour, IInteractable
 
     public void Interact(NetworkObject interactor)
     {
-        if (isEquipped.Value) return;
+        // Römorktaysa veya eldeyse doğrudan alınamaz
+        if (isEquipped.Value || isStored.Value) return;
 
         if (interactor.TryGetComponent(out PlayerInventory inventory))
         {
@@ -66,12 +75,12 @@ public class PickupableTool : NetworkBehaviour, IInteractable
     {
         NetworkObject.ChangeOwnership(oyuncuID);
         isEquipped.Value = true;
+        isStored.Value = false;
 
         if (NetworkManager.Singleton.ConnectedClients.TryGetValue(oyuncuID, out NetworkClient client))
         {
             if (client.PlayerObject.TryGetComponent(out PlayerInventory inventory))
             {
-                // Tohum id ve miktarı gitti, sadece objeyi ve tipini yolluyor
                 inventory.AletKusanServerRpc(NetworkObject, aletTipi);
             }
         }
@@ -84,6 +93,7 @@ public class PickupableTool : NetworkBehaviour, IInteractable
     {
         NetworkObject.RemoveOwnership();
         isEquipped.Value = false;
+        isStored.Value = false;
 
         transform.position = pozisyon + yon * 1f;
         if (rb != null) rb.AddForce(yon * 5f, ForceMode.Impulse);
@@ -91,7 +101,7 @@ public class PickupableTool : NetworkBehaviour, IInteractable
 
     void Update()
     {
-        if (!IsSpawned || !isEquipped.Value) return;
+        if (!IsSpawned || !isEquipped.Value || isStored.Value) return;
 
         if (targetCamera == null)
         {
