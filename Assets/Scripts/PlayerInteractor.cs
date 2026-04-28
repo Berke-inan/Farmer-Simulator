@@ -45,7 +45,10 @@ public class PlayerInteractor : NetworkBehaviour
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
         {
-            if (hit.collider.TryGetComponent(out IInteractable interactable))
+            // TryGetComponent yerine GetComponentInParent kullanıyoruz. 
+            // Böylece ışın kasanın zeminine bile çarpsa, ana objedeki Romork scriptini bulur.
+            IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+            if (interactable != null)
             {
                 interactable.Interact(NetworkObject);
             }
@@ -57,8 +60,9 @@ public class PlayerInteractor : NetworkBehaviour
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
         {
-            // Baktığımız objede İkincil Etkileşim (F tuşu) özelliği var mı?
-            if (hit.collider.TryGetComponent(out ISecondaryInteractable secondaryInteractable))
+            // Aynı şekilde F tuşu için de Parent (Ebeveyn) kontrolü ekliyoruz.
+            ISecondaryInteractable secondaryInteractable = hit.collider.GetComponentInParent<ISecondaryInteractable>();
+            if (secondaryInteractable != null)
             {
                 secondaryInteractable.SecondaryInteract(NetworkObject);
             }
