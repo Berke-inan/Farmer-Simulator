@@ -216,7 +216,7 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 4
-  minimumEkimMesafesi: 5
+  minimumEkimMesafesi: 3
 --- !u!114 &8117164284601253198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -232,4 +232,4 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   objeTipi: Misir
   balyaPrefab: {fileID: 4403703280173854512, guid: 758c98022b990fb448c053ecc8376c27, type: 3}
-  aramaYaricapi: 100
+  aramaYaricapi: 5

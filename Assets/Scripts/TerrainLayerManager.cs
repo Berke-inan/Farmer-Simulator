@@ -73,7 +73,7 @@ public class TerrainLayerManager : NetworkBehaviour
                 if (activeChanges[i].targetLayer == normalLayerIndex)
                 {
                     // ÇÖZÜM 1: Arama yarıçapını 0.5f'ten 1.5f'e çıkardık (Hafif yana ekilmiş olsa bile bulur)
-                    Collider[] ekinler = Physics.OverlapSphere(activeChanges[i].worldPos, 1.5f);
+                    Collider[] ekinler = Physics.OverlapSphere(activeChanges[i].worldPos, 3f);
                     bool ekinVarMi = false;
 
                     foreach (var col in ekinler)

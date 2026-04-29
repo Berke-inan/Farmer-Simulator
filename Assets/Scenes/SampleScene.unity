@@ -872,7 +872,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66cba96b5b6148d4781d8f31960fa324, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkUIToolkitManager
-  autoStartHostForTesting: 1
+  autoStartHostForTesting: 0
 --- !u!114 &589119220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1132,8 +1132,8 @@ MonoBehaviour:
   tilledLayerIndex: 1
   wetLayerIndex: 2
   brushSize: 3
-  kurumaSuresi: 5
-  duzelmeSuresi: 5
+  kurumaSuresi: 20
+  duzelmeSuresi: 20
 --- !u!1001 &787640873
 PrefabInstance:
   m_ObjectHideFlags: 0
