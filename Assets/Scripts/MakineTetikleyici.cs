@@ -4,47 +4,59 @@ using Unity.Netcode;
 public class MakineTetikleyici : NetworkBehaviour
 {
     private IUseableTool uzerindekiAlet;
-    private AttachableEquipment anaGovde; // Ekipmanýn ana beyni
+    private AttachableEquipment anaGovde;
+
+    [Header("Optimizasyon")]
+    [Tooltip("Makine topraÄŸÄ± saniyede kaÃ§ kere iÅŸlesin? Ã‡ok dÃ¼ÅŸÃ¼k olursa FPS dÃ¼ÅŸer.")]
+    public float islemAraligi = 0.1f;
+    private float islemSayaci = 0f;
 
     private void Awake()
     {
         uzerindekiAlet = GetComponent<IUseableTool>();
-        anaGovde = GetComponent<AttachableEquipment>(); // Kendi objesindeki AttachableEquipment'ý bulur
+        anaGovde = GetComponent<AttachableEquipment>();
 
         if (uzerindekiAlet == null)
         {
-            Debug.LogError("DÝKKAT: Pulluðun üzerinde IUseableTool (CapaEylemi vb.) kodu bulunamadý!");
+            Debug.LogError("DÄ°KKAT: PulluÄŸun Ã¼zerinde IUseableTool (CapaEylemi vb.) kodu bulunamadÄ±!");
         }
 
         if (anaGovde == null)
         {
-            Debug.LogError("DÝKKAT: Makinenin üzerinde AttachableEquipment kodu bulunamadý!");
+            Debug.LogError("DÄ°KKAT: Makinenin Ã¼zerinde AttachableEquipment kodu bulunamadÄ±!");
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        // Debug.Log("Sensör bir þeye deðdi: " + other.gameObject.name);
-
         if (!IsServer) return;
 
-        // --- DEÐÝÞEN KISIM: Ýzni anaGövde'den (AttachableEquipment) alýyoruz ---
-        if (anaGovde == null || !anaGovde.isWorking.Value)
-        {
-            // Ýstersen konsol kirlenmesin diye buradaki Debug.Log'u silebilirsin
-            // Debug.Log("Ýþlem Ýptal: Makine kapalý"); 
-            return;
-        }
+        if (anaGovde == null || !anaGovde.isWorking.Value) return;
 
         if (uzerindekiAlet == null) return;
 
-        // Deðdiði þey Toprak mý?
-        if (other.TryGetComponent(out SoilTile toprak))
-        {
-            // Debug.Log("TOPRAK BULUNDU! Topraðýn þu anki durumu: " + toprak.MevcutDurum);
+        // Performans iÃ§in bekleme sÃ¼resi kontrolÃ¼
+        islemSayaci += Time.deltaTime;
+        if (islemSayaci < islemAraligi) return;
 
-            // Alete eylem yapmasýný söyle
-            uzerindekiAlet.EylemYap(toprak, null);
+        // DeÄŸdiÄŸi ÅŸey Terrain mi?
+        if (other is TerrainCollider)
+        {
+            // Aletler RaycastHit beklediÄŸi iÃ§in, sensÃ¶rÃ¼n biraz yukarÄ±sÄ±ndan aÅŸaÄŸÄ± doÄŸru Ä±ÅŸÄ±n atÄ±yoruz
+            Vector3 baslangicNoktasi = transform.position + Vector3.up * 0.5f;
+
+            if (Physics.Raycast(baslangicNoktasi, Vector3.down, out RaycastHit hit, 2f))
+            {
+                if (hit.collider is TerrainCollider)
+                {
+                    // IÅŸÄ±n topraÄŸÄ± vurduÄŸunda aleti Ã§alÄ±ÅŸtÄ±rÄ±yoruz
+                    // Envanter (PlayerInventory) parametresi makine iÃ§in null gÃ¶nderilir
+                    uzerindekiAlet.EylemYap(hit, null);
+
+                    // Ä°ÅŸlem baÅŸarÄ±lÄ± olunca sayacÄ± sÄ±fÄ±rla
+                    islemSayaci = 0f;
+                }
+            }
         }
     }
 }
