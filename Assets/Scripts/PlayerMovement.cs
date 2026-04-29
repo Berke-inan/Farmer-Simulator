@@ -11,6 +11,9 @@ public class PlayerMovement : NetworkBehaviour
     public float jumpHeight = 1.5f;
     public float gravity = -9.81f;
 
+    private float jumpCooldownTimer = 0f;
+    private float jumpCooldownDuration = 0.5f;
+
     private Vector3 velocity;
     private CharacterController controller;
     private Animator animator;
@@ -19,20 +22,10 @@ public class PlayerMovement : NetworkBehaviour
     private Vector2 moveInput;
     private bool isRunning;
 
-    // --- EKLENEN KISIM: Cooldown Sayacı ---
-    private float jumpCooldown = 0f;
-
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
-    }
-
-    // --- EKLENEN KISIM: Script her aktif edildiğinde (traktörden inince) çalışır ---
-    private void OnEnable()
-    {
-        jumpCooldown = 0.2f;     // 0.2 saniyelik zıplama yasağı koyar
-        velocity = Vector3.zero; // Birikmiş düşüş hızını sıfırlar (yere saplanmayı önler)
     }
 
     public override void OnNetworkSpawn()
@@ -40,12 +33,16 @@ public class PlayerMovement : NetworkBehaviour
         if (IsOwner)
         {
             controls = new InputSystem_Actions();
-            controls.Enable();
 
             controls.Player.Jump.started += ctx => Jump();
-
             controls.Player.Sprint.started += ctx => isRunning = true;
             controls.Player.Sprint.canceled += ctx => isRunning = false;
+
+            // Script zaten aktifse (OnEnable daha önce çalıştıysa) inputları etkinleştir
+            if (enabled)
+            {
+                controls.Enable();
+            }
         }
     }
 
@@ -60,14 +57,39 @@ public class PlayerMovement : NetworkBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        // Script aktif olduğunda zıplamayı kısa süreliğine engelle
+        jumpCooldownTimer = jumpCooldownDuration;
+
+        // Kontroller oluşturulmuşsa etkinleştir
+        if (controls != null)
+        {
+            controls.Enable();
+        }
+    }
+
+    private void OnDisable()
+    {
+        // Script kapandığında (traktöre binildiğinde) eski hareket vektörlerini sıfırla
+        velocity = Vector3.zero;
+        moveInput = Vector2.zero;
+        isRunning = false;
+
+        // Arka planda tuşları dinlemeyi bırak
+        if (controls != null)
+        {
+            controls.Disable();
+        }
+    }
+
     private void Update()
     {
         if (!IsOwner) return;
 
-        // --- EKLENEN KISIM: Cooldown süresini geriye doğru saydır ---
-        if (jumpCooldown > 0)
+        if (jumpCooldownTimer > 0)
         {
-            jumpCooldown -= Time.deltaTime;
+            jumpCooldownTimer -= Time.deltaTime;
         }
 
         if (controls != null)
@@ -88,7 +110,7 @@ public class PlayerMovement : NetworkBehaviour
 
         // 3. Vektörleri Birleştirme
         Vector3 finalMovement = move * currentSpeed;
-        finalMovement.y = velocity.y; // Yatay harekete dikey (Y) hızını ekle
+        finalMovement.y = velocity.y;
 
         // 4. TEK BİR Move Çağrısı
         controller.Move(finalMovement * Time.deltaTime);
@@ -112,7 +134,11 @@ public class PlayerMovement : NetworkBehaviour
 
     private void Jump()
     {
-        if (controller.isGrounded && jumpCooldown <= 0f)
+        // Script veya obje devre dışıysa zıplama kodunu reddet
+        if (!enabled) return;
+
+        // Sadece karakter yerdeyse VE cooldown süresi dolduysa zıpla
+        if (controller.isGrounded && jumpCooldownTimer <= 0f)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
 

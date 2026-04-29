@@ -1,8 +1,14 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using Unity.Services.Core; // Unity Services için eklendi
+using Unity.Services.Authentication; // Relay kimlik doğrulaması için eklendi
 
 public class NetworkUIManager : MonoBehaviour
 {
+    [Header("Test Ayarları")]
+    [Tooltip("Aktif edildiğinde oyun başlar başlamaz otomatik Host kurar ve UI'ı gizler.")]
+    public bool autoStartHostForTesting = false;
+
     private VisualElement root;
     private Button hostBtn;
     private Button continueBtn;
@@ -13,7 +19,6 @@ public class NetworkUIManager : MonoBehaviour
     {
         root = GetComponent<UIDocument>().rootVisualElement;
 
-        // UXML'deki isimlerle çekiyoruz
         hostBtn = root.Q<Button>("HostButton");
         continueBtn = root.Q<Button>("ContinueButton");
         joinCodeField = root.Q<TextField>("JoinCodeField");
@@ -24,28 +29,57 @@ public class NetworkUIManager : MonoBehaviour
         root.Q<Button>("ClientButton").clicked += OnClientClicked;
     }
 
+    private async void Start()
+    {
+        if (autoStartHostForTesting)
+        {
+            try
+            {
+                // 1. Unity Services henüz başlatılmadıysa başlat
+                if (UnityServices.State == ServicesInitializationState.Uninitialized)
+                {
+                    await UnityServices.InitializeAsync();
+                }
+
+                // 2. Relay hizmeti anonim giriş gerektirir, yapılmadıysa giriş yap
+                if (!AuthenticationService.Instance.IsSignedIn)
+                {
+                    await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                }
+
+                Debug.Log("Test Modu: Servisler hazır, Host başlatılıyor...");
+                OnHostClicked();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Otomatik başlatma sırasında hata: " + e.Message);
+            }
+        }
+    }
+
     private async void OnHostClicked()
     {
-        // 1. Relay'i kur ve StartHost'u arkada çalıştır
         string code = await RelayManager.Instance.SetupAndStartRelay();
 
         if (!string.IsNullOrEmpty(code))
         {
-            // 2. Kodu göster ve panoya kopyala
             displayCodeLabel.text = "KOD: " + code;
             GUIUtility.systemCopyBuffer = code;
 
-            // 3. UI'ı değiştir: Host butonu gitsin, Devam (Kapat) butonu gelsin
             hostBtn.style.display = DisplayStyle.None;
             continueBtn.style.display = DisplayStyle.Flex;
 
             Debug.Log("Kodu arkadaşına atabilirsin, oyun hazır!");
+
+            if (autoStartHostForTesting)
+            {
+                root.style.display = DisplayStyle.None;
+            }
         }
     }
 
     private void OnContinueClicked()
     {
-        // Oyun zaten arkada açık, biz sadece menüyü gizliyoruz!
         root.style.display = DisplayStyle.None;
     }
 
@@ -55,7 +89,7 @@ public class NetworkUIManager : MonoBehaviour
         if (!string.IsNullOrEmpty(inputCode))
         {
             RelayManager.Instance.JoinRelay(inputCode);
-            root.style.display = DisplayStyle.None; // Katılınca da menüyü kapat
+            root.style.display = DisplayStyle.None;
         }
     }
 }

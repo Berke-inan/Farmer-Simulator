@@ -5,16 +5,10 @@ using Unity.Netcode;
 public class TractorController : NetworkBehaviour, IInteractable
 {
     [Header("Görsel Tekerlekler (3D Modeller)")]
-    public Transform visualFL;
-    public Transform visualFR;
-    public Transform visualBL;
-    public Transform visualBR;
+    public Transform visualFL, visualFR, visualBL, visualBR;
 
     [Header("Fiziksel Tekerlekler (Wheel Colliders)")]
-    public WheelCollider wcFL;
-    public WheelCollider wcFR;
-    public WheelCollider wcBL;
-    public WheelCollider wcBR;
+    public WheelCollider wcFL, wcFR, wcBL, wcBR;
 
     [Header("Fizik Ayarları")]
     public Transform centerOfMass;
@@ -25,52 +19,48 @@ public class TractorController : NetworkBehaviour, IInteractable
     public float brakeForce = 3000f;
     public float maxSpeedKmh = 70f;
 
+    // --- YENİ EKLENEN: Direksiyon Dönüş Hızı ---
+    [Tooltip("Direksiyonun ne kadar hızlı döneceği (Düşük sayı = Daha yavaş ve ağır direksiyon)")]
+    public float steerSpeed = 1.5f;
+    private float smoothedSteeringInput = 0f; // Mevcut yumuşatılmış girdi
+    // ------------------------------------------
+
     [Header("Traktöre Binme Ayarları")]
     public Transform driverSeat;
-
-    [Header("Kamera Kontrolcüsü")]
-    [Tooltip("Traktöre eklediğiniz TractorCameraController scriptini buraya sürükleyin.")]
     public TractorCameraController cameraController;
 
     [Header("Ağ Tekerlek Senkronizasyonu")]
     public NetworkVariable<float> netSteerAngle = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public NetworkVariable<float> netWheelRPM = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
-    private float clientSpinAngle = 0f;
+    public float CurrentGasInput { get; private set; }
+    public bool IsDrivenByMe => currentDriver != null && IsOwner;
 
+    private float clientSpinAngle = 0f;
     private InputSystem_Actions inputActions;
-    private float gasBrakeInput;
     private float steeringInput;
     private bool isBraking;
     private Rigidbody rb;
-
     private NetworkObject currentDriver;
+
     public bool IsOccupied => currentDriver != null;
 
     private void Awake()
     {
         inputActions = new InputSystem_Actions();
         rb = GetComponent<Rigidbody>();
-
-        if (centerOfMass != null)
-        {
-            rb.centerOfMass = centerOfMass.localPosition;
-        }
+        if (centerOfMass != null) rb.centerOfMass = centerOfMass.localPosition;
     }
 
     public void Interact(NetworkObject interactor)
     {
-        if (!IsOccupied)
-        {
-            MountTractorServerRpc(interactor.NetworkObjectId);
-        }
+        if (!IsOccupied) MountTractorServerRpc(interactor.NetworkObjectId);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void MountTractorServerRpc(ulong playerId)
     {
         if (IsOccupied) return;
-
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject playerObj))
         {
             GetComponent<NetworkObject>().ChangeOwnership(playerObj.OwnerClientId);
@@ -85,31 +75,22 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject playerObj))
         {
             currentDriver = playerObj;
-
             playerObj.transform.position = driverSeat.position;
             playerObj.transform.rotation = driverSeat.rotation;
-
             TogglePlayerComponents(playerObj, false);
 
             if (playerObj.IsOwner)
             {
                 inputActions.Player.Enable();
                 inputActions.Player.Interact.started += OnInteractPressed;
-
-                if (cameraController != null)
-                {
-                    cameraController.SetCameraActive(true);
-                }
+                if (cameraController != null) cameraController.SetCameraActive(true);
             }
         }
     }
 
     private void OnInteractPressed(InputAction.CallbackContext context)
     {
-        if (IsOccupied && IsOwner)
-        {
-            DismountTractorServerRpc();
-        }
+        if (IsOccupied && IsOwner) DismountTractorServerRpc();
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -128,19 +109,40 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (currentDriver != null)
         {
-            currentDriver.transform.position = transform.position + transform.right * -4f + Vector3.down * 2.5f;
+            // 1. Traktörün yönüne göre yatayda (Zemin hizasında) Sol tarafı bul
+            Vector3 safeLeft = Quaternion.Euler(0, transform.eulerAngles.y, 0) * Vector3.left;
+
+            // 2. Hedef X ve Z koordinatını traktörün 3.5 metre solu olarak belirle
+            Vector3 targetXZ = transform.position + (safeLeft * 3.5f);
+
+            // 3. KESİN ÇÖZÜM: Lazer (Raycast) ile yerin gerçek yüksekliğini bul
+            // Hedef noktanın 10 metre yukarısından (Havadan) aşağıya doğru bir lazer atıyoruz
+            Vector3 rayStart = new Vector3(targetXZ.x, transform.position.y + 10f, targetXZ.z);
+
+            if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 20f))
+            {
+                // ZEMİN BULUNDU: Karakteri bulduğu zeminin (hit.point) tam 1.5 metre yukarısına bırakır.
+                // Not: CharacterController ayağı yere 1 mm bile girse yerin altına düşer! 
+                // O yüzden 1.5m havadan bırakıyoruz, yerçekimi onu 0.1 saniyede yumuşakça çimlere oturtur.
+                currentDriver.transform.position = hit.point + (Vector3.up * 1.5f);
+            }
+            else
+            {
+                // Eğer lazer hiçbir şeye çarpmazsa (Örn: Uçurum kenarıysa) acil durum konumu
+                currentDriver.transform.position = targetXZ + (Vector3.up * 2f);
+            }
+
+            // Oyuncuyu dimdik (Yamulmamış) şekilde ayağa kaldır
+            currentDriver.transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
 
             if (currentDriver.IsOwner)
             {
                 inputActions.Player.Interact.started -= OnInteractPressed;
                 inputActions.Player.Disable();
-
-                if (cameraController != null)
-                {
-                    cameraController.SetCameraActive(false);
-                }
+                if (cameraController != null) cameraController.SetCameraActive(false);
             }
 
+            // Konumu sabitledikten sonra fizik kapsülünü geri aç
             TogglePlayerComponents(currentDriver, true);
             currentDriver = null;
         }
@@ -153,20 +155,13 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (player.TryGetComponent(out PlayerInteractor interactor)) interactor.enabled = state;
 
         Animator animator = player.GetComponentInChildren<Animator>();
-        if (animator != null)
-        {
-            animator.SetBool("isDriving", !state);
-        }
+        if (animator != null) animator.SetBool("isDriving", !state);
 
         if (player.IsOwner)
         {
             if (player.TryGetComponent(out PlayerCameraController camController)) camController.enabled = state;
-
             Unity.Cinemachine.CinemachineCamera playerCam = player.GetComponentInChildren<Unity.Cinemachine.CinemachineCamera>(true);
-            if (playerCam != null)
-            {
-                playerCam.Priority = state ? 10 : 0;
-            }
+            if (playerCam != null) playerCam.Priority = state ? 10 : 0;
         }
     }
 
@@ -174,7 +169,6 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (IsOwner)
         {
-            // Owner (Aracı Süren) normal fiziksel tekerlekleri kullanır
             if (wcFL != null && visualFL != null) UpdateSingleWheel(wcFL, visualFL);
             if (wcFR != null && visualFR != null) UpdateSingleWheel(wcFR, visualFR);
             if (wcBL != null && visualBL != null) UpdateSingleWheel(wcBL, visualBL);
@@ -182,22 +176,18 @@ public class TractorController : NetworkBehaviour, IInteractable
         }
         else
         {
-            // İzleyen Client'lar ağdan gelen verilerle tekerlekleri görsel olarak çevirir
             AnimateWheelsForClient();
         }
     }
 
     private void AnimateWheelsForClient()
     {
-        // Devir (RPM) değerini saniyedeki dereceye çevir
         float degreesPerSecond = netWheelRPM.Value * 360f / 60f;
         clientSpinAngle += degreesPerSecond * Time.deltaTime;
 
-        // WheelCollider'lara direksiyon açısını ver (GetWorldPose direksiyonu doğru okusun diye)
         if (wcFL != null) wcFL.steerAngle = netSteerAngle.Value;
         if (wcFR != null) wcFR.steerAngle = netSteerAngle.Value;
 
-        // Pozisyon ve direksiyon açısı WheelCollider'dan alınır, ileri dönüş (spin) üzerine eklenir
         if (wcFL != null && visualFL != null) UpdateClientWheel(wcFL, visualFL, clientSpinAngle);
         if (wcFR != null && visualFR != null) UpdateClientWheel(wcFR, visualFR, clientSpinAngle);
         if (wcBL != null && visualBL != null) UpdateClientWheel(wcBL, visualBL, clientSpinAngle);
@@ -208,9 +198,6 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         wc.GetWorldPose(out Vector3 pos, out Quaternion rot);
         visual.position = pos;
-
-        // rot: Süspansiyon ve direksiyon rotasyonu
-        // Dönüşü lokal X ekseninde mevcut rotasyonun üzerine ekliyoruz
         visual.rotation = rot * Quaternion.Euler(spinAngle, 0f, 0f);
     }
 
@@ -218,77 +205,93 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (!IsOwner) return;
 
-        // Her durumda tekerlek devrini ve açısını ağa gönder (traktör boşken bayırdan aşağı kayabilir)
         if (wcFL != null)
         {
             netWheelRPM.Value = wcFL.rpm;
             netSteerAngle.Value = wcFL.steerAngle;
         }
 
-        if (!IsOccupied) return;
+        if (!IsOccupied)
+        {
+            CurrentGasInput = 0f;
+            smoothedSteeringInput = 0f; // Kimse yoksa direksiyonu merkeze çek
 
-        gasBrakeInput = inputActions.Player.GasBrake.ReadValue<float>();
+            // ==========================================
+            // İNİNCE TRAKTÖRÜ ÇİVİLE
+            // Traktörden inildiği an tüm tekerlere tam fren basılır.
+            // ==========================================
+            if (wcFL != null)
+            {
+                wcFL.motorTorque = wcFR.motorTorque = wcBL.motorTorque = wcBR.motorTorque = 0f;
+                wcFL.brakeTorque = wcFR.brakeTorque = wcBL.brakeTorque = wcBR.brakeTorque = brakeForce;
+            }
+            return;
+        }
+
+        CurrentGasInput = inputActions.Player.GasBrake.ReadValue<float>();
         steeringInput = inputActions.Player.Steering.ReadValue<float>();
         isBraking = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
 
-        float currentTorque = gasBrakeInput * motorTorque;
+        smoothedSteeringInput = Mathf.MoveTowards(smoothedSteeringInput, steeringInput, Time.fixedDeltaTime * steerSpeed);
 
-        if (isBraking)
+        // ==========================================
+        // YENİ EKLENEN: AKTİF YÖN FRENİ SİSTEMİ
+        // ==========================================
+        float localForwardSpeed = transform.InverseTransformDirection(rb.linearVelocity).z;
+        bool isDirectionBraking = false;
+
+        // EĞER ileri gidiyorsa (hız > 1) VE oyuncu geriye (S) basıyorsa
+        // VEYA geri gidiyorsa (hız < -1) VE oyuncu ileriye (W) basıyorsa
+        if ((localForwardSpeed > 1f && CurrentGasInput < -0.1f) || (localForwardSpeed < -1f && CurrentGasInput > 0.1f))
         {
-            wcFL.brakeTorque = brakeForce;
-            wcFR.brakeTorque = brakeForce;
-            wcBL.brakeTorque = brakeForce;
-            wcBR.brakeTorque = brakeForce;
+            isDirectionBraking = true;
+        }
 
-            wcFL.motorTorque = 0f;
-            wcFR.motorTorque = 0f;
-            wcBL.motorTorque = 0f;
-            wcBR.motorTorque = 0f;
+        float currentTorque = CurrentGasInput * motorTorque;
+
+        // El freni veya yön freni tetiklendiyse durdur
+        if (isBraking || isDirectionBraking)
+        {
+            // W/S ile yapılan fren normal el freninden daha güçlü tutsun (x1.5)
+            float activeBrakeForce = isDirectionBraking ? brakeForce * 1.5f : brakeForce;
+
+            wcFL.brakeTorque = wcFR.brakeTorque = wcBL.brakeTorque = wcBR.brakeTorque = activeBrakeForce;
+            wcFL.motorTorque = wcFR.motorTorque = wcBL.motorTorque = wcBR.motorTorque = 0f;
         }
         else
         {
-            wcFL.brakeTorque = 0f;
-            wcFR.brakeTorque = 0f;
-            wcBL.brakeTorque = 0f;
-            wcBR.brakeTorque = 0f;
+            wcFL.brakeTorque = wcFR.brakeTorque = wcBL.brakeTorque = wcBR.brakeTorque = 0f;
 
-            float turnCompensation = 1f + (Mathf.Abs(steeringInput) * 2.0f);
+            float turnCompensation = 1f + (Mathf.Abs(smoothedSteeringInput) * 0.2f);
             float compensatedTorque = currentTorque * turnCompensation;
 
-            float currentSpeedKmh = rb.linearVelocity.magnitude * 3.6f;
-
-            if (currentSpeedKmh < maxSpeedKmh)
+            if (rb.linearVelocity.magnitude * 3.6f < maxSpeedKmh)
             {
-                wcFL.motorTorque = compensatedTorque;
-                wcFR.motorTorque = compensatedTorque;
+                wcFL.motorTorque = wcFR.motorTorque = compensatedTorque;
             }
             else
             {
-                wcFL.motorTorque = 0f;
-                wcFR.motorTorque = 0f;
+                wcFL.motorTorque = wcFR.motorTorque = 0f;
             }
 
-            float antiDragTorque = (Mathf.Abs(gasBrakeInput) > 0.1f) ? 0.001f : 0f;
-            wcBL.motorTorque = antiDragTorque;
-            wcBR.motorTorque = antiDragTorque;
+            float antiDragTorque = (Mathf.Abs(CurrentGasInput) > 0.1f) ? 0.001f : 0f;
+            wcBL.motorTorque = wcBR.motorTorque = antiDragTorque;
         }
 
-        float currentSteerAngle = steeringInput * maxSteerAngle;
-
-        if (steeringInput > 0.1f)
+        float currentSteerAngle = smoothedSteeringInput * maxSteerAngle;
+        if (smoothedSteeringInput > 0.1f)
         {
             wcFL.steerAngle = currentSteerAngle;
             wcFR.steerAngle = currentSteerAngle * 1.15f;
         }
-        else if (steeringInput < -0.1f)
+        else if (smoothedSteeringInput < -0.1f)
         {
             wcFL.steerAngle = currentSteerAngle * 1.15f;
             wcFR.steerAngle = currentSteerAngle;
         }
         else
         {
-            wcFL.steerAngle = currentSteerAngle;
-            wcFR.steerAngle = currentSteerAngle;
+            wcFL.steerAngle = wcFR.steerAngle = currentSteerAngle;
         }
     }
 
