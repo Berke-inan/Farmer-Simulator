@@ -117,6 +117,8 @@ public class TerrainLayerManager : NetworkBehaviour
     {
         TerrainData tData = terrain.terrainData;
         Vector3 terrainPos = worldPos - terrain.transform.position;
+
+        // --- 1. KISIM: ZEMİN DOKUSUNU BOYAMA (Mevcut Sistem) ---
         int mapX = (int)((terrainPos.x / tData.size.x) * tData.alphamapWidth);
         int mapZ = (int)((terrainPos.z / tData.size.z) * tData.alphamapHeight);
 
@@ -139,6 +141,53 @@ public class TerrainLayerManager : NetworkBehaviour
             }
         }
         tData.SetAlphamaps(mapX - offset, mapZ - offset, alphas);
+
+        // --- 2. KISIM: OTLARI VE ÇALILARI SİLME (Yeni Eklenen Sistem) ---
+        // Eğer toprağı çapalayıp "Tilled" layer'ına geçiriyorsak oradaki detayları sil
+        if (layerIndex == tilledLayerIndex)
+        {
+            int detRes = tData.detailResolution;
+            int numDetailLayers = tData.detailPrototypes.Length;
+
+            // Dünya koordinatını "Ot Haritası" koordinatına çeviriyoruz
+            int detX = (int)((terrainPos.x / tData.size.x) * detRes);
+            int detZ = (int)((terrainPos.z / tData.size.z) * detRes);
+
+            // Fırça boyutunu ot haritası çözünürlüğüne oranlıyoruz
+            float ratio = (float)detRes / tData.alphamapWidth;
+            int dBrush = Mathf.Max(1, Mathf.RoundToInt(brushSize * ratio));
+            int dOffset = dBrush / 2;
+
+            int startX = Mathf.Clamp(detX - dOffset, 0, detRes - 1);
+            int startZ = Mathf.Clamp(detZ - dOffset, 0, detRes - 1);
+
+            int endX = Mathf.Clamp(detX + dOffset, 0, detRes - 1);
+            int endZ = Mathf.Clamp(detZ + dOffset, 0, detRes - 1);
+
+            int sizeX = endX - startX;
+            int sizeZ = endZ - startZ;
+
+            // Eğer silinecek bir alan ve silinecek detay katmanı varsa işlemi yap
+            if (sizeX > 0 && sizeZ > 0 && numDetailLayers > 0)
+            {
+                for (int l = 0; l < numDetailLayers; l++)
+                {
+                    // O bölgedeki otları array olarak çekiyoruz
+                    int[,] details = tData.GetDetailLayer(startX, startZ, sizeX, sizeZ, l);
+
+                    for (int z = 0; z < sizeZ; z++)
+                    {
+                        for (int x = 0; x < sizeX; x++)
+                        {
+                            // Detay yoğunluğunu "0" yaparak otu kökünden siliyoruz
+                            details[z, x] = 0;
+                        }
+                    }
+                    // Temizlenmiş array'i Terrain'e geri kaydediyoruz
+                    tData.SetDetailLayer(startX, startZ, l, details);
+                }
+            }
+        }
     }
 
     public bool IsSoilTilled(Vector3 worldPos)

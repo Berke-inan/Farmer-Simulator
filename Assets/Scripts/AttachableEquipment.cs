@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.InputSystem; // Yeni Input Sistemi Kütüphanesi
 
@@ -69,7 +69,7 @@ public class AttachableEquipment : NetworkBehaviour
     }
 
     // RequireOwnership = false sayesinde aleti traktöre takan herkes bu tuşa basabilir
-    [Rpc(SendTo.Server, RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void CalismayiDegistirServerRpc()
     {
         isWorking.Value = !isWorking.Value;
