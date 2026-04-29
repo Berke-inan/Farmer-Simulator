@@ -694,6 +694,7 @@ GameObject:
   - component: {fileID: 499055345}
   - component: {fileID: 499055343}
   - component: {fileID: 499055346}
+  - component: {fileID: 499055347}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -754,12 +755,92 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TerrainManager
   terrain: {fileID: 629668426}
-  heightScale: 30
-  noiseScale: 0.31
+  heightScale: 0
+  noiseScale: 0
   baseHeight: 0
-  seed: 706.9384
-  detailThreshold: 0.25
-  detailNoiseScale: 0
+  seed: 138.06128
+  detailThreshold: 0
+  detailNoiseScale: 10000
+--- !u!114 &499055347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 499055342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e94520280d10e1e42aef97b63ed6f707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DayNightCycleManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  gercekSaniyedeBirGun: 1200
+  guncelSaat:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 8
+  gunesIsigi: {fileID: 410087040}
+  gunesSiddeti:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 5
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 7
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 17
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 19
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 24
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &589119218
 GameObject:
   m_ObjectHideFlags: 0
@@ -1051,8 +1132,8 @@ MonoBehaviour:
   tilledLayerIndex: 1
   wetLayerIndex: 2
   brushSize: 3
-  kurumaSuresi: 60
-  duzelmeSuresi: 120
+  kurumaSuresi: 5
+  duzelmeSuresi: 5
 --- !u!1001 &787640873
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2223,7 +2304,6 @@ SceneRoots:
   - {fileID: 323121983}
   - {fileID: 1764089409}
   - {fileID: 1453626295}
-  - {fileID: 629668427}
   - {fileID: 589229924}
   - {fileID: 381724919}
   - {fileID: 370034406}
@@ -2231,3 +2311,4 @@ SceneRoots:
   - {fileID: 349601685}
   - {fileID: 787640873}
   - {fileID: 1386350221}
+  - {fileID: 629668427}

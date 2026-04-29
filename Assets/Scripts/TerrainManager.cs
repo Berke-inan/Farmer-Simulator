@@ -67,29 +67,36 @@ public class TerrainManager : MonoBehaviour
     {
         TerrainData tData = terrain.terrainData;
         int detRes = tData.detailResolution;
+        int numLayers = tData.detailPrototypes.Length;
 
-        // ÖNEMLİ: Mevcut tüm detayları temizleyelim (çalı, çimen ne varsa)
-        for (int l = 0; l < tData.detailPrototypes.Length; l++)
+        if (numLayers == 0)
         {
-            tData.SetDetailLayer(0, 0, l, new int[detRes, detRes]);
+            Debug.LogWarning("Terrain'e hiç detay (Detail Prototype) eklenmemiş!");
+            return;
         }
 
-        // Haritayı hazırla
-        int[,] detailMap = new int[detRes, detRes];
+        int[][,] detailMaps = new int[numLayers][,];
+        for (int l = 0; l < numLayers; l++)
+        {
+            detailMaps[l] = new int[detRes, detRes];
+        }
 
         for (int z = 0; z < detRes; z++)
         {
             for (int x = 0; x < detRes; x++)
             {
-                // Değeri 16 yaparsan o kareyi tamamen doldurur (en yoğun hali)
-                // Eğer çalılar çok iç içe girerse bu sayıyı 5-10 arasına çekersin.
-                detailMap[z, x] = 16;
+                // İhtimal filtresi kaldırıldı. Her noktaya KESİN detay konacak.
+                int rastgeleKatman = Random.Range(0, numLayers);
+
+                // Yoğunluk 16 (maksimum değer) olarak ayarlandı
+                detailMaps[rastgeleKatman][z, x] = 16;
             }
         }
 
-        // Hangi katmana basıyoruz? 
-        // Eğer sadece bir tane çalı eklediysen o 0. indextedir.
-        tData.SetDetailLayer(0, 0, 0, detailMap);
+        for (int l = 0; l < numLayers; l++)
+        {
+            tData.SetDetailLayer(0, 0, l, detailMaps[l]);
+        }
 
         terrain.Flush();
     }
