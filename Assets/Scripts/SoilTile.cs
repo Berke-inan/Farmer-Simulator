@@ -58,7 +58,7 @@ public class SoilTile : NetworkBehaviour, IInteractable
             if (inventory.eldekiObje != null && inventory.eldekiObje.TryGetComponent(out IUseableTool aktifAlet))
             {
                 // İşlemi tamamen aletin kendisine devret
-                aktifAlet.EylemYap(this, inventory);
+                //aktifAlet.EylemYap(this, inventory);
             }
         }
     }

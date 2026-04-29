@@ -2,11 +2,18 @@ using UnityEngine;
 
 public class SulamaEylemi : MonoBehaviour, IUseableTool
 {
-    public void EylemYap(SoilTile hedefToprak, PlayerInventory envanter)
+    public void EylemYap(RaycastHit hit, PlayerInventory inv)
     {
-        if (hedefToprak.MevcutDurum == SoilState.Planted)
+        if (hit.collider is TerrainCollider tCol)
         {
-            hedefToprak.SulaServerRpc();
+            var manager = tCol.GetComponent<TerrainLayerManager>();
+
+            // Sadece çapalanmış yerler sulanabilir
+            if (manager.IsSoilTilled(hit.point))
+            {
+                // Toprağı ıslak dokuya boya, gerisini bitkiler halledecek
+                manager.PaintSoilServerRpc(hit.point, manager.wetLayerIndex);
+            }
         }
     }
 }

@@ -3,36 +3,75 @@ using UnityEngine;
 
 public class TohumEylemi : NetworkBehaviour, IUseableTool
 {
-    [Header("Tohum Özellikleri")]
     public int tohumID = 1;
-
-    // Ağ üzerinden senkronize edilen kullanım hakkı (biri yere atıp başkası alırsa hak aynen kalır)
+    public GameObject ekinPrefab;
     public NetworkVariable<int> kalanMiktar = new NetworkVariable<int>(4);
 
-    public void EylemYap(SoilTile hedefToprak, PlayerInventory envanter)
+    [Header("Ekim Ayarları")]
+    [Tooltip("Başka bir tohuma veya bitkiye ne kadar yaklaşabilir?")]
+    public float minimumEkimMesafesi = 0.8f;
+
+    public void EylemYap(RaycastHit hit, PlayerInventory inv)
     {
-        // Eğer toprak çapalanmışsa ve tohum hakkımız varsa ekim yap
-        if (hedefToprak.MevcutDurum == SoilState.Tilled && kalanMiktar.Value > 0)
+        if (hit.collider is TerrainCollider tCol)
         {
-            hedefToprak.TohumEkServerRpc(tohumID);
-            MiktariAzaltServerRpc(envanter.NetworkObjectId);
+            var manager = tCol.GetComponent<TerrainLayerManager>();
+
+            // 1. Zemin çapalanmış mı kontrolü
+            if (!manager.IsSoilTilled(hit.point))
+            {
+                Debug.Log("Burası çapalanmamış, ekim yapılamaz.");
+                return;
+            }
+
+            // 2. Etrafta başka bir ekin var mı kontrolü
+            Collider[] yakindakiler = Physics.OverlapSphere(hit.point, minimumEkimMesafesi);
+            bool yakinlardaEkinVar = false;
+
+            foreach (var col in yakindakiler)
+            {
+                // Kendi ektiğimiz ModularCrop scriptine sahip bir obje bulursak
+                if (col.TryGetComponent(out ModularCrop ekin))
+                {
+                    yakinlardaEkinVar = true;
+                    break;
+                }
+            }
+
+            if (yakinlardaEkinVar)
+            {
+                Debug.Log("Buraya ekemezsin, başka bir ekine çok yakın!");
+                return; // Ekme işlemini iptal et
+            }
+
+            // Her şey uygunsa ve elde tohum varsa ekimi yap
+            if (kalanMiktar.Value > 0)
+            {
+                TohumEkServerRpc(hit.point, inv.NetworkObjectId);
+            }
         }
     }
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void MiktariAzaltServerRpc(ulong envanterID)
+    [Rpc(SendTo.Server)]
+    private void TohumEkServerRpc(Vector3 nokta, ulong invID)
     {
         kalanMiktar.Value--;
 
-        // Tohum hakkı bittiyse kendini yok etmesi için oyuncunun envanterine emir yolla
+        // Ekinin toprağa gömülmemesi için hafif yukarıdan (0.05f) spawn ediyoruz
+        GameObject ekin = Instantiate(ekinPrefab, nokta + Vector3.up * 0.05f, Quaternion.identity);
+        ekin.GetComponent<NetworkObject>().Spawn();
+
+        // Akıllı bitkiye ID'sini veriyoruz
+        if (ekin.TryGetComponent(out ModularCrop sc))
+            sc.tohumID.Value = tohumID;
+
+        // Tohum bittiyse keseyi yok et
         if (kalanMiktar.Value <= 0)
         {
-            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(envanterID, out NetworkObject playerObj))
+            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(invID, out NetworkObject pObj))
             {
-                if (playerObj.TryGetComponent(out PlayerInventory envanter))
-                {
-                    envanter.EldekiniYokEtServerRpc();
-                }
+                if (pObj.TryGetComponent(out PlayerInventory inv))
+                    inv.EldekiniYokEtServerRpc();
             }
         }
     }

@@ -45,12 +45,21 @@ public class PlayerInteractor : NetworkBehaviour
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
         {
-            // TryGetComponent yerine GetComponentInParent kullanıyoruz. 
-            // Böylece ışın kasanın zeminine bile çarpsa, ana objedeki Romork scriptini bulur.
+            // 1. Vurduğumuz obje (veya ebeveyni) IInteractable mı? (Traktöre binmek, yerden eşya almak vs.)
             IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+
             if (interactable != null)
             {
+                // Eğer etkileşime girilecek bir şeyse normal Interact çalışsın
                 interactable.Interact(NetworkObject);
+            }
+            // 2. Etkileşime girilecek bir şey değilse (Mesela dümdüz Terrain ise) ve elimizde alet varsa aleti kullan!
+            else if (inventory != null && inventory.eldekiObje != null)
+            {
+                if (inventory.eldekiObje.TryGetComponent(out IUseableTool alet))
+                {
+                    alet.EylemYap(hit, inventory);
+                }
             }
         }
     }

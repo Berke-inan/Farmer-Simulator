@@ -1,5 +1,6 @@
+using UnityEngine;
+
 public interface IUseableTool
 {
-    // Alet kullanıldığında ne olacağını bu fonksiyon belirler
-    void EylemYap(SoilTile hedefToprak, PlayerInventory envanter);
+    void EylemYap(RaycastHit hit, PlayerInventory envanter);
 }

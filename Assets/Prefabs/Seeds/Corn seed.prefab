@@ -137,7 +137,13 @@ MonoBehaviour:
   aletTipi: 1
   offset: {x: 0.5, y: -0.4, z: 1}
   followSpeed: 10
+  isStoreable: 1
   isEquipped:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  isStored:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
@@ -203,12 +209,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TohumEylemi
   ShowTopMostFoldoutHeaderGroup: 1
-  tohumID: 1
+  tohumID: 0
+  ekinPrefab: {fileID: 3241866977498237123, guid: 66f1d948a1eb9e246a38b2da3b3d33e3, type: 3}
   kalanMiktar:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 4
+  minimumEkimMesafesi: 5
 --- !u!114 &8117164284601253198
 MonoBehaviour:
   m_ObjectHideFlags: 0
