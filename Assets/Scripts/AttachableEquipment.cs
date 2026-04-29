@@ -1,24 +1,28 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.InputSystem; // Yeni Input Sistemi Kütüphanesi
 
 [RequireComponent(typeof(Rigidbody))]
 public class AttachableEquipment : NetworkBehaviour
 {
-    // YEN� EKLENEN: Ekipman Tipleri
     public enum EquipmentType { Trailer, Header }
 
-    [Header("Ekipman Kimli�i")]
-    [Tooltip("Bu ekipman arkaya tak�lacak bir R�mork mu, �ne tak�lacak bir Bi�er mi?")]
+    [Header("Ekipman Kimliği")]
+    [Tooltip("Bu ekipman arkaya takılacak bir Römork mu, öne takılacak bir Biçer mi?")]
     public EquipmentType type;
 
-    [Header("Ba�lant� Ayarlar�")]
+    [Header("Bağlantı Ayarları")]
     public Transform hitchPoint;
 
-    [Header("Fiziksel Tekerlekler (G�r�nmez)")]
+    [Header("Fiziksel Tekerlekler (Görünmez)")]
     public WheelCollider[] wheelColliders;
 
-    [Header("G�rsel Tekerlekler (3D Modeller)")]
+    [Header("Görsel Tekerlekler (3D Modeller)")]
     public Transform[] visualWheels;
+
+    // --- ÇALIŞMA DURUMU ---
+    [Header("Çalışma Durumu")]
+    public NetworkVariable<bool> isWorking = new NetworkVariable<bool>(false);
 
     private Rigidbody rb;
     private Quaternion[] initialOffsets;
@@ -27,7 +31,7 @@ public class AttachableEquipment : NetworkBehaviour
     {
         rb = GetComponent<Rigidbody>();
 
-        // 1. KES�N ��Z�M: R�morkun fiziksel uyku modunu tamamen kapat!
+        // Römorkun fiziksel uyku modunu tamamen kapat!
         rb.sleepThreshold = 0f;
 
         initialOffsets = new Quaternion[wheelColliders.Length];
@@ -54,5 +58,21 @@ public class AttachableEquipment : NetworkBehaviour
                 visualWheels[i].rotation = rot * initialOffsets[i];
             }
         }
+
+        // --- YENİ INPUT SİSTEMİ İLE V TUŞU KONTROLÜ ---
+        // Klavye bağlıysa ve bu karede 'V' tuşuna basıldıysa
+        if (Keyboard.current != null && Keyboard.current.vKey.wasPressedThisFrame)
+        {
+            // Sadece traktöre takılıyken çalışmasını istersen buraya "&& transform.parent != null" şartını ekleyebilirsin.
+            CalismayiDegistirServerRpc();
+        }
+    }
+
+    // RequireOwnership = false sayesinde aleti traktöre takan herkes bu tuşa basabilir
+    [Rpc(SendTo.Server, RequireOwnership = false)]
+    private void CalismayiDegistirServerRpc()
+    {
+        isWorking.Value = !isWorking.Value;
+        Debug.Log(gameObject.name + " çalışma durumu değişti: " + isWorking.Value);
     }
 }
