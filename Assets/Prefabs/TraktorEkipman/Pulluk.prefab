@@ -87,8 +87,7 @@ GameObject:
   - component: {fileID: 4295118630036579767}
   - component: {fileID: 919712981812694912}
   - component: {fileID: 7612652788538167422}
-  - component: {fileID: 4373141334208311814}
-  - component: {fileID: 7452273999261057156}
+  - component: {fileID: 8749374949948600305}
   m_Layer: 0
   m_Name: Pulluk
   m_TagString: Untagged
@@ -127,7 +126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 330433224
+  GlobalObjectIdHash: 3618832133
   InScenePlacedSourceGlobalObjectIdHash: 3738784220
   DeferredDespawnTick: 0
   Ownership: 1
@@ -270,6 +269,11 @@ MonoBehaviour:
   - {fileID: 1843242016944942112}
   visualWheels:
   - {fileID: 1156569685269560483}
+  isWorking:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!65 &7612652788538167422
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -291,7 +295,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.58, y: 1.1, z: 9.69}
   m_Center: {x: -0.85, y: -2, z: 0}
---- !u!114 &4373141334208311814
+--- !u!114 &8749374949948600305
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -300,27 +304,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1664989543938375828}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a52a70a05335e747b88958c402f983d, type: 3}
+  m_Script: {fileID: 11500000, guid: bd3742af0e31b3540824a7dc308211f9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MakineTetikleyici
+  m_EditorClassIdentifier: Assembly-CSharp::PullukMakinesi
   ShowTopMostFoldoutHeaderGroup: 1
-  isWorking:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
---- !u!114 &7452273999261057156
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1664989543938375828}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2523d21811cde8a4aa76d01cad470394, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CapaEylemi
+  islemAraligi: 0.1
 --- !u!1 &4986494557203520060
 GameObject:
   m_ObjectHideFlags: 0

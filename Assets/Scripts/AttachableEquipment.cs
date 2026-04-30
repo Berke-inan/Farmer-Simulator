@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using Unity.Netcode;
-using UnityEngine.InputSystem; // Yeni Input Sistemi Kütüphanesi
 
 [RequireComponent(typeof(Rigidbody))]
 public class AttachableEquipment : NetworkBehaviour
@@ -8,19 +7,17 @@ public class AttachableEquipment : NetworkBehaviour
     public enum EquipmentType { Trailer, Header }
 
     [Header("Ekipman Kimliği")]
-    [Tooltip("Bu ekipman arkaya takılacak bir Römork mu, öne takılacak bir Biçer mi?")]
     public EquipmentType type;
 
     [Header("Bağlantı Ayarları")]
     public Transform hitchPoint;
 
-    [Header("Fiziksel Tekerlekler (Görünmez)")]
+    [Header("Fiziksel Tekerlekler")]
     public WheelCollider[] wheelColliders;
 
-    [Header("Görsel Tekerlekler (3D Modeller)")]
+    [Header("Görsel Tekerlekler")]
     public Transform[] visualWheels;
 
-    // --- ÇALIŞMA DURUMU ---
     [Header("Çalışma Durumu")]
     public NetworkVariable<bool> isWorking = new NetworkVariable<bool>(false);
 
@@ -30,8 +27,6 @@ public class AttachableEquipment : NetworkBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-
-        // Römorkun fiziksel uyku modunu tamamen kapat!
         rb.sleepThreshold = 0f;
 
         initialOffsets = new Quaternion[wheelColliders.Length];
@@ -49,6 +44,7 @@ public class AttachableEquipment : NetworkBehaviour
 
     private void Update()
     {
+        // Sadece tekerlekleri döndürür, KLAVYE DİNLEME İŞİ BURADAN SİLİNDİ!
         for (int i = 0; i < wheelColliders.Length; i++)
         {
             if (wheelColliders[i] != null && visualWheels.Length > i && visualWheels[i] != null)
@@ -58,19 +54,11 @@ public class AttachableEquipment : NetworkBehaviour
                 visualWheels[i].rotation = rot * initialOffsets[i];
             }
         }
-
-        // --- YENİ INPUT SİSTEMİ İLE V TUŞU KONTROLÜ ---
-        // Klavye bağlıysa ve bu karede 'V' tuşuna basıldıysa
-        if (Keyboard.current != null && Keyboard.current.vKey.wasPressedThisFrame)
-        {
-            // Sadece traktöre takılıyken çalışmasını istersen buraya "&& transform.parent != null" şartını ekleyebilirsin.
-            CalismayiDegistirServerRpc();
-        }
     }
 
-    // RequireOwnership = false sayesinde aleti traktöre takan herkes bu tuşa basabilir
+    // DİKKAT: Bu metodu "public" yaptık ki Traktör dışarıdan gelip bu şalteri indirebilsin
     [Rpc(SendTo.Server, RequireOwnership = false)]
-    private void CalismayiDegistirServerRpc()
+    public void CalismayiDegistirServerRpc()
     {
         isWorking.Value = !isWorking.Value;
         Debug.Log(gameObject.name + " çalışma durumu değişti: " + isWorking.Value);
