@@ -15,9 +15,8 @@ GameObject:
   - component: {fileID: 9014830612484701075}
   - component: {fileID: 5854028258112771515}
   - component: {fileID: 7544258213446353785}
-  - component: {fileID: 4791209853221753140}
-  - component: {fileID: 6503274010189202987}
   - component: {fileID: 780718131636957342}
+  - component: {fileID: 2008548301937425733}
   m_Layer: 0
   m_Name: Bicerdover
   m_TagString: Untagged
@@ -41,7 +40,6 @@ Transform:
   - {fileID: 1915452382000382734}
   - {fileID: 863544945940824793}
   - {fileID: 2141036586765324212}
-  - {fileID: 8837771542999163763}
   - {fileID: 1416012238945574418}
   - {fileID: 5725968966159675808}
   m_Father: {fileID: 0}
@@ -58,7 +56,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3105967492
+  GlobalObjectIdHash: 2630637714
   InScenePlacedSourceGlobalObjectIdHash: 2630637714
   DeferredDespawnTick: 0
   Ownership: 1
@@ -204,31 +202,6 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
---- !u!114 &4791209853221753140
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 332215215695680826}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a52a70a05335e747b88958c402f983d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MakineTetikleyici
-  ShowTopMostFoldoutHeaderGroup: 1
---- !u!114 &6503274010189202987
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 332215215695680826}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88b490feeabf3954fa501c5321f9470a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OrakEylemi
 --- !u!65 &780718131636957342
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -250,6 +223,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 5.18, y: 1.37, z: 1}
   m_Center: {x: 0, y: -0.68, z: -1.03}
+--- !u!114 &2008548301937425733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332215215695680826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1df8cc6c1dc9124e8ebd80449e121f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BicerdoverMakinesi
+  ShowTopMostFoldoutHeaderGroup: 1
+  kesimYaricapi: 2.5
+  islemAraligi: 0.2
 --- !u!1 &1393419556098727726
 GameObject:
   m_ObjectHideFlags: 0
@@ -796,114 +784,4 @@ SphereCollider:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f551e0319837e314192cb82dfa6444d7, type: 3}
   m_PrefabInstance: {fileID: 7670134014379056856}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &9019772280468145304
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 8176898068748685970}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 303.14114
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 153.62932
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 300.11002
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.06
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.048
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -1.5009918
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.70707697
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.70707697
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0.00649579
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.006495792
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: -88.947
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: -90
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: -7511558181221131132, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 677b9a6167ff4a14d933b392751a18ca, type: 2}
-    - target: {fileID: 919132149155446097, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_Name
-      value: bicak
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1244208721581408758}
-  m_SourcePrefab: {fileID: 100100000, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
---- !u!1 &8209431861226977737 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-  m_PrefabInstance: {fileID: 9019772280468145304}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1244208721581408758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8209431861226977737}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd027e125b8f1f24ca2f36c9e4820e64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HarvesterBlade
-  ShowTopMostFoldoutHeaderGroup: 1
-  rotationAxis: {x: 1, y: 0, z: 0}
-  rotationSpeed: 300
-  isSpinning:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
---- !u!4 &8837771542999163763 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c4548ce82dcfd5544bf359b9d5dc0f93, type: 3}
-  m_PrefabInstance: {fileID: 9019772280468145304}
   m_PrefabAsset: {fileID: 0}

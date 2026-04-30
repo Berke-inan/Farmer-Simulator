@@ -9,16 +9,10 @@ public class TractorEquipmentManager : NetworkBehaviour
     public Transform rearHitchPoint;  // Römork için (Arka)
     public Transform frontHitchPoint; // Biçer için (Ön)
 
-    // ==========================================
-    // YENİ EKLENEN: GÜVENLİ TAKMA MESAFESİ
-    // ==========================================
     [Header("Mesafe Ayarları")]
     [Tooltip("Topuzların birbirine ne kadar yaklaşması gerekiyor?")]
     public float maxAttachDistance = 2.0f;
 
-    // ==========================================
-    // KAMERA HEDEFİ VE MESAFELERİ
-    // ==========================================
     [Header("Kamera Kaydırma Ayarları")]
     public Transform cameraTarget;
     public float defaultZOffset = 0f;
@@ -37,8 +31,10 @@ public class TractorEquipmentManager : NetworkBehaviour
 
     private void Update()
     {
+        // SADECE TRAKTÖRÜ BEN SÜRÜYORSAM KLAVYEYİ DİNLE
         if (tractorController.IsDrivenByMe)
         {
+            // --- F TUŞU: EKİPMAN TAK / ÇIKAR ---
             if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
             {
                 if (currentJoint == null && equipmentInRange != null)
@@ -48,10 +44,6 @@ public class TractorEquipmentManager : NetworkBehaviour
 
                     string detectedSide = "";
 
-                    // =======================================================
-                    // YENİ MANTIK: Sadece "maxAttachDistance" sınırındaysa
-                    // ve hangisi daha yakınsa onu seç.
-                    // =======================================================
                     if (distToFront < distToRear && distToFront <= maxAttachDistance)
                     {
                         detectedSide = "Front";
@@ -61,7 +53,6 @@ public class TractorEquipmentManager : NetworkBehaviour
                         detectedSide = "Rear";
                     }
 
-                    // Eğer topuzlardan biri yeterince yakınsa işlemlere devam et
                     if (!string.IsNullOrEmpty(detectedSide))
                     {
                         bool isCorrectSide = false;
@@ -72,7 +63,6 @@ public class TractorEquipmentManager : NetworkBehaviour
                         {
                             AttachEquipmentServerRpc(equipmentInRange.NetworkObjectId, detectedSide);
 
-                            // RÖMORK TAKILINCA KAMERAYI GERİ ÇEK
                             if (cameraTarget != null && detectedSide == "Rear")
                             {
                                 if (cameraCoroutine != null) StopCoroutine(cameraCoroutine);
@@ -93,11 +83,24 @@ public class TractorEquipmentManager : NetworkBehaviour
                 {
                     DetachEquipmentServerRpc();
 
-                    // ALET ÇIKINCA KAMERAYI ESKİ YERİNE AL
                     if (cameraTarget != null)
                     {
                         if (cameraCoroutine != null) StopCoroutine(cameraCoroutine);
                         cameraCoroutine = StartCoroutine(SmoothCameraMove(defaultZOffset));
+                    }
+                }
+            }
+
+            // --- V TUŞU: TAKILI EKİPMANI ÇALIŞTIR / DURDUR ---
+            if (Keyboard.current != null && Keyboard.current.vKey.wasPressedThisFrame)
+            {
+                if (currentJoint != null)
+                {
+                    AttachableEquipment eq = currentJoint.connectedBody.GetComponent<AttachableEquipment>();
+                    if (eq != null)
+                    {
+                        // Traktör, arkasındaki alete "Çalışma durumunu değiştir" komutunu gönderiyor!
+                        eq.CalismayiDegistirServerRpc();
                     }
                 }
             }
@@ -106,22 +109,6 @@ public class TractorEquipmentManager : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        if (IsServer && currentJoint != null)
-        {
-            AttachableEquipment eq = currentJoint.connectedBody.GetComponent<AttachableEquipment>();
-            if (eq != null)
-            {
-                HarvesterBlade blade = eq.GetComponentInChildren<HarvesterBlade>();
-                if (blade != null)
-                {
-                    if (blade.isSpinning.Value != tractorController.IsOccupied)
-                    {
-                        blade.isSpinning.Value = tractorController.IsOccupied;
-                    }
-                }
-            }
-        }
-
         if (!tractorController.IsDrivenByMe) return;
 
         if (currentJoint != null)
@@ -176,42 +163,29 @@ public class TractorEquipmentManager : NetworkBehaviour
             Rigidbody eqRb = eq.GetComponent<Rigidbody>();
             Transform targetPoint = (side == "Front") ? frontHitchPoint : rearHitchPoint;
 
-            // 1. Fiziksel Hazırlık: Çarpışmaları kapat ve hızı sıfırla (Fırlamayı önler)
             eqRb.isKinematic = true;
             eqRb.detectCollisions = false;
 
-            // ==========================================
-            // KESİN ÇÖZÜM: BİÇERDÖVERİ DÜMDÜZ HİZALA
-            // ==========================================
-            // Sadece Biçerdöver (Header) tipindeyse rotasyonu zorla.
-            // Bu sayede yamuk yanaşsan bile alet traktörle paralel hale gelir.
             if (eq.type == AttachableEquipment.EquipmentType.Header)
             {
-                // Traktörün açısını alır ve biçerdöveri 180 derece ters çevirip kusursuz hizalar.
                 eq.transform.rotation = transform.rotation * Quaternion.Euler(0, 180f, 0);
             }
 
-            // 2. Pozisyonu ucu ucuna çek (Hitch noktalarını eşitle)
             eq.transform.position = targetPoint.position - (eq.hitchPoint.position - eq.transform.position);
 
-            // Yapılan transform değişikliklerini fizik motoruna bildir
             Physics.SyncTransforms();
 
-            // 3. BAĞLANTI (JOINT) OLUŞTURMA
             ConfigurableJoint joint = gameObject.AddComponent<ConfigurableJoint>();
             joint.connectedBody = eqRb;
             joint.anchor = transform.InverseTransformPoint(targetPoint.position);
 
-            // İleri-geri, sağa-sola ve yukarı-aşağı kopmaları engelle (Tam kilit)
             joint.xMotion = joint.yMotion = joint.zMotion = ConfigurableJointMotion.Locked;
 
             if (eq.type == AttachableEquipment.EquipmentType.Header)
             {
-                // BİÇERDÖVER AYARI: Sağa sola dönüş ve yan yatma tamamen kilitli
                 joint.angularYMotion = ConfigurableJointMotion.Locked;
                 joint.angularZMotion = ConfigurableJointMotion.Locked;
 
-                // Sadece engebeli arazide esnemesi için yukarı/aşağı 20 derece sınır
                 joint.angularXMotion = ConfigurableJointMotion.Limited;
                 SoftJointLimit highXLimit = new SoftJointLimit { limit = 20f };
                 SoftJointLimit lowXLimit = new SoftJointLimit { limit = -20f };
@@ -220,7 +194,6 @@ public class TractorEquipmentManager : NetworkBehaviour
             }
             else
             {
-                // RÖMORK AYARI: Dönüşler serbest
                 joint.angularXMotion = ConfigurableJointMotion.Free;
                 joint.angularZMotion = ConfigurableJointMotion.Limited;
                 joint.angularYMotion = ConfigurableJointMotion.Limited;
@@ -229,10 +202,8 @@ public class TractorEquipmentManager : NetworkBehaviour
                 joint.angularYLimit = angularYLimit;
             }
 
-            // Traktör ve aletin birbirine çarpıp "fiziksel patlama" yapmasını engelle
             IgnoreCollisions(eq.gameObject, true);
 
-            // 4. Sistemi normale döndür
             eqRb.detectCollisions = true;
             eqRb.isKinematic = false;
 
@@ -250,8 +221,9 @@ public class TractorEquipmentManager : NetworkBehaviour
             if (eq != null)
             {
                 IgnoreCollisions(eq.gameObject, false);
-                HarvesterBlade blade = eq.GetComponentInChildren<HarvesterBlade>();
-                if (blade != null) blade.isSpinning.Value = false;
+
+                // YENİ ÖZELLİK: Aleti traktörden çıkardığın an makinenin çalışması (isWorking) otomatik dursun
+                eq.isWorking.Value = false;
             }
 
             Destroy(currentJoint);
