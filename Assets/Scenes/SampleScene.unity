@@ -995,15 +995,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8077683832440106435, guid: c52854c42376ecc4a8302d9e1c2cffba, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10.939
+      value: -11.21
       objectReference: {fileID: 0}
     - target: {fileID: 8077683832440106435, guid: c52854c42376ecc4a8302d9e1c2cffba, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.047
+      value: 4.12
       objectReference: {fileID: 0}
     - target: {fileID: 8077683832440106435, guid: c52854c42376ecc4a8302d9e1c2cffba, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -58.116
+      value: -56.27
       objectReference: {fileID: 0}
     - target: {fileID: 8077683832440106435, guid: c52854c42376ecc4a8302d9e1c2cffba, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1930,12 +1930,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DayNightCycleManager
   ShowTopMostFoldoutHeaderGroup: 1
-  realSecondsPerDay: 60
+  realSecondsPerDay: 360
   currentTime:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 8
+    m_InternalValue: 6
   sunLight: {fileID: 410087040}
   sunIntensity:
     serializedVersion: 2
@@ -2498,8 +2498,8 @@ MonoBehaviour:
   tilledLayerIndex: 1
   wetLayerIndex: 2
   brushSize: 3
-  kurumaSuresi: 20
-  duzelmeSuresi: 20
+  kurumaSuresi: 120
+  duzelmeSuresi: 120
 --- !u!1001 &641272639
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4362,15 +4362,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7323451580465094754, guid: 4ebb098738df44a4394b889e913fd38f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.714
+      value: -6.91
       objectReference: {fileID: 0}
     - target: {fileID: 7323451580465094754, guid: 4ebb098738df44a4394b889e913fd38f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.967
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7323451580465094754, guid: 4ebb098738df44a4394b889e913fd38f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -59.53
+      value: -58.32
       objectReference: {fileID: 0}
     - target: {fileID: 7323451580465094754, guid: 4ebb098738df44a4394b889e913fd38f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5977,11 +5977,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 872557984076336377, guid: 187025386d0942f4484f9420dce7f687, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.89
+      value: 4.09
       objectReference: {fileID: 0}
     - target: {fileID: 872557984076336377, guid: 187025386d0942f4484f9420dce7f687, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -58.76
+      value: -56.382
       objectReference: {fileID: 0}
     - target: {fileID: 872557984076336377, guid: 187025386d0942f4484f9420dce7f687, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7109,6 +7109,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 263ee2a6697897f40a53e5677ebca45b, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 263ee2a6697897f40a53e5677ebca45b, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 263ee2a6697897f40a53e5677ebca45b, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 263ee2a6697897f40a53e5677ebca45b, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9.58
       objectReference: {fileID: 0}
@@ -7118,7 +7130,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 263ee2a6697897f40a53e5677ebca45b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -58.73
+      value: -57.59
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 263ee2a6697897f40a53e5677ebca45b, type: 3}
       propertyPath: m_LocalRotation.w
