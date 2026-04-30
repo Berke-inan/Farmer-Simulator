@@ -30,9 +30,6 @@ public class TerrainManager : MonoBehaviour
         Debug.Log("Dünya hazır!");
     }
 
-
-   
-
     private void GenerateHeights()
     {
         TerrainData tData = terrain.terrainData;
@@ -63,6 +60,7 @@ public class TerrainManager : MonoBehaviour
         }
         tData.SetHeights(0, 0, heights);
     }
+
     private void GenerateDetails()
     {
         TerrainData tData = terrain.terrainData;
@@ -75,6 +73,12 @@ public class TerrainManager : MonoBehaviour
             return;
         }
 
+        // --- YENİ EKLENEN KISIM: Zemin dokularını (Alphamaps) alıyoruz ---
+        int alphaWidth = tData.alphamapWidth;
+        int alphaHeight = tData.alphamapHeight;
+        float[,,] alphas = tData.GetAlphamaps(0, 0, alphaWidth, alphaHeight);
+        // ------------------------------------------------------------------
+
         int[][,] detailMaps = new int[numLayers][,];
         for (int l = 0; l < numLayers; l++)
         {
@@ -85,6 +89,24 @@ public class TerrainManager : MonoBehaviour
         {
             for (int x = 0; x < detRes; x++)
             {
+                // --- YENİ EKLENEN KISIM: Ot koordinatını Doku koordinatına çevir ve kontrol et ---
+                int alphaX = Mathf.RoundToInt(((float)x / detRes) * alphaWidth);
+                int alphaZ = Mathf.RoundToInt(((float)z / detRes) * alphaHeight);
+
+                alphaX = Mathf.Clamp(alphaX, 0, alphaWidth - 1);
+                alphaZ = Mathf.Clamp(alphaZ, 0, alphaHeight - 1);
+
+                // alphas array'i [Y, X, Layer] şeklinde çalışır (Y ekseni Z'yi temsil eder)
+                float cimenAgirligi = alphas[alphaZ, alphaX, 0];
+
+                // Eğer 0. layer (Çimen) ağırlığı 0.5'ten küçükse (yani başka bir şey boyalıysa)
+                if (cimenAgirligi < 0.5f)
+                {
+                    // Ot koymayı atla ve döngüye devam et
+                    continue;
+                }
+                // ---------------------------------------------------------------------------------
+
                 // İhtimal filtresi kaldırıldı. Her noktaya KESİN detay konacak.
                 int rastgeleKatman = Random.Range(0, numLayers);
 

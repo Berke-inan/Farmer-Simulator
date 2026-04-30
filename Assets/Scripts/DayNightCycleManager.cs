@@ -1,69 +1,99 @@
-using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
+using UnityEngine;
 
 public class DayNightCycleManager : NetworkBehaviour
 {
-    [Header("Zaman Ayarlarý")]
-    [Tooltip("Gerçek hayattaki kaç saniye, oyunda 1 tam gün (24 saat) sürsün? Örn: 1200 = 20 dakika")]
-    public float gercekSaniyedeBirGun = 1200f;
+    public static DayNightCycleManager Instance;
 
-    // Að üzerinden senkronize edilen saat (0.00 ile 24.00 arasý)
-    // Sadece Server deðiþtirebilir, herkes okuyabilir.
-    public NetworkVariable<float> guncelSaat = new NetworkVariable<float>(8f); // Sabah 8'de baþlasýn
+    [Header("Time Settings")]
+    [Tooltip("GerÃ§ek hayattaki kaÃ§ saniye, oyunda 1 tam gÃ¼n (24 saat) sÃ¼rsÃ¼n? Ã–rn: 1200 = 20 dakika")]
+    public float realSecondsPerDay = 1200f;
 
-    [Header("Görsel Ayarlar")]
-    [Tooltip("Sahnedeki Directional Light (Güneþ) objesini buraya sürükleyin")]
-    public Light gunesIsigi;
+    // AÄŸ Ã¼zerinden senkronize edilen saat (0.00 ile 24.00 arasÄ±)
+    public NetworkVariable<float> currentTime = new NetworkVariable<float>(8f);
 
-    [Tooltip("Güneþin þiddeti saate göre nasýl deðiþsin?")]
-    public AnimationCurve gunesSiddeti = new AnimationCurve(
-        new Keyframe(0f, 0f),   // Gece yarýsý (Saat 00:00) ýþýk 0
-        new Keyframe(5f, 0f),   // Sabaha karþý ýþýk 0
-        new Keyframe(7f, 1f),   // Sabah 7'de ýþýk tam güç
-        new Keyframe(17f, 1f),  // Akþam 5'te hala tam güç
-        new Keyframe(19f, 0f),  // Akþam 7'de (Gün batýmý) ýþýk 0
-        new Keyframe(24f, 0f)   // Gece yarýsý ýþýk 0
+    [Header("Visual Settings")]
+    public Light sunLight;
+    public AnimationCurve sunIntensity = new AnimationCurve(
+        new Keyframe(0f, 0f),
+        new Keyframe(5f, 0f),
+        new Keyframe(7f, 1f),
+        new Keyframe(17f, 1f),
+        new Keyframe(19f, 0f),
+        new Keyframe(24f, 0f)
     );
+
+    // Sadece Server'Ä±n bileceÄŸi, yataÄŸa yatan oyuncularÄ±n listesi
+    private HashSet<ulong> sleepingPlayers = new HashSet<ulong>();
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+    }
 
     private void Update()
     {
-        // 1. ZAMANI SADECE SERVER ÝLERLETÝR
         if (IsServer)
         {
-            ZamaniIlerlet();
+            AdvanceTime();
         }
-
-        // 2. GÖRÜNTÜYÜ HERKES (Server + Clientlar) GÜNCELLER
-        GorselleriGuncelle();
+        UpdateVisuals();
     }
 
-    private void ZamaniIlerlet()
+    private void AdvanceTime()
     {
-        // 1 saniyede ne kadar oyun saati geçmeli?
-        float saatCarpani = 24f / gercekSaniyedeBirGun;
+        float timeMultiplier = 24f / realSecondsPerDay;
+        currentTime.Value += Time.deltaTime * timeMultiplier;
 
-        guncelSaat.Value += Time.deltaTime * saatCarpani;
-
-        // Gece yarýsýný geçince saati sýfýrla (24 -> 0)
-        if (guncelSaat.Value >= 24f)
+        if (currentTime.Value >= 24f)
         {
-            guncelSaat.Value = 0f;
-            // Ýstersen burada "Yeni Gün Baþladý" event'i tetikleyebilirsin (Ekinleri büyütmek için)
+            currentTime.Value = 0f;
         }
     }
 
-    private void GorselleriGuncelle()
+    private void UpdateVisuals()
     {
-        if (gunesIsigi == null) return;
+        if (sunLight == null) return;
+        float sunAngle = (currentTime.Value / 24f) * 360f - 90f;
+        sunLight.transform.rotation = Quaternion.Euler(sunAngle, 170f, 0f);
+        sunLight.intensity = sunIntensity.Evaluate(currentTime.Value);
+    }
 
-        // MATEMATÝK: Saat 0 ile 24 arasýný, açý olarak 0 ile 360 arasýna çeviriyoruz.
-        // -90 derece ekliyoruz çünkü saat 00:00'da güneþ tam altýmýzda (gece) olmalý.
-        float gunesAcisi = (guncelSaat.Value / 24f) * 360f - 90f;
+    // Gece olup olmadÄ±ÄŸÄ±nÄ± kontrol eden metot
+    public bool IsNight()
+    {
+        return currentTime.Value >= 19f || currentTime.Value <= 6f;
+    }
 
-        // Güneþi X ekseninde döndür (Y eksenini hafif çapraz veriyoruz ki gölgeler düz düþmesin)
-        gunesIsigi.transform.rotation = Quaternion.Euler(gunesAcisi, 170f, 0f);
+    // YENÄ° RPC YAPISI: Sadece Server'a gÃ¶nderilir, herkes Ã§aÄŸÄ±rabilir.
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void SendSleepRequestRpc(ulong clientId)
+    {
+        if (!IsNight()) return; // GÃ¼ndÃ¼z uyunmaz
 
-        // Güneþin þiddetini AnimationCurve grafiðinden oku ve uygula
-        gunesIsigi.intensity = gunesSiddeti.Evaluate(guncelSaat.Value);
+        sleepingPlayers.Add(clientId); // Oyuncuyu uyuyanlar listesine ekle
+
+        // Oyundan Ã§Ä±kanlar varsa listeyi temizle
+        sleepingPlayers.RemoveWhere(id => !NetworkManager.Singleton.ConnectedClientsIds.Contains(id));
+
+        // Oyundaki toplam oyuncu sayÄ±sÄ±
+        int totalPlayerCount = NetworkManager.Singleton.ConnectedClientsIds.Count;
+
+        Debug.Log($"Uyuyan Oyuncular: {sleepingPlayers.Count} / {totalPlayerCount}");
+
+        // Herkes uyuduysa sabah yap
+        if (sleepingPlayers.Count >= totalPlayerCount)
+        {
+            MakeItMorning();
+        }
+    }
+
+    private void MakeItMorning()
+    {
+        currentTime.Value = 6f; // Sabah 8'e atla
+        sleepingPlayers.Clear(); // Uyuyanlar listesini sÄ±fÄ±rla
+        Debug.Log("Herkes uyudu, sabah oldu!");
     }
 }

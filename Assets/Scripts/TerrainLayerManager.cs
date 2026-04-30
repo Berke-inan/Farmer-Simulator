@@ -9,6 +9,7 @@ public struct TimedTerrainChange
     public float expirationTime;
     public int targetLayer; // Dönüşeceği layer
 }
+
 [System.Serializable]
 public class TohumVerisi
 {
@@ -41,26 +42,6 @@ public class TerrainLayerManager : NetworkBehaviour
 
     private void Awake() => Instance = this;
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void PaintSoilServerRpc(Vector3 worldPos, int layerIndex)
-    {
-        PaintSoilClientRpc(worldPos, layerIndex);
-
-        // Zamanlayıcıya ekle
-        if (IsServer)
-        {
-            float duration = (layerIndex == wetLayerIndex) ? kurumaSuresi : duzelmeSuresi;
-            int nextLayer = (layerIndex == wetLayerIndex) ? tilledLayerIndex : normalLayerIndex;
-
-            activeChanges.Add(new TimedTerrainChange
-            {
-                worldPos = worldPos,
-                expirationTime = Time.time + duration,
-                targetLayer = nextLayer
-            });
-        }
-    }
-
     void Update()
     {
         if (!IsServer || activeChanges.Count == 0) return;
@@ -72,13 +53,11 @@ public class TerrainLayerManager : NetworkBehaviour
                 // Kritik Kontrol: Eğer hedef Normal Layer (Çimen) ise
                 if (activeChanges[i].targetLayer == normalLayerIndex)
                 {
-                    // ÇÖZÜM 1: Arama yarıçapını 0.5f'ten 1.5f'e çıkardık (Hafif yana ekilmiş olsa bile bulur)
                     Collider[] ekinler = Physics.OverlapSphere(activeChanges[i].worldPos, 3f);
                     bool ekinVarMi = false;
 
                     foreach (var col in ekinler)
                     {
-                        // ÇÖZÜM 2: Collider alt objede olsa bile ana objedeki ModularCrop'u bulur
                         if (col.GetComponentInParent<ModularCrop>() != null)
                         {
                             ekinVarMi = true;
@@ -112,13 +91,44 @@ public class TerrainLayerManager : NetworkBehaviour
         }
     }
 
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void PaintSoilServerRpc(Vector3 worldPos, int layerIndex)
+    {
+        // 1. KURAL: Çapalama işlemi sadece zemin 0. layer (Normal/Çimen) ise yapılabilir.
+        if (layerIndex == tilledLayerIndex)
+        {
+            if (!IsLayerDominant(worldPos, normalLayerIndex)) return;
+        }
+        // 2. KURAL: Sulama işlemi sadece zemin 1. layer (Tilled/Çapalanmış) ise yapılabilir.
+        else if (layerIndex == wetLayerIndex)
+        {
+            if (!IsLayerDominant(worldPos, tilledLayerIndex)) return;
+        }
+
+        PaintSoilClientRpc(worldPos, layerIndex);
+
+        // Zamanlayıcıya ekle
+        if (IsServer)
+        {
+            float duration = (layerIndex == wetLayerIndex) ? kurumaSuresi : duzelmeSuresi;
+            int nextLayer = (layerIndex == wetLayerIndex) ? tilledLayerIndex : normalLayerIndex;
+
+            activeChanges.Add(new TimedTerrainChange
+            {
+                worldPos = worldPos,
+                expirationTime = Time.time + duration,
+                targetLayer = nextLayer
+            });
+        }
+    }
+
     [Rpc(SendTo.ClientsAndHost)]
     private void PaintSoilClientRpc(Vector3 worldPos, int layerIndex)
     {
         TerrainData tData = terrain.terrainData;
         Vector3 terrainPos = worldPos - terrain.transform.position;
 
-        // --- 1. KISIM: ZEMİN DOKUSUNU BOYAMA (Mevcut Sistem) ---
+        // --- 1. KISIM: ZEMİN DOKUSUNU BOYAMA ---
         int mapX = (int)((terrainPos.x / tData.size.x) * tData.alphamapWidth);
         int mapZ = (int)((terrainPos.z / tData.size.z) * tData.alphamapHeight);
 
@@ -142,18 +152,15 @@ public class TerrainLayerManager : NetworkBehaviour
         }
         tData.SetAlphamaps(mapX - offset, mapZ - offset, alphas);
 
-        // --- 2. KISIM: OTLARI VE ÇALILARI SİLME (Yeni Eklenen Sistem) ---
-        // Eğer toprağı çapalayıp "Tilled" layer'ına geçiriyorsak oradaki detayları sil
+        // --- 2. KISIM: OTLARI VE ÇALILARI SİLME ---
         if (layerIndex == tilledLayerIndex)
         {
             int detRes = tData.detailResolution;
             int numDetailLayers = tData.detailPrototypes.Length;
 
-            // Dünya koordinatını "Ot Haritası" koordinatına çeviriyoruz
             int detX = (int)((terrainPos.x / tData.size.x) * detRes);
             int detZ = (int)((terrainPos.z / tData.size.z) * detRes);
 
-            // Fırça boyutunu ot haritası çözünürlüğüne oranlıyoruz
             float ratio = (float)detRes / tData.alphamapWidth;
             int dBrush = Mathf.Max(1, Mathf.RoundToInt(brushSize * ratio));
             int dOffset = dBrush / 2;
@@ -167,47 +174,48 @@ public class TerrainLayerManager : NetworkBehaviour
             int sizeX = endX - startX;
             int sizeZ = endZ - startZ;
 
-            // Eğer silinecek bir alan ve silinecek detay katmanı varsa işlemi yap
             if (sizeX > 0 && sizeZ > 0 && numDetailLayers > 0)
             {
                 for (int l = 0; l < numDetailLayers; l++)
                 {
-                    // O bölgedeki otları array olarak çekiyoruz
                     int[,] details = tData.GetDetailLayer(startX, startZ, sizeX, sizeZ, l);
 
                     for (int z = 0; z < sizeZ; z++)
                     {
                         for (int x = 0; x < sizeX; x++)
                         {
-                            // Detay yoğunluğunu "0" yaparak otu kökünden siliyoruz
                             details[z, x] = 0;
                         }
                     }
-                    // Temizlenmiş array'i Terrain'e geri kaydediyoruz
                     tData.SetDetailLayer(startX, startZ, l, details);
                 }
             }
         }
     }
 
-    public bool IsSoilTilled(Vector3 worldPos)
+    public bool IsLayerDominant(Vector3 worldPos, int targetLayerIndex)
     {
         TerrainData tData = terrain.terrainData;
         Vector3 terrainPos = worldPos - terrain.transform.position;
         int mapX = (int)((terrainPos.x / tData.size.x) * tData.alphamapWidth);
         int mapZ = (int)((terrainPos.z / tData.size.z) * tData.alphamapHeight);
-        float[,,] alpha = tData.GetAlphamaps(Mathf.Clamp(mapX, 0, tData.alphamapWidth - 1), Mathf.Clamp(mapZ, 0, tData.alphamapHeight - 1), 1, 1);
-        return alpha[0, 0, tilledLayerIndex] > 0.5f || alpha[0, 0, wetLayerIndex] > 0.5f;
+
+        mapX = Mathf.Clamp(mapX, 0, tData.alphamapWidth - 1);
+        mapZ = Mathf.Clamp(mapZ, 0, tData.alphamapHeight - 1);
+
+        float[,,] alpha = tData.GetAlphamaps(mapX, mapZ, 1, 1);
+
+        return alpha[0, 0, targetLayerIndex] > 0.5f;
+    }
+
+    public bool IsSoilTilled(Vector3 worldPos)
+    {
+        return IsLayerDominant(worldPos, tilledLayerIndex) || IsLayerDominant(worldPos, wetLayerIndex);
     }
 
     public bool IsSoilWet(Vector3 worldPos)
     {
-        TerrainData tData = terrain.terrainData;
-        Vector3 terrainPos = worldPos - terrain.transform.position;
-        int mapX = (int)((terrainPos.x / tData.size.x) * tData.alphamapWidth);
-        int mapZ = (int)((terrainPos.z / tData.size.z) * tData.alphamapHeight);
-        float[,,] alpha = tData.GetAlphamaps(Mathf.Clamp(mapX, 0, tData.alphamapWidth - 1), Mathf.Clamp(mapZ, 0, tData.alphamapHeight - 1), 1, 1);
-        return alpha[0, 0, wetLayerIndex] > 0.5f;
+        return IsLayerDominant(worldPos, wetLayerIndex);
     }
 
     public TohumVerisi GetTohumVerisi(int id) => tohumListesi.Find(t => t.tohumID == id);
