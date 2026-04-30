@@ -155,9 +155,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
-  walkSpeed: 10
-  runSpeed: 30
-  jumpHeight: 5
+  walkSpeed: 5
+  runSpeed: 15
+  jumpHeight: 1
   gravity: -10
 --- !u!143 &2966061148859928136
 CharacterController:
@@ -316,7 +316,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
   ShowTopMostFoldoutHeaderGroup: 1
-  currentSeedID: 0
+  aktifAlet: 0
+  eldekiObje: {fileID: 0}
 --- !u!1 &2772005619223278391
 GameObject:
   m_ObjectHideFlags: 0
