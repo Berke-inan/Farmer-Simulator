@@ -7,6 +7,10 @@ public class PullukMakinesi : NetworkBehaviour
     public float islemAraligi = 0.1f;
     private float islemSayaci = 0f;
 
+    [Header("Toprak Boyama Noktalarý")]
+    [Tooltip("Aþaðýya doðru lazerin atýlacaðý noktalar. (Örneðin: 5 adet demir pivotunu buraya sürükleyin)")]
+    public Transform[] lazerNoktalari;
+
     private void Awake()
     {
         anaGovde = GetComponentInParent<AttachableEquipment>();
@@ -14,53 +18,43 @@ public class PullukMakinesi : NetworkBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        // 1. AÞAMA: Kutu bir þeye deðiyor mu?
-        Debug.Log("ADIM 1: Sensör þuna deðiyor -> " + other.gameObject.name);
-
         if (!IsServer) return;
 
-        // 2. AÞAMA: Makine çalýþýyor mu?
-        if (anaGovde == null || !anaGovde.isWorking.Value)
-        {
-            // Konsol kirlenmesin diye burayý kapalý tutuyoruz, V'ye basýldýðýndan eminiz.
-            return;
-        }
+        // Makine çalýþmýyorsa dur
+        if (anaGovde == null || !anaGovde.isWorking.Value) return;
 
         islemSayaci += Time.deltaTime;
         if (islemSayaci < islemAraligi) return;
 
-        // 3. AÞAMA: Deðdiði þey Terrain mi?
         if (other is TerrainCollider tCol)
         {
-            Debug.Log("ADIM 2: Terrain (Toprak) algýlandý! Lazer atýlýyor...");
+            TerrainLayerManager manager = tCol.GetComponent<TerrainLayerManager>();
+            if (manager == null) return;
 
-            Vector3 baslangicNoktasi = transform.position + Vector3.up * 0.5f;
+            bool islemYapildi = false;
 
-            // DÝKKAT: QueryTriggerInteraction.Ignore ekledik! 
-            // Çünkü lazer yanlýþlýkla senin kendi sensörüne (Box Collider) çarpýp topraðý göremiyor olabilirdi.
-            if (Physics.Raycast(baslangicNoktasi, Vector3.down, out RaycastHit hit, 5f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+            // LÝSTEDEKÝ HER BÝR DEMÝRDEN (NOKTADAN) AYRI AYRI LAZER AT
+            foreach (Transform nokta in lazerNoktalari)
             {
-                Debug.Log("ADIM 3: Lazerin çarptýðý tam obje -> " + hit.collider.gameObject.name);
+                if (nokta == null) continue;
 
-                if (hit.collider == tCol)
+                // Lazerin baþlangýç noktasýný, o anki demirin biraz üstü olarak belirliyoruz
+                Vector3 baslangicNoktasi = nokta.position + Vector3.up * 0.5f;
+
+                if (Physics.Raycast(baslangicNoktasi, Vector3.down, out RaycastHit hit, 5f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
                 {
-                    TerrainLayerManager manager = tCol.GetComponent<TerrainLayerManager>();
-
-                    if (manager != null)
+                    if (hit.collider == tCol)
                     {
-                        Debug.Log("ADIM 4: HER ÞEY KUSURSUZ! Boyama komutu gönderildi.");
                         manager.PaintSoilServerRpc(hit.point, 1);
-                        islemSayaci = 0f;
-                    }
-                    else
-                    {
-                        Debug.LogError("HATA: Terrain üzerinde 'TerrainLayerManager' kodu bulunamadý! Arkadaþýn bu kodu nereye koydu?");
+                        islemYapildi = true; // Lazerlerden en az biri topraðý vurdu
                     }
                 }
             }
-            else
+
+            // Eðer en az bir demir topraðý boyadýysa sayacý sýfýrla ki taramaya devam etsin
+            if (islemYapildi)
             {
-                Debug.LogWarning("HATA: Lazer hiçbir þeye çarpmadý! Sensör çok mu havada?");
+                islemSayaci = 0f;
             }
         }
     }

@@ -5,53 +5,35 @@ public class BicerdoverMakinesi : NetworkBehaviour
 {
     private AttachableEquipment anaGovde;
 
-    [Header("Hasat Ayarlarý")]
-    [Tooltip("Makinenin ekinleri keseceði alanýn geniþliði")]
-    public float kesimYaricapi = 2.5f;
-    [Tooltip("Saniyede kaç kere etrafý tarasýn?")]
-    public float islemAraligi = 0.2f;
-    private float islemSayaci = 0f;
-
     private void Awake()
     {
         anaGovde = GetComponentInParent<AttachableEquipment>();
         if (anaGovde == null) Debug.LogError("DÝKKAT: BicerdoverMakinesi kodu, AttachableEquipment ile ayný veya alt objede olmalý!");
     }
 
-    private void Update()
+    // ÝÞTE SENÝN EKLEDÝÐÝN O "IS TRIGGER" ÝÞARETLÝ BOX COLLIDER BURAYI TETÝKLER!
+    private void OnTriggerStay(Collider other)
     {
-        // 1. Ýzinleri kontrol et
+        // Sadece server'da çalýþsýn ve makine 'V' ile çalýþtýrýlmýþsa iþlem yapsýn
         if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value) return;
 
-        // 2. Performans sayacý
-        islemSayaci += Time.deltaTime;
-        if (islemSayaci < islemAraligi) return;
-
-        // 3. Etrafý Tara (OrakEylemi'ndeki mantýk)
-        // Lazer yerine geniþ bir küre ile etrafý tarýyoruz ki makinenin aðzýna giren her þeyi alsýn
-        Collider[] etraftakiler = Physics.OverlapSphere(transform.position, kesimYaricapi);
-
-        bool hasatYapildiMi = false;
-
-        foreach (var col in etraftakiler)
+        // Yeþil sensörün içine giren obje bir ekin mi?
+        if (other.TryGetComponent(out ModularCrop ekin))
         {
-            if (col.TryGetComponent(out ModularCrop ekin))
+            // Ekin büyümüþ veya çürümüþ mü?
+            if (ekin.IsGrown || ekin.IsRotted)
             {
-                // Ekin büyümüþ veya çürümüþse
-                if (ekin.IsGrown || ekin.IsRotted)
+                if (ekin.TryGetComponent(out NetworkObject netObj))
                 {
-                    if (ekin.TryGetComponent(out NetworkObject netObj))
+                    // Çifte kesimi önlemek için objenin hala aðda var olduðundan emin ol
+                    if (netObj.IsSpawned)
                     {
                         bool urunVerecekMi = ekin.IsGrown; // Saðlýklýysa ürün verir
                         HasatEtServerRpc(netObj.NetworkObjectId, ekin.transform.position, urunVerecekMi);
-                        hasatYapildiMi = true;
                     }
                 }
             }
         }
-
-        // Eðer en az 1 ekin kestiysek sayacý sýfýrla
-        if (hasatYapildiMi) islemSayaci = 0f;
     }
 
     [Rpc(SendTo.Server)]
@@ -59,7 +41,7 @@ public class BicerdoverMakinesi : NetworkBehaviour
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(ekinObjId, out NetworkObject obj))
         {
-            // 1. Ürün Saçma (Arkadaþýnýn Kodu)
+            // 1. Ürün Saçma
             if (urunVer)
             {
                 TohumVerisi v = TerrainLayerManager.Instance.tohumListesi.Find(x => obj.name.Contains(x.tohumAdi));
@@ -74,7 +56,7 @@ public class BicerdoverMakinesi : NetworkBehaviour
                 }
             }
 
-            // 2. Tarlayý Kurutma (Arkadaþýnýn Kodu)
+            // 2. Tarlayý Kurutma
             bool wasWet = TerrainLayerManager.Instance.IsSoilWet(ekinPozisyonu);
 
             // 3. Ekini Yok Et
@@ -86,12 +68,5 @@ public class BicerdoverMakinesi : NetworkBehaviour
                 TerrainLayerManager.Instance.PaintSoilServerRpc(ekinPozisyonu, TerrainLayerManager.Instance.tilledLayerIndex);
             }
         }
-    }
-
-    // Hasat alanýný Unity editöründe kýrmýzý bir küre olarak görmek için
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = new Color(1, 0, 0, 0.3f);
-        Gizmos.DrawSphere(transform.position, kesimYaricapi);
     }
 }

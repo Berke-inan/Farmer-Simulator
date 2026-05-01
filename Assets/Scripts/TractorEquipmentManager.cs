@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 
 [RequireComponent(typeof(TractorController))]
+[RequireComponent(typeof(Rigidbody))] // Hız kontrolü için zorunlu kılındı
 public class TractorEquipmentManager : NetworkBehaviour
 {
     [Header("Bağlantı Noktaları (Hitch Points)")]
@@ -12,6 +13,7 @@ public class TractorEquipmentManager : NetworkBehaviour
     [Header("Mesafe Ayarları")]
     [Tooltip("Topuzların birbirine ne kadar yaklaşması gerekiyor?")]
     public float maxAttachDistance = 2.0f;
+    public float maxAttachSpeed = 2.0f; // YENİ: Fırlamayı önlemek için hız sınırı
 
     [Header("Kamera Kaydırma Ayarları")]
     public Transform cameraTarget;
@@ -21,12 +23,14 @@ public class TractorEquipmentManager : NetworkBehaviour
     private AttachableEquipment equipmentInRange;
     private ConfigurableJoint currentJoint;
     private TractorController tractorController;
+    private Rigidbody rb; // YENİ: Hız kontrolü için eklendi
 
     private Coroutine cameraCoroutine;
 
     private void Awake()
     {
         tractorController = GetComponent<TractorController>();
+        rb = GetComponent<Rigidbody>(); // YENİ: Atama yapıldı
     }
 
     private void Update()
@@ -37,6 +41,13 @@ public class TractorEquipmentManager : NetworkBehaviour
             // --- F TUŞU: EKİPMAN TAK / ÇIKAR ---
             if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
             {
+                // YENİ GÜVENLİK: Traktör çok hızlıysa takma/çıkarma işlemini iptal et
+                if (rb.linearVelocity.magnitude > maxAttachSpeed)
+                {
+                    Debug.LogWarning("Çok hızlı gidiyorsun! Ekipman işlemi iptal edildi. Hızın: " + rb.linearVelocity.magnitude);
+                    return;
+                }
+
                 if (currentJoint == null && equipmentInRange != null)
                 {
                     float distToFront = Vector3.Distance(equipmentInRange.hitchPoint.position, frontHitchPoint.position);
@@ -163,18 +174,31 @@ public class TractorEquipmentManager : NetworkBehaviour
             Rigidbody eqRb = eq.GetComponent<Rigidbody>();
             Transform targetPoint = (side == "Front") ? frontHitchPoint : rearHitchPoint;
 
+            // 1. Fiziksel Hazırlık: Çarpışmaları kapat
             eqRb.isKinematic = true;
             eqRb.detectCollisions = false;
 
+            // YENİ GÜVENLİK: Makinenin o anki bütün hızını ve savrulmasını sıfırla (Fırlamayı önler)
+            eqRb.linearVelocity = Vector3.zero;
+            eqRb.angularVelocity = Vector3.zero;
+
+            // ==========================================
+            // YENİ EKLENEN: Alet bağlandı, park frenini indir!
+            // ==========================================
+            eq.ParkFreniniCek(false);
+
+            // SADECE BİÇERDÖVERİ DÖNDÜR (Orijinal çalışan mantığın)
             if (eq.type == AttachableEquipment.EquipmentType.Header)
             {
                 eq.transform.rotation = transform.rotation * Quaternion.Euler(0, 180f, 0);
             }
+            // DİĞERLERİ (Pulluk/Römork) KENDİ DOĞAL AÇISINDA KALACAK
 
+            // Pozisyonu ucu ucuna çek
             eq.transform.position = targetPoint.position - (eq.hitchPoint.position - eq.transform.position);
-
             Physics.SyncTransforms();
 
+            // BAĞLANTI (JOINT) OLUŞTURMA 
             ConfigurableJoint joint = gameObject.AddComponent<ConfigurableJoint>();
             joint.connectedBody = eqRb;
             joint.anchor = transform.InverseTransformPoint(targetPoint.position);
@@ -185,7 +209,6 @@ public class TractorEquipmentManager : NetworkBehaviour
             {
                 joint.angularYMotion = ConfigurableJointMotion.Locked;
                 joint.angularZMotion = ConfigurableJointMotion.Locked;
-
                 joint.angularXMotion = ConfigurableJointMotion.Limited;
                 SoftJointLimit highXLimit = new SoftJointLimit { limit = 20f };
                 SoftJointLimit lowXLimit = new SoftJointLimit { limit = -20f };
@@ -196,14 +219,17 @@ public class TractorEquipmentManager : NetworkBehaviour
             {
                 joint.angularXMotion = ConfigurableJointMotion.Free;
                 joint.angularZMotion = ConfigurableJointMotion.Limited;
+                // Pulluğun traktörün içine girmesini engelleyen 50 derecelik güvenli sınırın duruyor
                 joint.angularYMotion = ConfigurableJointMotion.Limited;
 
-                SoftJointLimit angularYLimit = new SoftJointLimit { limit = 60f };
+                SoftJointLimit angularYLimit = new SoftJointLimit { limit = 50f };
                 joint.angularYLimit = angularYLimit;
             }
 
+            // Traktör ve aletin birbirine çarpıp uçmasını engelle
             IgnoreCollisions(eq.gameObject, true);
 
+            // Sistemi normale döndür
             eqRb.detectCollisions = true;
             eqRb.isKinematic = false;
 
@@ -220,14 +246,30 @@ public class TractorEquipmentManager : NetworkBehaviour
             AttachableEquipment eq = currentJoint.connectedBody.GetComponent<AttachableEquipment>();
             if (eq != null)
             {
-                IgnoreCollisions(eq.gameObject, false);
-
-                // YENİ ÖZELLİK: Aleti traktörden çıkardığın an makinenin çalışması (isWorking) otomatik dursun
+                // Aleti traktörden çıkardığın an makinenin çalışması (isWorking) otomatik dursun
                 eq.isWorking.Value = false;
+
+                // ==========================================
+                // YENİ EKLENEN: Alet çıkarıldı, el frenini çek!
+                // ==========================================
+                eq.ParkFreniniCek(true);
+
+                // YENİ GÜVENLİK: Çarpışmaları anında açma, 2 saniye bekle ki fırlamasın
+                StartCoroutine(GuvenliCarpismaAc(eq.gameObject));
             }
 
             Destroy(currentJoint);
             currentJoint = null;
+        }
+    }
+
+    // YENİ GÜVENLİK: Çıkarılan aletin çarpışmalarını 2 saniye sonra açan sistem
+    private System.Collections.IEnumerator GuvenliCarpismaAc(GameObject equipment)
+    {
+        yield return new WaitForSeconds(2f);
+        if (equipment != null)
+        {
+            IgnoreCollisions(equipment, false);
         }
     }
 

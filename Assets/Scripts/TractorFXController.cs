@@ -22,89 +22,149 @@ public class TractorFXController : NetworkBehaviour
     public float maxMudEmission = 80f;   // En yüksek hýzdaki çamur miktarý
     public float maxSpeed = 15f;         // Aracýn tahmini son hýzý
 
+    [Header("Zemin Ayarlarý")]
+    [Tooltip("Taþ zeminin Terrain Layers içindeki sýrasý (0'dan baþlar).")]
+    public int tasZeminIndex = 3;
+
+    [Header("Çamur Dinamik Görünüm")]
+    [Tooltip("Hýza göre çamurun saydamlýðý (Alpha) 30 ile 160 arasýnda deðiþir.")]
+    public float minMudAlpha = 30f;
+    public float maxMudAlpha = 160f;
+    [Tooltip("Hýza göre çamurun fýrlama hýzý (Start Speed) 10 ile 20 arasýnda deðiþir.")]
+    public float minMudStartSpeed = 10f;
+    public float maxMudStartSpeed = 20f;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         tractorController = GetComponent<TractorController>();
 
-        // Güvenlik Uyarýsý: Inspector'da objeleri sürüklemeyi unutursan konsolda uyarýr
         if (exhaustSmoke == null)
             Debug.LogWarning($"{gameObject.name} üzerinde 'Exhaust Smoke' partikülü eksik!");
     }
 
     private void Update()
     {
-        // 1. KONTROL: Traktörün içinde biri var mý?
-        // (Senin kusursuz çalýþan IsOccupied deðiþkenini kullanýyoruz)
         bool isPlayerIn = tractorController.IsOccupied;
 
-        // EÐER TRAKTÖR BOÞSA: Tüm efektleri durdur ve Update'i burada kes.
         if (!isPlayerIn)
         {
             if (exhaustSmoke != null && exhaustSmoke.isPlaying) StopAllEffects();
             return;
         }
 
-        // 2. HIZ OKUMA: Aracýn o anki gerçek fiziksel hýzýný al
         float currentSpeed = rb.linearVelocity.magnitude;
 
-        // 3. EGZOZ DUMANI YÖNETÝMÝ
+        // --- EGZOZ DUMANI YÖNETÝMÝ ---
         if (exhaustSmoke != null)
         {
-            // Eðer partikül durmuþsa, tekrar çalýþtýr
             if (!exhaustSmoke.isPlaying) exhaustSmoke.Play();
 
-            // Partikülün "Emission" (Üretim) modülüne eriþ
             var emission = exhaustSmoke.emission;
-
-            // KESÝN ÇÖZÜM: Inspector'da Emission tikini unuttuysan kod zorla açar!
             if (!emission.enabled) emission.enabled = true;
 
-            // Hýza göre duman yoðunluðunu hesapla (Yavaþken idleRate, Hýzlýyken maxRate)
             float speedFactor = Mathf.InverseLerp(0, maxSpeed, currentSpeed);
             float targetRate = Mathf.Lerp(idleSmokeRate, maxSmokeRate, speedFactor);
 
-            // Hesaplanan dumaný sisteme uygula
             emission.rateOverTime = targetRate;
 
-            // HATA AYIKLAMA (Eðer duman çýkmazsa baþýndaki // iþaretini silip konsola bak)
-               Debug.Log($"Duman Çalýyor: {exhaustSmoke.isPlaying} | Hedef Duman: {targetRate} | Mevcut: {emission.rateOverTime.constant}");
+            // Debug.Log($"Duman Çalýyor: {exhaustSmoke.isPlaying} | Hedef Duman: {targetRate} | Mevcut: {emission.rateOverTime.constant}");
         }
 
-        // 4. ÇAMUR YÖNETÝMÝ
+        // --- ÇAMUR YÖNETÝMÝ ---
         ManageMud(currentSpeed);
     }
 
     private void ManageMud(float speed)
     {
         float mudRate = 0f;
+        float speedFactor = 0f;
+        bool tasZemindeMi = false;
 
-        // Sadece belirli bir hýzý geçerse çamur atmaya baþla
-        if (speed >= minSpeedForMud)
+        // 1. ZEMÝN KONTROLÜ (Aþaðýya Lazer At)
+        if (Physics.Raycast(transform.position + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 5f))
         {
-            float speedFactor = Mathf.InverseLerp(minSpeedForMud, maxSpeed, speed);
+            Terrain terrain = hit.collider.GetComponent<Terrain>();
+            if (terrain != null)
+            {
+                int baskinDoku = BaskinDokuyuBul(hit.point, terrain);
+                if (baskinDoku == tasZeminIndex)
+                {
+                    tasZemindeMi = true;
+                }
+            }
+        }
+
+        // 2. HIZ VE ÇAMUR ÜRETÝM (Emission) HESAPLAMASI
+        // Taþta deðilsek ve yeterince hýzlýysak çamur üretelim
+        if (speed >= minSpeedForMud && !tasZemindeMi)
+        {
+            speedFactor = Mathf.InverseLerp(minSpeedForMud, maxSpeed, speed);
             mudRate = Mathf.Lerp(0, maxMudEmission, speedFactor);
         }
 
-        // Listedeki tüm tekerlek çamurlarýna bu ayarý uygula
+        // 3. DÝNAMÝK GÖRÜNÜM HESAPLAMALARI
+        // Unity'de Alpha deðeri kod içinde 0.0f ile 1.0f arasýndadýr. O yüzden 255'e bölüyoruz.
+        float currentAlpha = Mathf.Lerp(minMudAlpha, maxMudAlpha, speedFactor) / 255f;
+        float currentStartSpeed = Mathf.Lerp(minMudStartSpeed, maxMudStartSpeed, speedFactor);
+
+        // Bütün tekerlek efektlerine uygula
         foreach (var mud in wheelMuds)
         {
             if (mud != null)
             {
                 var emission = mud.emission;
+                var main = mud.main; // Start Color ve Start Speed'e ulaþmak için Main Modülünü çekiyoruz
 
                 if (mudRate > 0 && !mud.isPlaying) mud.Play();
 
+                // Çamur miktarýný uygula
                 emission.rateOverTime = mudRate;
+
+                // Dinamik Hýz ayarýný uygula
+                main.startSpeed = currentStartSpeed;
+
+                // Dinamik Saydamlýk (Alpha) ayarýný uygula
+                Color tempColor = main.startColor.color;
+                tempColor.a = currentAlpha;
+                main.startColor = tempColor;
 
                 if (mudRate <= 0 && mud.isPlaying) mud.Stop();
             }
         }
     }
 
+    // --- UNITY TERRAIN DOKU OKUMA MATEMATÝÐÝ ---
+    private int BaskinDokuyuBul(Vector3 dunyaPozisyonu, Terrain terrain)
+    {
+        TerrainData terrainData = terrain.terrainData;
+        Vector3 terrainPozisyonu = terrain.transform.position;
+
+        int mapX = Mathf.RoundToInt(((dunyaPozisyonu.x - terrainPozisyonu.x) / terrainData.size.x) * terrainData.alphamapWidth);
+        int mapZ = Mathf.RoundToInt(((dunyaPozisyonu.z - terrainPozisyonu.z) / terrainData.size.z) * terrainData.alphamapHeight);
+
+        if (mapX < 0 || mapZ < 0 || mapX >= terrainData.alphamapWidth || mapZ >= terrainData.alphamapHeight)
+            return -1;
+
+        float[,,] splatmapData = terrainData.GetAlphamaps(mapX, mapZ, 1, 1);
+
+        int enBaskinIndex = 0;
+        float enYuksekOran = 0f;
+
+        for (int i = 0; i < terrainData.alphamapLayers; i++)
+        {
+            if (splatmapData[0, 0, i] > enYuksekOran)
+            {
+                enYuksekOran = splatmapData[0, 0, i];
+                enBaskinIndex = i;
+            }
+        }
+
+        return enBaskinIndex;
+    }
+
     private void StopAllEffects()
     {
-        // Traktörden inildiði an tüm partikülleri anýnda kesen güvenlik metodu
         if (exhaustSmoke != null) exhaustSmoke.Stop();
 
         foreach (var mud in wheelMuds)

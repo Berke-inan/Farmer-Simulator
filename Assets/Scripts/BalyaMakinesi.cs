@@ -12,7 +12,6 @@ public class BalyaMakinesi : NetworkBehaviour
     [Tooltip("Balyanýn doðacaðý yer (Makinenin arkasýnda bir boþ Transform)")]
     public Transform balyaCikisNoktasi;
 
-    // --- DÝNAMÝK HAFIZA SÝSTEMÝ ---
     private string iceridekiMalzemeTipi = "";
     private GameObject uretilecekBalyaPrefab;
 
@@ -25,33 +24,30 @@ public class BalyaMakinesi : NetworkBehaviour
         }
     }
 
-    // --- SENÝN KUSURSUZ ÇALIÞAN MANTIÐIN: OnTriggerEnter ---
     private void OnTriggerEnter(Collider other)
     {
-        // 1. Ýzinleri Kontrol Et (Sadece sunucu ve makine açýksa çalýþýr)
         if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value) return;
 
-        // 2. Altýmýzdan geçen obje "BalyalanabilirObje" mi?
         if (other.TryGetComponent(out BalyalanabilirObje yerdekiObje))
         {
             if (yerdekiObje.NetworkObject.IsSpawned)
             {
-                // DURUM 1: Makine tamamen boþsa, yuttuðu ilk objenin genetiðini hafýzaya al
+                //Makine tamamen boþsa, yuttuðu ilk objenin genetiðini hafýzaya al
                 if (yutulanMiktar.Value == 0)
                 {
                     iceridekiMalzemeTipi = yerdekiObje.objeTipi;
                     uretilecekBalyaPrefab = yerdekiObje.balyaPrefab;
                 }
-                // DURUM 2: Makine doluysa ama yerdeki obje FARKLI bir tipse yutma!
+                //Makine doluysa ama yerdeki obje FARKLI bir tipse yutma!
                 else if (iceridekiMalzemeTipi != yerdekiObje.objeTipi)
                 {
                     return; // Ýþlemi iptal et, üzerinden geçip gitsin
                 }
 
-                // DURUM 3: Tip uyuyorsa (veya makine boþsa) objeyi aðdan sil (Yut)
+                //Tip uyuyorsa (veya makine boþsa) objeyi aðdan sil
                 yerdekiObje.NetworkObject.Despawn();
 
-                // DURUM 4: Mideyi büyüt ve kapasite dolduysa balya fýrlat
+                //Mideyi büyüt ve kapasite dolduysa balya fýrlat
                 MakineMidesiniDoldurServerRpc();
             }
         }
