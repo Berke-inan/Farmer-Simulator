@@ -16,7 +16,7 @@ public class PickupableTool : NetworkBehaviour, IInteractable
     public NetworkVariable<bool> isEquipped = new NetworkVariable<bool>(false);
     public NetworkVariable<bool> isStored = new NetworkVariable<bool>(false);
 
-    private Transform targetCamera;
+    public Transform targetCamera;
     private Collider aletCollider;
     private Rigidbody rb;
 
