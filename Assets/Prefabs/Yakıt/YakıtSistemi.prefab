@@ -1,0 +1,1384 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1410133486532693267
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2397359827460420925}
+  - component: {fileID: 3457252909495284557}
+  - component: {fileID: 4178208217152538659}
+  - component: {fileID: 9148827937943650945}
+  - component: {fileID: 2162077115473482141}
+  - component: {fileID: 3145937992693177105}
+  - component: {fileID: 3177972946439536937}
+  m_Layer: 0
+  m_Name: Tabanca
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2397359827460420925
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410133486532693267}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.66292083, z: -0, w: 0.74868953}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3517724788253603144}
+  m_Father: {fileID: 1916864334926920791}
+  m_LocalEulerAnglesHint: {x: 0, y: 83.046, z: 0}
+--- !u!54 &3457252909495284557
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410133486532693267}
+  serializedVersion: 5
+  m_Mass: 5
+  m_LinearDamping: 2
+  m_AngularDamping: 2
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &4178208217152538659
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410133486532693267}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.7968597, y: 0.87331104, z: 1.8890352}
+  m_Center: {x: 0.88063425, y: -0.34805536, z: 1.3072672}
+--- !u!114 &9148827937943650945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410133486532693267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 2121546786
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &2162077115473482141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410133486532693267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d41fa61c8ca5f348b4a8319794d4241, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PickupableTool
+  ShowTopMostFoldoutHeaderGroup: 1
+  aletTipi: 7
+  offset: {x: 0.5, y: -0.4, z: 1}
+  followSpeed: 10
+  isStoreable: 1
+  isEquipped:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  isStored:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  targetCamera: {fileID: 0}
+--- !u!114 &3145937992693177105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410133486532693267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0da921323fabc24fa2cf1c131e3d2fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PompaTabancasi
+  ShowTopMostFoldoutHeaderGroup: 1
+  bagliIstasyon: {fileID: 5423511460529394634}
+  dolumMesafesi: 4
+  traktorDolumHizi: 20
+--- !u!114 &3177972946439536937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410133486532693267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08c51434b2c2f88449a5827bbd59f609, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HortumMesafeKontrol
+  ShowTopMostFoldoutHeaderGroup: 1
+  hortumBaslangicNoktasi: {fileID: 2949878764792244695}
+  maxUzaklasmaMesafesi: 5
+--- !u!1 &2052568073395595072
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1916864334926920791}
+  m_Layer: 0
+  m_Name: "Yak\u0131tSistemi"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1916864334926920791
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052568073395595072}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -23.978, y: 4.609, z: -3.86}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7747610854240035134}
+  - {fileID: 7014194930595309124}
+  - {fileID: 2397359827460420925}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7934255516133207632
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2949878764792244695}
+  m_Layer: 0
+  m_Name: StartPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2949878764792244695
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7934255516133207632}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.00965, y: -0.00065, z: 0.00686}
+  m_LocalScale: {x: 0.28756183, y: 0.28756183, z: 0.28756183}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7747610854240035134}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1878607763074333619
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1916864334926920791}
+    m_Modifications:
+    - target: {fileID: 159530780944341223, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 159530780944341223, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 223552839446491340, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 223552839446491340, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 310772880696970181, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 310772880696970181, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 312794796577240361, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 312794796577240361, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 312794796577240361, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 388985902356362824, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 474854094729075533, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 770765507890248453, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 770765507890248453, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 770765507890248453, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 773231015555268585, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 773231015555268585, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 844583737690774701, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 844583737690774701, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 844583737690774701, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 881432579452455594, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1084771067897666536, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1107982131148615401, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1144799948033344537, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1144799948033344537, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1170921654720500246, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1170921654720500246, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1170921654720500246, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1252068349596453116, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1252068349596453116, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1252068349596453116, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1353012932411467476, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1353012932411467476, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1508329539239502966, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1508329539239502966, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1508329539239502966, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1515631286602786507, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1609289552999847340, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1609289552999847340, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1631424836008940108, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1652761607308026239, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1652761607308026239, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1652761607308026239, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1657694857754055685, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1668004950195585030, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1761598284652129477, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1996716834415763620, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1996716834415763620, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1996716834415763620, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039042477951153905, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2039042477951153905, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2078018599783138013, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2078018599783138013, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2078018599783138013, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2258319148596467972, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2258319148596467972, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2258319148596467972, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2429072066625969895, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2429072066625969895, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2429072066625969895, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2591290719098604935, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2591290719098604935, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2727255815637848336, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2727255815637848336, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2727255815637848336, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2975728232944361111, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2975728232944361111, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2985106290167241874, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2985106290167241874, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2985106290167241874, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3066263740492707148, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3066263740492707148, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3066263740492707148, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3094485949586757999, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3094485949586757999, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3094485949586757999, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3125820899490350024, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3275404020371852601, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3285642452114145889, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3304031643519470999, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3304031643519470999, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3304031643519470999, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3524745581223213015, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3604396803642289749, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3604396803642289749, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 3772616667802752279, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3772616667802752279, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2583cfb90b70e95478de3c616af223a1, type: 2}
+    - target: {fileID: 3791263895336807684, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3869094666740527753, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3869094666740527753, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4012683992000320651, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4158927234785422399, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4158927234785422399, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4338540549613600042, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4338540549613600042, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4338540549613600042, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4567386709912468003, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4567386709912468003, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4567386709912468003, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4625879425001280011, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634930121725598430, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634930121725598430, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4733882268898331013, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4733882268898331013, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4801845877336098530, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4801845877336098530, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4875727276500231907, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4934315688229951215, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4934315688229951215, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5013325675359071963, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5013325675359071963, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5013325675359071963, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5117620640681797827, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5418880564334703472, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5418880564334703472, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5435628011748289796, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5435628011748289796, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5435628011748289796, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5845773214568714098, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5845773214568714098, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5845773214568714098, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5886995849920490268, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5886995849920490268, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5897824061905212138, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5897824061905212138, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5941699537710600871, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5941699537710600871, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6094341239379979403, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6094341239379979403, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6094341239379979403, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6183643967039522748, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6183643967039522748, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6183643967039522748, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6332170615719147285, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6332170615719147285, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6394093657063955732, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6394093657063955732, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6470107732627879370, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6470107732627879370, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6490602318244505392, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6490602318244505392, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6490602318244505392, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6524599592815479954, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6524599592815479954, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536476068904375380, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6536476068904375380, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6629695102294621655, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6667947472774584487, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6667947472774584487, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6668942474908562859, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6668942474908562859, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6817826565161932535, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6817826565161932535, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6817826565161932535, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6830596445042600081, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7097154671961935359, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7097154671961935359, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7097154671961935359, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7110744971155761644, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7110744971155761644, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7116707801066308258, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7116707801066308258, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7116707801066308258, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7124770787678728930, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7124770787678728930, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7124770787678728930, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7270587731476835059, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7430015844693231231, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7430015844693231231, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7527495815505731358, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7527495815505731358, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7527495815505731358, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534488712973466453, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534488712973466453, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7697599735073800054, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7697599735073800054, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7697599735073800054, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7792980654338510708, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7792980654338510708, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8074560791717398349, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Name
+      value: Hortum
+      objectReference: {fileID: 0}
+    - target: {fileID: 8088318507532285674, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8088318507532285674, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8173233026761418076, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8551717335252170250, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8551717335252170250, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8551717335252170250, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8596345799104736043, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8596345799104736043, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8596345799104736043, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8685639963691141380, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ConnectedBody
+      value: 
+      objectReference: {fileID: 3457252909495284557}
+    - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -4.733
+      objectReference: {fileID: 0}
+    - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.0591002
+      objectReference: {fileID: 0}
+    - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.0115001
+      objectReference: {fileID: 0}
+    - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8970974055284457029, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8970974055284457029, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8970974055284457029, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9010190900142297218, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9010190900142297218, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 9053229269564861004, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9053229269564861004, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9053229269564861004, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9083421559381857667, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_EnableProjection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9083421559381857667, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ProjectionDistance
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 9146709560912741634, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_Mass
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9146709560912741634, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_LinearDamping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9146709560912741634, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_AngularDamping
+      value: 2
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+--- !u!4 &7014194930595309124 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+  m_PrefabInstance: {fileID: 1878607763074333619}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &3988994598319706787
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2397359827460420925}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.8799995
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.45
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.2300007
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.45108402
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.5067179
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.58440083
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.44523695
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -77.833
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -158.86
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 64.72
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: ff524737a95ab804b91a22035175e40c, type: 2}
+    - target: {fileID: 919132149155446097, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+      propertyPath: m_Name
+      value: PompaTabanca
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+--- !u!4 &3517724788253603144 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0f80f06d5ef95c342bae1f2f525c3c25, type: 3}
+  m_PrefabInstance: {fileID: 3988994598319706787}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &7786638511465907925
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1916864334926920791}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 278.9
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 278.9
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 278.9
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -12.342194
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.2990003
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.06000018
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 5d64c8e6b8943384a94ae166f31956b5, type: 2}
+    - target: {fileID: 919132149155446097, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      propertyPath: m_Name
+      value: YakitDeposu
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2949878764792244695}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4059858062764248154}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1794545247370227356}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 438759058226050765}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5423511460529394634}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 608983488141831836}
+  m_SourcePrefab: {fileID: 100100000, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+--- !u!1 &6975754393387826052 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+  m_PrefabInstance: {fileID: 7786638511465907925}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &4059858062764248154
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6975754393387826052}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.02, y: 0.015950592, z: 0.017948493}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &1794545247370227356
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6975754393387826052}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &438759058226050765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6975754393387826052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 792396700
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &5423511460529394634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6975754393387826052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84c027755c5517f4cb1e5a1f73c18765, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::YakitIstasyonu
+  ShowTopMostFoldoutHeaderGroup: 1
+  istasyonYakiti:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 1000
+  algilamaMesafesi: 6
+  bidonDolumHizi: 25
+--- !u!65 &608983488141831836
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6975754393387826052}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.02, y: 0.015950592, z: 0.017948493}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &7747610854240035134 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6bd955ba3faede3479fc26b7a493ae59, type: 3}
+  m_PrefabInstance: {fileID: 7786638511465907925}
+  m_PrefabAsset: {fileID: 0}
