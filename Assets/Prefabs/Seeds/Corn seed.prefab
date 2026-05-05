@@ -177,7 +177,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!65 &562801622352838114
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -249,5 +249,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SellableItem
   ShowTopMostFoldoutHeaderGroup: 1
+  itemData: {fileID: 11400000, guid: fc9cc8904b62fdb408723340796537f4, type: 2}
   price: 5
-  itemName: CornSeed

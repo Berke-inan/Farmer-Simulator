@@ -1,130 +1,294 @@
-/* Arka planı hafif şeffaf siyah yapar */
+/* --- ARKA PLAN VE ÇERÇEVE --- */
 .main-overlay {
     flex-grow: 1;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(5, 5, 8, 0.95);
     align-items: center;
     justify-content: center;
 }
 
-/* Laptop ekranı görünümü */
 .laptop-screen {
-    width: 800px;
-    height: 500px;
-    background-color: rgb(25, 25, 30);
-    border-radius: 10px;
-    border-width: 2px;
-    border-color: rgb(80, 80, 100);
+    width: 1100px;
+    height: 700px;
+    background-color: #0f0f14;
+    border-radius: 16px;
+    border-width: 1px;
+    border-color: #2a2a35;
     overflow: hidden;
 }
 
-/* Üst Başlık */
-.header-container {
-    height: 50px;
-    background-color: rgb(15, 15, 20);
+/* --- BİLDİRİM (TOAST) --- */
+.notification-toast {
+    position: absolute;
+    top: 40px;
+    align-self: center;
+    background-color: rgba(20, 20, 28, 0.95);
+    color: #ffffff;
+    padding: 16px 40px;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: #ff9900;
+    border-bottom-width: 4px; /* Alt kısımdan şık bir neon yansıması efekti */
+    font-size: 15px;
+    -unity-font-style: bold;
+    transition: opacity 0.2s, translate 0.3s ease-out;
+}
+
+/* --- ÜST MENÜ (HEADER) --- */
+.web-header {
+    height: 70px;
+    background-color: #16161d;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 30px;
+    border-bottom-width: 1px;
+    border-color: #22222c;
+}
+
+.web-logo {
+    color: #ff9900;
+    font-size: 28px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+}
+
+.wallet-display {
+    flex-direction: row;
+    align-items: center;
+    background-color: #0f0f14;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: #2a2a35;
+    margin-right: 25px;
+}
+
+.wallet-title {
+    color: #8a8a9d;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.wallet-amount {
+    color: #2fd159; /* Canlı yeşil */
+    font-size: 16px;
+    -unity-font-style: bold;
+}
+
+.web-exit-btn {
+    background-color: #1e1e28;
+    color: #8a8a9d;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    border-width: 1px;
+    border-color: #2a2a35;
+    font-size: 16px;
+    transition-duration: 0.2s;
+}
+
+.web-exit-btn:hover {
+    background-color: #ff4444;
+    color: white;
+    border-color: #ff4444;
+}
+
+/* --- SOL MENÜ (SIDEBAR) --- */
+.sidebar {
+    width: 250px;
+    background-color: #121218;
+    padding: 30px 20px;
+    border-right-width: 1px;
+    border-color: #22222c;
+}
+
+.sidebar-btn {
+    background-color: transparent;
+    border-width: 0;
+    color: #8a8a9d;
+    font-size: 16px;
+    padding: 15px 20px;
+    -unity-text-align: middle-left;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    transition-duration: 0.2s;
+}
+
+.sidebar-btn:hover {
+    background-color: #1a1a24;
+    color: #ffffff;
+}
+
+.active-sidebar {
+    background-color: rgba(255, 153, 0, 0.1);
+    color: #ff9900;
+    border-left-width: 4px;
+    border-left-color: #ff9900;
+    border-radius: 6px;
+}
+
+.version-text {
+    color: #444455;
+    font-size: 12px;
+    -unity-text-align: middle-center;
+}
+
+/* --- ANA İÇERİK & LİSTELER --- */
+.main-content {
+    flex-grow: 1;
+    padding: 35px;
+    background-color: #0f0f14;
+}
+
+.web-list {
+    flex-grow: 1;
+}
+
+/* --- KART TASARIMI --- */
+.item-card {
+    flex-direction: row;
+    align-items: center;
+    background-color: #1a1a24;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: #2a2a35;
+    transition-duration: 0.2s;
+}
+
+.item-card:hover {
+    background-color: #1e1e2a;
+    border-color: #3f3f50;
+}
+
+.item-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    background-color: #121218; /* İkonun arkasındaki koyu alan */
+    margin-right: 25px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.item-info-group {
+    flex-grow: 1;
+}
+
+.item-name {
+    color: #e0e0e0;
+    font-size: 19px;
+    -unity-font-style: bold;
+}
+
+.item-price {
+    color: #ff9900;
+    font-size: 15px;
+    margin-top: 6px;
+}
+
+/* --- MİKTAR SEÇİCİ (+ / -) --- */
+.qty-selector {
+    flex-direction: row;
+    align-items: center;
+    background-color: #121218;
+    border-radius: 8px;
+    padding: 6px;
+    border-width: 1px;
+    border-color: #2a2a35;
+}
+
+.qty-selector Button {
+    width: 36px;
+    height: 36px;
+    background-color: #1a1a24;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: #2a2a35;
+    color: #e0e0e0;
+    font-size: 18px;
+    transition-duration: 0.2s;
+}
+
+.qty-selector Button:hover {
+    background-color: #ff9900;
+    border-color: #ff9900;
+    color: #000000;
+}
+
+.qty-label {
+    margin: 0 15px;
+    color: #ffffff;
+    font-size: 16px;
+    -unity-font-style: bold;
+    min-width: 60px;
+    -unity-text-align: middle-center;
+}
+
+/* --- ALT PANEL VE BUTONLAR --- */
+.web-footer {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding-left: 20px;
-    padding-right: 10px;
-    border-bottom-width: 2px;
-    border-color: rgb(255, 153, 0); /* Zamazong turuncusu */
+    padding-top: 25px;
+    border-top-width: 1px;
+    border-color: #22222c;
+    margin-top: 15px;
 }
 
-.header-title {
-    color: rgb(255, 153, 0);
-    font-size: 20px;
+.web-total {
+    color: #ffffff;
+    font-size: 24px;
     -unity-font-style: bold;
 }
 
-.close-button {
-    background-color: rgb(200, 50, 50);
+/* Aksiyon Butonları (Satın Al / Sat) */
+.web-action-btn {
+    width: 250px;
+    height: 55px;
+    border-radius: 12px;
+    -unity-font-style: bold;
     color: white;
-    width: 35px;
-    height: 35px;
-    border-radius: 5px;
-    -unity-font-style: bold;
     border-width: 0;
-}
-
-.close-button:hover {
-    background-color: rgb(255, 70, 70);
-}
-
-/* Orta İçerik */
-.content-container {
-    flex-grow: 1;
-    flex-direction: row;
-    padding: 20px;
-}
-
-.left-panel {
-    flex-grow: 1;
-    width: 50%;
-    padding-right: 20px;
-    border-right-width: 1px;
-    border-color: rgb(60, 60, 80);
-    justify-content: space-between;
-}
-
-.right-panel {
-    flex-grow: 1;
-    width: 50%;
-    padding-left: 20px;
-    justify-content: space-between;
-}
-
-/* Yazılar */
-.panel-title {
-    color: white;
-    font-size: 18px;
-    -unity-font-style: bold;
-    margin-bottom: 10px;
-}
-
-.info-text {
-    color: rgb(180, 180, 200);
-    font-size: 14px;
-    white-space: normal;
-}
-
-.cart-container {
-    background-color: rgb(15, 15, 20);
-    padding: 15px;
-    border-radius: 5px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-.cart-text {
-    color: white;
-    font-size: 14px;
-}
-
-/* Aksiyon Butonları */
-.sell-button {
-    background-color: rgb(40, 150, 255);
-    color: white;
-    height: 50px;
     font-size: 16px;
+    letter-spacing: 1px;
+    transition-duration: 0.2s;
+}
+
+.buy-color { background-color: #e68a00; }
+.buy-color:hover { background-color: #ff9900; }
+
+.sell-color { background-color: #00a8ff; }
+.sell-color:hover { background-color: #0097e6; }
+
+/* Küçük Kart Butonları */
+.add-button {
+    background-color: rgba(255, 153, 0, 0.1);
+    color: #ff9900;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: #ff9900;
+    padding: 12px 25px;
     -unity-font-style: bold;
-    border-radius: 5px;
-    border-width: 0;
+    transition-duration: 0.2s;
 }
 
-.sell-button:hover {
-    background-color: rgb(70, 170, 255);
+.add-button:hover {
+    background-color: #ff9900;
+    color: #000000;
 }
 
-.buy-button {
-    background-color: rgb(40, 180, 80);
-    color: white;
-    height: 50px;
-    font-size: 16px;
+.remove-btn {
+    background-color: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: #ff4444;
+    padding: 12px 25px;
     -unity-font-style: bold;
-    border-radius: 5px;
-    border-width: 0;
+    transition-duration: 0.2s;
 }
 
-.buy-button:hover {
-    background-color: rgb(60, 210, 100);
+.remove-btn:hover {
+    background-color: #ff4444;
+    color: #ffffff;
 }

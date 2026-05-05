@@ -1,41 +1,60 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="MarketStyle.uss" />
-    
-    <!-- Arka planı hafif karartan ana katman -->
     <ui:VisualElement name="MainOverlay" class="main-overlay">
         
-        <!-- Laptop Ekranı (Ortadaki Kutu) -->
         <ui:VisualElement name="LaptopScreen" class="laptop-screen">
             
-            <!-- Üst Başlık Çubuğu -->
-            <ui:VisualElement class="header-container">
-                <ui:Label text="ZAMAZONG MARKET" class="header-title" />
-                <ui:Button name="CloseButton" text="X" class="close-button" />
+            <!-- Üst Header -->
+            <ui:VisualElement class="web-header">
+                <ui:Label text="ZAMAZONG" class="web-logo" />
+                <ui:VisualElement style="flex-grow: 1;" />
+                <ui:VisualElement class="wallet-display">
+                    <ui:Label text="Bakiye:" class="wallet-title" />
+                    <ui:Label text="0 TL" name="BalanceLabel" class="wallet-amount" />
+                </ui:VisualElement>
+                <ui:Button name="CloseButton" text="✕" class="web-exit-btn" />
             </ui:VisualElement>
-            
-            <!-- Orta İçerik Alanı -->
-            <ui:VisualElement class="content-container">
+
+            <ui:VisualElement style="flex-direction: row; flex-grow: 1;">
                 
-                <!-- Sol Panel (Satış İşlemleri) -->
-                <ui:VisualElement class="left-panel">
-                    <ui:Label text="Eşya Satış Sistemi" class="panel-title" />
-                    <ui:Label text="Teslimat alanına bıraktığınız tüm satılabilir eşyaları tek tuşla sisteme okutun ve paranızı anında alın." class="info-text" />
-                    <ui:Button name="SellButton" text="ALANDAKİLERİ SAT" class="sell-button" />
+                <!-- Sol Menü -->
+                <ui:VisualElement class="sidebar">
+                    <ui:Button name="BuyTabBtn" text="Mağaza" class="sidebar-btn active-sidebar" />
+                    <ui:Button name="CartTabBtn" text="Sepetim" class="sidebar-btn" />
+                    <ui:Button name="SellTabBtn" text="Eşya Sat" class="sidebar-btn" />
+                    <ui:VisualElement style="flex-grow: 1;" />
+                    <ui:Label text="Zamazong OS v2.0" class="version-text" />
                 </ui:VisualElement>
-                
-                <!-- Sağ Panel (Satın Alma İşlemleri) -->
-                <ui:VisualElement class="right-panel">
-                    <ui:Label text="Hızlı Sipariş" class="panel-title" />
-                    <ui:Label text="Satın alınan eşyalar sabah 06:00'da teslimat alanına kargolanır." class="info-text" />
+
+                <!-- İçerik Alanı -->
+                <ui:VisualElement class="main-content">
                     
-                    <ui:VisualElement class="cart-container">
-                        <ui:Label text="Sepet Durumu: Hazır" name="CartInfoLabel" class="cart-text" />
+                    <ui:VisualElement name="BuyPage" class="page">
+                        <ui:ScrollView name="MarketList" class="web-list" />
                     </ui:VisualElement>
-                    
-                    <ui:Button name="BuyButton" text="SİPARİŞİ ONAYLA" class="buy-button" />
+
+                    <ui:VisualElement name="CartPage" class="page" style="display: none;">
+                        <ui:ScrollView name="CartList" class="web-list" />
+                        <ui:VisualElement class="web-footer">
+                            <ui:Label text="Toplam: 0 TL" name="CartTotalLabel" class="web-total" />
+                            <ui:Button name="ConfirmBuyBtn" text="SİPARİŞİ ONAYLA" class="web-action-btn buy-color" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <ui:VisualElement name="SellPage" class="page" style="display: none;">
+                        <ui:ScrollView name="SellList" class="web-list" />
+                        <ui:VisualElement class="web-footer">
+                            <ui:Label text="Kazanç: 0 TL" name="SellTotalLabel" class="web-total" />
+                            <ui:Button name="ConfirmSellBtn" text="SEÇİLENLERİ SAT" class="web-action-btn sell-color" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
                 </ui:VisualElement>
-                
             </ui:VisualElement>
         </ui:VisualElement>
+
+        <!-- Bildirim Paneli (En Üst Katman) -->
+        <ui:Label name="NotificationLabel" class="notification-toast" picking-mode="Ignore" style="display: none;" />
+
     </ui:VisualElement>
 </ui:UXML>
