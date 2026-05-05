@@ -7,7 +7,8 @@ public struct TimedTerrainChange
 {
     public Vector3 worldPos;
     public float expirationTime;
-    public int targetLayer; // Dönüşeceği layer
+    public int targetLayer;
+    public int brushSize;
 }
 
 [System.Serializable]
@@ -32,11 +33,11 @@ public class TerrainLayerManager : NetworkBehaviour
     public int normalLayerIndex = 0;
     public int tilledLayerIndex = 1;
     public int wetLayerIndex = 2;
-    public int brushSize = 3;
+    public int defaultBrushSize = 3;
 
     [Header("Zaman Ayarları")]
-    public float kurumaSuresi = 60f; // Islak -> Çapalanmış
-    public float duzelmeSuresi = 120f; // Çapalanmış -> Normal
+    public float kurumaSuresi = 60f;
+    public float duzelmeSuresi = 120f;
 
     private List<TimedTerrainChange> activeChanges = new List<TimedTerrainChange>();
 
@@ -50,10 +51,9 @@ public class TerrainLayerManager : NetworkBehaviour
         {
             if (Time.time >= activeChanges[i].expirationTime)
             {
-                // Kritik Kontrol: Eğer hedef Normal Layer (Çimen) ise
                 if (activeChanges[i].targetLayer == normalLayerIndex)
                 {
-                    Collider[] ekinler = Physics.OverlapSphere(activeChanges[i].worldPos, 3f);
+                    Collider[] ekinler = Physics.OverlapSphere(activeChanges[i].worldPos, activeChanges[i].brushSize * 0.5f);
                     bool ekinVarMi = false;
 
                     foreach (var col in ekinler)
@@ -65,7 +65,6 @@ public class TerrainLayerManager : NetworkBehaviour
                         }
                     }
 
-                    // Eğer bitki bulunursa, toprağı çimene çevirmeyi iptal et
                     if (ekinVarMi)
                     {
                         activeChanges.RemoveAt(i);
@@ -73,8 +72,8 @@ public class TerrainLayerManager : NetworkBehaviour
                     }
                 }
 
-                // Normal kuruma veya düzelme işlemini yap
-                PaintSoilClientRpc(activeChanges[i].worldPos, activeChanges[i].targetLayer);
+                // DÜZELTME BURADA: Zamanlayıcılar kendi güvenli fonksiyonunu çağırır. Normal çapa kuralını kullanmaz.
+                ZamanlayiciBoyamaClientRpc(activeChanges[i].worldPos, activeChanges[i].targetLayer, activeChanges[i].brushSize);
 
                 if (activeChanges[i].targetLayer == tilledLayerIndex)
                 {
@@ -82,7 +81,8 @@ public class TerrainLayerManager : NetworkBehaviour
                     {
                         worldPos = activeChanges[i].worldPos,
                         expirationTime = Time.time + duzelmeSuresi,
-                        targetLayer = normalLayerIndex
+                        targetLayer = normalLayerIndex,
+                        brushSize = activeChanges[i].brushSize
                     });
                 }
 
@@ -92,24 +92,24 @@ public class TerrainLayerManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void PaintSoilServerRpc(Vector3 worldPos, int layerIndex)
+    public void PaintSoilServerRpc(Vector3 worldPos, int layerIndex, int brushSize)
     {
-        // 1. KURAL: Çapalama işlemi sadece zemin 0. layer (Normal/Çimen) ise yapılabilir.
-        if (layerIndex == tilledLayerIndex)
-        {
-            if (!IsLayerDominant(worldPos, normalLayerIndex)) return;
-        }
-        // 2. KURAL: Sulama işlemi sadece zemin 1. layer (Tilled/Çapalanmış) ise yapılabilir.
-        else if (layerIndex == wetLayerIndex)
-        {
-            if (!IsLayerDominant(worldPos, tilledLayerIndex)) return;
-        }
+       
+        PaintSoilClientRpc(worldPos, layerIndex, brushSize);
 
-        PaintSoilClientRpc(worldPos, layerIndex);
-
-        // Zamanlayıcıya ekle
         if (IsServer)
         {
+            TerrainData tData = terrain.terrainData;
+            float gercekDunyaYaricapi = (brushSize * (tData.size.x / tData.alphamapWidth)) * 0.5f;
+
+            for (int i = activeChanges.Count - 1; i >= 0; i--)
+            {
+                if (Vector3.Distance(activeChanges[i].worldPos, worldPos) <= gercekDunyaYaricapi)
+                {
+                    activeChanges.RemoveAt(i);
+                }
+            }
+
             float duration = (layerIndex == wetLayerIndex) ? kurumaSuresi : duzelmeSuresi;
             int nextLayer = (layerIndex == wetLayerIndex) ? tilledLayerIndex : normalLayerIndex;
 
@@ -117,18 +117,18 @@ public class TerrainLayerManager : NetworkBehaviour
             {
                 worldPos = worldPos,
                 expirationTime = Time.time + duration,
-                targetLayer = nextLayer
+                targetLayer = nextLayer,
+                brushSize = brushSize
             });
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void PaintSoilClientRpc(Vector3 worldPos, int layerIndex)
+    private void PaintSoilClientRpc(Vector3 worldPos, int layerIndex, int brushSize)
     {
         TerrainData tData = terrain.terrainData;
         Vector3 terrainPos = worldPos - terrain.transform.position;
 
-        // --- 1. KISIM: ZEMİN DOKUSUNU BOYAMA ---
         int mapX = (int)((terrainPos.x / tData.size.x) * tData.alphamapWidth);
         int mapZ = (int)((terrainPos.z / tData.size.z) * tData.alphamapHeight);
 
@@ -145,14 +145,35 @@ public class TerrainLayerManager : NetworkBehaviour
             {
                 if (Vector2.Distance(new Vector2(i, j), new Vector2(center, center)) <= center)
                 {
-                    for (int l = 0; l < tData.terrainLayers.Length; l++)
-                        alphas[i, j, l] = (l == layerIndex) ? 1f : 0f;
+                    bool boyanabilir = true;
+
+                    if (layerIndex == wetLayerIndex)
+                    {
+                        if (alphas[i, j, tilledLayerIndex] < 0.5f && alphas[i, j, wetLayerIndex] < 0.5f)
+                        {
+                            boyanabilir = false;
+                        }
+                    }
+                    else if (layerIndex == tilledLayerIndex)
+                    {
+                        if (alphas[i, j, normalLayerIndex] < 0.5f && alphas[i, j, wetLayerIndex] < 0.5f)
+                        {
+                            boyanabilir = false;
+                        }
+                    }
+
+                    if (boyanabilir)
+                    {
+                        for (int l = 0; l < tData.terrainLayers.Length; l++)
+                        {
+                            alphas[i, j, l] = (l == layerIndex) ? 1f : 0f;
+                        }
+                    }
                 }
             }
         }
         tData.SetAlphamaps(mapX - offset, mapZ - offset, alphas);
 
-        // --- 2. KISIM: OTLARI VE ÇALILARI SİLME ---
         if (layerIndex == tilledLayerIndex)
         {
             int detRes = tData.detailResolution;
@@ -167,7 +188,6 @@ public class TerrainLayerManager : NetworkBehaviour
 
             int startX = Mathf.Clamp(detX - dOffset, 0, detRes - 1);
             int startZ = Mathf.Clamp(detZ - dOffset, 0, detRes - 1);
-
             int endX = Mathf.Clamp(detX + dOffset, 0, detRes - 1);
             int endZ = Mathf.Clamp(detZ + dOffset, 0, detRes - 1);
 
@@ -179,18 +199,61 @@ public class TerrainLayerManager : NetworkBehaviour
                 for (int l = 0; l < numDetailLayers; l++)
                 {
                     int[,] details = tData.GetDetailLayer(startX, startZ, sizeX, sizeZ, l);
-
                     for (int z = 0; z < sizeZ; z++)
                     {
-                        for (int x = 0; x < sizeX; x++)
-                        {
-                            details[z, x] = 0;
-                        }
+                        for (int x = 0; x < sizeX; x++) details[z, x] = 0;
                     }
                     tData.SetDetailLayer(startX, startZ, l, details);
                 }
             }
         }
+    }
+
+    // YENİ FONKSİYON: Sadece zamanlayıcıların arka planda kullandığı güvenli boyama işlemi. Çimenlere dokunmaz.
+    [Rpc(SendTo.ClientsAndHost)]
+    private void ZamanlayiciBoyamaClientRpc(Vector3 worldPos, int targetLayer, int brushSize)
+    {
+        TerrainData tData = terrain.terrainData;
+        Vector3 terrainPos = worldPos - terrain.transform.position;
+
+        int mapX = (int)((terrainPos.x / tData.size.x) * tData.alphamapWidth);
+        int mapZ = (int)((terrainPos.z / tData.size.z) * tData.alphamapHeight);
+
+        int offset = brushSize / 2;
+        mapX = Mathf.Clamp(mapX, offset, tData.alphamapWidth - offset);
+        mapZ = Mathf.Clamp(mapZ, offset, tData.alphamapHeight - offset);
+
+        float[,,] alphas = tData.GetAlphamaps(mapX - offset, mapZ - offset, brushSize, brushSize);
+        float center = brushSize / 2f;
+
+        for (int i = 0; i < brushSize; i++)
+        {
+            for (int j = 0; j < brushSize; j++)
+            {
+                if (Vector2.Distance(new Vector2(i, j), new Vector2(center, center)) <= center)
+                {
+                    bool degistir = false;
+
+                    if (targetLayer == tilledLayerIndex)
+                    {
+                        // KURUMA İŞLEMİ: Sadece ISLAK olan yeri kuru yap. Asla çimeni çapalama.
+                        if (alphas[i, j, wetLayerIndex] >= 0.5f) degistir = true;
+                    }
+                    else if (targetLayer == normalLayerIndex)
+                    {
+                        // NORMALE DÖNME: Sadece KURU olan yeri çimen yap.
+                        if (alphas[i, j, tilledLayerIndex] >= 0.5f) degistir = true;
+                    }
+
+                    if (degistir)
+                    {
+                        for (int l = 0; l < tData.terrainLayers.Length; l++)
+                            alphas[i, j, l] = (l == targetLayer) ? 1f : 0f;
+                    }
+                }
+            }
+        }
+        tData.SetAlphamaps(mapX - offset, mapZ - offset, alphas);
     }
 
     public bool IsLayerDominant(Vector3 worldPos, int targetLayerIndex)

@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class SulamaEylemi : MonoBehaviour, IUseableTool
 {
+
+    [Tooltip("Boyama boyutu")]
+    public int fircaBoyutu = 3;
+
     public void EylemYap(RaycastHit hit, PlayerInventory inv)
     {
         if (hit.collider is TerrainCollider tCol)
@@ -11,8 +15,8 @@ public class SulamaEylemi : MonoBehaviour, IUseableTool
             // Sadece çapalanmış yerler sulanabilir
             if (manager.IsSoilTilled(hit.point))
             {
-                // Toprağı ıslak dokuya boya, gerisini bitkiler halledecek
-                manager.PaintSoilServerRpc(hit.point, manager.wetLayerIndex);
+                
+                manager.PaintSoilServerRpc(hit.point, manager.wetLayerIndex,fircaBoyutu);
             }
         }
     }

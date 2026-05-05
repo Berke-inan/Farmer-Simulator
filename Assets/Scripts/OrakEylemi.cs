@@ -4,6 +4,8 @@ using UnityEngine;
 public class OrakEylemi : NetworkBehaviour, IUseableTool
 {
     public float yaricap = 2.5f;
+    [Tooltip("Boyama boyutu")]
+    public int fircaBoyutu = 3;
 
     public void EylemYap(RaycastHit hit, PlayerInventory inv)
     {
@@ -56,7 +58,7 @@ public class OrakEylemi : NetworkBehaviour, IUseableTool
             // Eğer altındaki toprak ıslaksa, eski çapalanmış (kuru) haline çevir
             if (wasWet)
             {
-                TerrainLayerManager.Instance.PaintSoilServerRpc(pos, TerrainLayerManager.Instance.tilledLayerIndex);
+                TerrainLayerManager.Instance.PaintSoilServerRpc(pos, TerrainLayerManager.Instance.tilledLayerIndex,fircaBoyutu);
             }
         }
     }
