@@ -11,6 +11,9 @@ public class DayNightCycleManager : NetworkBehaviour
     [Tooltip("Gerçek hayattaki kaç saniye, oyunda 1 tam gün (24 saat) sürsün? Örn: 1200 = 20 dakika")]
     public float realSecondsPerDay = 1200f;
 
+    // Herkes uyuyup sabah olduğunda diğer scriptlerin dinleyebileceği evrensel sinyal
+    public static event System.Action YeniGunBasladiSinyali;
+
     // Ağ üzerinden senkronize edilen saat (0.00 ile 24.00 arası)
     public NetworkVariable<float> currentTime = new NetworkVariable<float>(8f);
 
@@ -95,5 +98,10 @@ public class DayNightCycleManager : NetworkBehaviour
         currentTime.Value = 6f; // Sabah 8'e atla
         sleepingPlayers.Clear(); // Uyuyanlar listesini sıfırla
         Debug.Log("Herkes uyudu, sabah oldu!");
+
+        if (YeniGunBasladiSinyali != null)
+        {
+            YeniGunBasladiSinyali.Invoke();
+        }
     }
 }

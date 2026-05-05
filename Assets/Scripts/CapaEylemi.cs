@@ -11,6 +11,17 @@ public class CapaEylemi : MonoBehaviour, IUseableTool
         {
             tCol.GetComponent<TerrainLayerManager>().PaintSoilServerRpc(hit.point, 1);
             Debug.Log("Terrain boyama komutu gönderildi!");
+
+
+            // --- ENERJİ DÜŞÜRME KISMI ---
+            // İşlemi yapan oyuncunun (inv) üzerindeki Enerji sistemini bul
+            PlayerEnergy enerji = inv.GetComponent<PlayerEnergy>();
+            if (enerji != null)
+            {
+                // Çapa vurulduğu için 2 enerji harca 
+                enerji.EnerjiHarcaServerRpc(2f);
+            }
         }
+
     }
 }
