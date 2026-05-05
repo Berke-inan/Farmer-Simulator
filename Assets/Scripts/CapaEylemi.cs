@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class CapaEylemi : MonoBehaviour, IUseableTool
 {
+
+    [Tooltip("Boyama boyutu")]
+    public int fircaBoyutu = 3;
     public void EylemYap(RaycastHit hit, PlayerInventory inv)
     {
         // Konsola neye vurduğumuzu yazdıralım ki bilelim
@@ -9,7 +12,7 @@ public class CapaEylemi : MonoBehaviour, IUseableTool
 
         if (hit.collider is TerrainCollider tCol)
         {
-            tCol.GetComponent<TerrainLayerManager>().PaintSoilServerRpc(hit.point, 1);
+            tCol.GetComponent<TerrainLayerManager>().PaintSoilServerRpc(hit.point, 1,fircaBoyutu);
             Debug.Log("Terrain boyama komutu gönderildi!");
         }
     }

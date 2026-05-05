@@ -83,7 +83,7 @@ public class BicerdoverMakinesi : NetworkBehaviour
 
             if (wasWet)
             {
-                TerrainLayerManager.Instance.PaintSoilServerRpc(ekinPozisyonu, TerrainLayerManager.Instance.tilledLayerIndex);
+                TerrainLayerManager.Instance.PaintSoilServerRpc(ekinPozisyonu, TerrainLayerManager.Instance.tilledLayerIndex,3);
             }
         }
     }

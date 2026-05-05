@@ -57,7 +57,7 @@ public class AttachableEquipment : NetworkBehaviour
     }
 
     // DİKKAT: Bu metodu "public" yaptık ki Traktör dışarıdan gelip bu şalteri indirebilsin
-    [Rpc(SendTo.Server, RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void CalismayiDegistirServerRpc()
     {
         isWorking.Value = !isWorking.Value;

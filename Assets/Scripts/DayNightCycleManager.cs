@@ -45,7 +45,18 @@ public class DayNightCycleManager : NetworkBehaviour
     private void AdvanceTime()
     {
         float timeMultiplier = 24f / realSecondsPerDay;
+        float previousTime = currentTime.Value; // Zaman artmadan önceki hali kaydet
+
         currentTime.Value += Time.deltaTime * timeMultiplier;
+
+        // Eğer zaman önceden 6'dan küçükse ve şimdi 6'yı geçtiyse kargoları getir
+        if (previousTime < 6f && currentTime.Value >= 6f)
+        {
+            if (DeliveryManager.Instance != null)
+            {
+                DeliveryManager.Instance.DeliverPendingItems();
+            }
+        }
 
         if (currentTime.Value >= 24f)
         {
@@ -92,8 +103,14 @@ public class DayNightCycleManager : NetworkBehaviour
 
     private void MakeItMorning()
     {
-        currentTime.Value = 6f; // Sabah 8'e atla
+        currentTime.Value = 6f; // Sabah 6'ya atla
         sleepingPlayers.Clear(); // Uyuyanlar listesini sıfırla
         Debug.Log("Herkes uyudu, sabah oldu!");
+
+        // Uyuyarak sabah olunca kargoları getir
+        if (DeliveryManager.Instance != null)
+        {
+            DeliveryManager.Instance.DeliverPendingItems();
+        }
     }
 }

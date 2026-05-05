@@ -1,0 +1,41 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="MarketStyle.uss" />
+    
+    <!-- Arka planı hafif karartan ana katman -->
+    <ui:VisualElement name="MainOverlay" class="main-overlay">
+        
+        <!-- Laptop Ekranı (Ortadaki Kutu) -->
+        <ui:VisualElement name="LaptopScreen" class="laptop-screen">
+            
+            <!-- Üst Başlık Çubuğu -->
+            <ui:VisualElement class="header-container">
+                <ui:Label text="ZAMAZONG MARKET" class="header-title" />
+                <ui:Button name="CloseButton" text="X" class="close-button" />
+            </ui:VisualElement>
+            
+            <!-- Orta İçerik Alanı -->
+            <ui:VisualElement class="content-container">
+                
+                <!-- Sol Panel (Satış İşlemleri) -->
+                <ui:VisualElement class="left-panel">
+                    <ui:Label text="Eşya Satış Sistemi" class="panel-title" />
+                    <ui:Label text="Teslimat alanına bıraktığınız tüm satılabilir eşyaları tek tuşla sisteme okutun ve paranızı anında alın." class="info-text" />
+                    <ui:Button name="SellButton" text="ALANDAKİLERİ SAT" class="sell-button" />
+                </ui:VisualElement>
+                
+                <!-- Sağ Panel (Satın Alma İşlemleri) -->
+                <ui:VisualElement class="right-panel">
+                    <ui:Label text="Hızlı Sipariş" class="panel-title" />
+                    <ui:Label text="Satın alınan eşyalar sabah 06:00'da teslimat alanına kargolanır." class="info-text" />
+                    
+                    <ui:VisualElement class="cart-container">
+                        <ui:Label text="Sepet Durumu: Hazır" name="CartInfoLabel" class="cart-text" />
+                    </ui:VisualElement>
+                    
+                    <ui:Button name="BuyButton" text="SİPARİŞİ ONAYLA" class="buy-button" />
+                </ui:VisualElement>
+                
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

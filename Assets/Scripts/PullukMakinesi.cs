@@ -7,6 +7,9 @@ public class PullukMakinesi : NetworkBehaviour
     public float islemAraligi = 0.1f;
     private float islemSayaci = 0f;
 
+
+    [Tooltip("Boyama boyutu")]
+    public int fircaBoyutu = 3;
     private void Awake()
     {
         anaGovde = GetComponentInParent<AttachableEquipment>();
@@ -49,7 +52,8 @@ public class PullukMakinesi : NetworkBehaviour
                     if (manager != null)
                     {
                         Debug.Log("ADIM 4: HER ÞEY KUSURSUZ! Boyama komutu gönderildi.");
-                        manager.PaintSoilServerRpc(hit.point, 1);
+                        manager.PaintSoilServerRpc(hit.point, 1, fircaBoyutu);
+                            
                         islemSayaci = 0f;
                     }
                     else

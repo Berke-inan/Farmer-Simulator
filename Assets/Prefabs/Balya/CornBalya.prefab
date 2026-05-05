@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1042286671484805635}
   - component: {fileID: 6877735401672643584}
   - component: {fileID: 2268288855584242611}
+  - component: {fileID: 8086609468309957315}
   m_Layer: 0
   m_Name: CornBalya
   m_TagString: Untagged
@@ -156,7 +157,13 @@ MonoBehaviour:
   aletTipi: 5
   offset: {x: 0.5, y: -0.4, z: 1}
   followSpeed: 10
+  isStoreable: 1
   isEquipped:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  isStored:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
@@ -188,3 +195,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &8086609468309957315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4403703280173854512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ef29a84fb4e2084a8b7da3280acf06b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SellableItem
+  ShowTopMostFoldoutHeaderGroup: 1
+  price: 25
+  itemName: CornBALYA
