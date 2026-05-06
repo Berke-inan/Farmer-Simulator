@@ -8,6 +8,7 @@ public class PickupableTool : NetworkBehaviour, IInteractable
 
     [Header("Takip Ayarları")]
     public Vector3 offset = new Vector3(0.5f, -0.4f, 1f);
+    public Vector3 rotationOffset = Vector3.zero; // Yeni eklenen döndürme ofseti
     public float followSpeed = 10f;
 
     [Header("Depolama Ayarları")]
@@ -114,7 +115,11 @@ public class PickupableTool : NetworkBehaviour, IInteractable
         }
 
         Vector3 targetPos = targetCamera.position + targetCamera.TransformDirection(offset);
+
+        // Kameranın mevcut rotasyonunun üzerine belirlediğimiz açı ofsetini ekliyoruz
+        Quaternion targetRot = targetCamera.rotation * Quaternion.Euler(rotationOffset);
+
         transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * followSpeed);
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetCamera.rotation, Time.deltaTime * followSpeed);
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * followSpeed);
     }
 }

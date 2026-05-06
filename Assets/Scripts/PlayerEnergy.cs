@@ -12,6 +12,13 @@ public class PlayerEnergy : NetworkBehaviour
     [Tooltip("Maksimum enerjiden 1 puan kaç saniyede bir düþsün?")]
     public float maxEnerjiDusmeSuresi = 30f;
 
+    [Header("Yorgunluk Sýnýrlarý")]
+    [Tooltip("Enerji bu deðerin altýndaysa alet kullanamaz (Örn: 5)")]
+    public float eylemYapmaSiniri = 5f;
+
+    [Tooltip("Enerji bu deðere veya altýna düþerse koþamaz (Örn: 0)")]
+    public float kosmaSiniri = 0f;
+
     [Header("Günlük Limitler")]
     public int gunlukSuIcmeLimiti = 4;
 
@@ -129,5 +136,16 @@ public class PlayerEnergy : NetworkBehaviour
         normalSayac = 0f;
         maxSayac = 0f;
         Debug.Log("SABAH OLDU! Enerjiler 100'lendi, su limiti sýfýrlandý.");
+    }
+
+    // --- YENÝ EKLENEN KONTROL FONKSÝYONLARI ---
+    public bool EylemYapabilirMi()
+    {
+        return guncelEnerji.Value >= eylemYapmaSiniri;
+    }
+
+    public bool KosabilirMi()
+    {
+        return guncelEnerji.Value > kosmaSiniri;
     }
 }

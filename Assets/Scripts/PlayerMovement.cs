@@ -17,6 +17,7 @@ public class PlayerMovement : NetworkBehaviour
     private Vector3 velocity;
     private CharacterController controller;
     private Animator animator;
+    private PlayerEnergy playerEnergy; // ENERJİ SİSTEMİ REFERANSI (YENİ)
 
     private InputSystem_Actions controls;
     private Vector2 moveInput;
@@ -26,6 +27,7 @@ public class PlayerMovement : NetworkBehaviour
     {
         controller = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
+        playerEnergy = GetComponent<PlayerEnergy>(); // ENERJİYİ BUL (YENİ)
     }
 
     public override void OnNetworkSpawn()
@@ -104,8 +106,17 @@ public class PlayerMovement : NetworkBehaviour
         }
         velocity.y += gravity * Time.deltaTime;
 
+        // --- YENİ: ENERJİYE BAĞLI KOŞMA KONTROLÜ ---
+        bool canRun = isRunning && moveInput.y > 0;
+
+        // Eğer oyuncu yorgunsa (Enerji <= 0), koşmayı iptal et
+        if (playerEnergy != null && !playerEnergy.KosabilirMi())
+        {
+            canRun = false;
+        }
+
         // 2. Yatay Hareket Hesaplaması
-        float currentSpeed = (isRunning && moveInput.y > 0) ? runSpeed : walkSpeed;
+        float currentSpeed = canRun ? runSpeed : walkSpeed;
         Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
 
         // 3. Vektörleri Birleştirme
@@ -118,7 +129,7 @@ public class PlayerMovement : NetworkBehaviour
         // 5. Animasyonlar
         if (animator != null)
         {
-            float multiplier = isRunning ? 2f : 1f;
+            float multiplier = canRun ? 2f : 1f;
             animator.SetFloat("Horizontal", moveInput.x * multiplier, 0.15f, Time.deltaTime);
             animator.SetFloat("Vertical", moveInput.y * multiplier, 0.15f, Time.deltaTime);
         }
@@ -136,6 +147,13 @@ public class PlayerMovement : NetworkBehaviour
     {
         // Script veya obje devre dışıysa zıplama kodunu reddet
         if (!enabled) return;
+
+        // --- YENİ: ZIPLAMA İÇİN DE ENERJİ KONTROLÜ (İsteğe bağlı) ---
+        // Eğer yorgunluktan koşamıyorsa, zıplayamasın da.
+        if (playerEnergy != null && !playerEnergy.KosabilirMi())
+        {
+            return;
+        }
 
         // Sadece karakter yerdeyse VE cooldown süresi dolduysa zıpla
         if (controller.isGrounded && jumpCooldownTimer <= 0f)
