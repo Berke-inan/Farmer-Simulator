@@ -2617,7 +2617,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66cba96b5b6148d4781d8f31960fa324, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkUIToolkitManager
-  autoStartHostForTesting: 1
+  autoStartHostForTesting: 0
 --- !u!114 &589119220
 MonoBehaviour:
   m_ObjectHideFlags: 0
