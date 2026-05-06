@@ -86,7 +86,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 335621654
+  GlobalObjectIdHash: 4015075639
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -210,6 +210,11 @@ MonoBehaviour:
   visualWheels:
   - {fileID: 7440724430909349166}
   - {fileID: 5950020658898952597}
+  isWorking:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!65 &4420094980997986431
 BoxCollider:
   m_ObjectHideFlags: 0
