@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 5728171432467663253}
   - component: {fileID: -5414915901522307759}
   - component: {fileID: 5718718330254482848}
+  - component: {fileID: -3906425227470267114}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -318,6 +319,38 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   aktifAlet: 0
   eldekiObje: {fileID: 0}
+--- !u!114 &-3906425227470267114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864111185607732302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64ee753d8145a7947aa9995c032ff18e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerEnergy
+  ShowTopMostFoldoutHeaderGroup: 1
+  maksimumKapasite: 100
+  normalEnerjiDusmeSuresi: 10
+  maxEnerjiDusmeSuresi: 30
+  gunlukSuIcmeLimiti: 4
+  maxEnerji:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 100
+  guncelEnerji:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 100
+  bugunIcilenSu:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!1 &2772005619223278391
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,7 +14,6 @@ public class AgirlikMerkeziAyarla : MonoBehaviour
         MerkeziUygula();
     }
 
-    // Unity Editöründe oyunu durdurmadan kýrmýzý topu hareket ettirip deneme yapabilmen için Update'e de ekledik
     private void Update()
     {
         MerkeziUygula();
@@ -24,7 +23,6 @@ public class AgirlikMerkeziAyarla : MonoBehaviour
     {
         if (agirlikMerkeziObjesi != null)
         {
-            // ÝÞTE SÝHÝRLÝ KOD BU: Obje nerede olursa olsun, Rigidbody'ye göre gerçek yerini hesaplar
             rb.centerOfMass = transform.InverseTransformPoint(agirlikMerkeziObjesi.position);
         }
     }
@@ -33,7 +31,7 @@ public class AgirlikMerkeziAyarla : MonoBehaviour
     {
         if (agirlikMerkeziObjesi != null)
         {
-            // Kýrmýzý topu doðrudan objenin olduðu yere çiziyoruz
+
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(agirlikMerkeziObjesi.position, 0.3f);
         }

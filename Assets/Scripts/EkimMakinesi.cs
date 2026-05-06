@@ -28,7 +28,6 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
         if (anaGovde == null || !anaGovde.isWorking.Value) return;
 
-        // --- GÜVENLÝK DUVARI 1 ---
         if (mevcutTohum.Value <= 0) return;
         if (aktifEkinPrefab == null)
         {
@@ -41,12 +40,10 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
         if (other is TerrainCollider tCol)
         {
-            // Konsol çok kirlenmesin diye Adým 1'i sadece topraða deðince yazdýrýyoruz
-            // Debug.Log("EKÝM ADIM 1: Sensör topraða deðiyor, lazer atýlýyor...");
+            // Debug.Log("Sensör topraða deðiyor, lazer atýlýyor...");
 
             Vector3 baslangicNoktasi = transform.position + (Vector3.up * 0.5f);
 
-            // Lazer boyunu 2f'den 5f'e çýkardýk (Pulluktaki gibi garantili olsun)
             if (Physics.Raycast(baslangicNoktasi, Vector3.down, out RaycastHit hit, 5f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
             {
                 if (hit.collider == tCol)
@@ -54,13 +51,11 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
                     TerrainLayerManager manager = tCol.GetComponent<TerrainLayerManager>();
                     if (manager != null)
                     {
-                        // --- GÜVENLÝK DUVARI 2 ---
                         bool isTilled = manager.IsSoilTilled(hit.point);
                         Debug.Log("EKÝM ADIM 2: Lazer topraðý buldu. Burasý çapalanmýþ mý? -> " + isTilled);
 
                         if (isTilled)
                         {
-                            // --- GÜVENLÝK DUVARI 3 ---
                             Collider[] yakindakiler = Physics.OverlapSphere(hit.point, minimumEkimMesafesi);
                             bool yakinlardaEkinVar = false;
 

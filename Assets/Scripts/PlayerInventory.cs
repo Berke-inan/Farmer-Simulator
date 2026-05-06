@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public enum ToolType { Yok, Tohum, Capa, SulamaKabi, Orak, Balya,Kürek } 
+public enum ToolType { Yok, Tohum, Capa, SulamaKabi, Orak, Balya , YakitBidonu , YakitPompa, Fide ,Sepet, Gida, Kurek} 
 
 public class PlayerInventory : NetworkBehaviour
 {

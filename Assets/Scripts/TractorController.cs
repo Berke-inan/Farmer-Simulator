@@ -43,6 +43,9 @@ public class TractorController : NetworkBehaviour, IInteractable
     private Rigidbody rb;
     private NetworkObject currentDriver;
 
+    // YAKIT SİSTEMİ REFERANSI
+    private TractorFuelSystem fuelSystem;
+
     public bool IsOccupied => currentDriver != null;
 
     private void Awake()
@@ -50,6 +53,9 @@ public class TractorController : NetworkBehaviour, IInteractable
         inputActions = new InputSystem_Actions();
         rb = GetComponent<Rigidbody>();
         if (centerOfMass != null) rb.centerOfMass = centerOfMass.localPosition;
+
+        // Yakıt sistemini bul (Varsa bağla)
+        fuelSystem = GetComponent<TractorFuelSystem>();
     }
 
     public void Interact(NetworkObject interactor)
@@ -109,30 +115,19 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (currentDriver != null)
         {
-            // 1. Traktörün yönüne göre yatayda (Zemin hizasında) Sol tarafı bul
             Vector3 safeLeft = Quaternion.Euler(0, transform.eulerAngles.y, 0) * Vector3.left;
-
-            // 2. Hedef X ve Z koordinatını traktörün 3.5 metre solu olarak belirle
             Vector3 targetXZ = transform.position + (safeLeft * 3.5f);
-
-            // 3. KESİN ÇÖZÜM: Lazer (Raycast) ile yerin gerçek yüksekliğini bul
-            // Hedef noktanın 10 metre yukarısından (Havadan) aşağıya doğru bir lazer atıyoruz
             Vector3 rayStart = new Vector3(targetXZ.x, transform.position.y + 10f, targetXZ.z);
 
             if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 20f))
             {
-                // ZEMİN BULUNDU: Karakteri bulduğu zeminin (hit.point) tam 1.5 metre yukarısına bırakır.
-                // Not: CharacterController ayağı yere 1 mm bile girse yerin altına düşer! 
-                // O yüzden 1.5m havadan bırakıyoruz, yerçekimi onu 0.1 saniyede yumuşakça çimlere oturtur.
                 currentDriver.transform.position = hit.point + (Vector3.up * 1.5f);
             }
             else
             {
-                // Eğer lazer hiçbir şeye çarpmazsa (Örn: Uçurum kenarıysa) acil durum konumu
                 currentDriver.transform.position = targetXZ + (Vector3.up * 2f);
             }
 
-            // Oyuncuyu dimdik (Yamulmamış) şekilde ayağa kaldır
             currentDriver.transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
 
             if (currentDriver.IsOwner)
@@ -142,7 +137,6 @@ public class TractorController : NetworkBehaviour, IInteractable
                 if (cameraController != null) cameraController.SetCameraActive(false);
             }
 
-            // Konumu sabitledikten sonra fizik kapsülünü geri aç
             TogglePlayerComponents(currentDriver, true);
             currentDriver = null;
         }
@@ -214,12 +208,8 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (!IsOccupied)
         {
             CurrentGasInput = 0f;
-            smoothedSteeringInput = 0f; // Kimse yoksa direksiyonu merkeze çek
+            smoothedSteeringInput = 0f;
 
-            // ==========================================
-            // İNİNCE TRAKTÖRÜ ÇİVİLE
-            // Traktörden inildiği an tüm tekerlere tam fren basılır.
-            // ==========================================
             if (wcFL != null)
             {
                 wcFL.motorTorque = wcFR.motorTorque = wcBL.motorTorque = wcBR.motorTorque = 0f;
@@ -229,19 +219,24 @@ public class TractorController : NetworkBehaviour, IInteractable
         }
 
         CurrentGasInput = inputActions.Player.GasBrake.ReadValue<float>();
+
+        // ==========================================
+        // YAKIT KONTROLÜ BURADA DEVREYE GİRİYOR!
+        // Eğer yakıt sistemi varsa ve yakıt bittiyse gazı anında kes.
+        // ==========================================
+        if (fuelSystem != null && !fuelSystem.HasFuel)
+        {
+            CurrentGasInput = 0f;
+        }
+
         steeringInput = inputActions.Player.Steering.ReadValue<float>();
         isBraking = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
 
         smoothedSteeringInput = Mathf.MoveTowards(smoothedSteeringInput, steeringInput, Time.fixedDeltaTime * steerSpeed);
 
-        // ==========================================
-        // YENİ EKLENEN: AKTİF YÖN FRENİ SİSTEMİ
-        // ==========================================
         float localForwardSpeed = transform.InverseTransformDirection(rb.linearVelocity).z;
         bool isDirectionBraking = false;
 
-        // EĞER ileri gidiyorsa (hız > 1) VE oyuncu geriye (S) basıyorsa
-        // VEYA geri gidiyorsa (hız < -1) VE oyuncu ileriye (W) basıyorsa
         if ((localForwardSpeed > 1f && CurrentGasInput < -0.1f) || (localForwardSpeed < -1f && CurrentGasInput > 0.1f))
         {
             isDirectionBraking = true;
@@ -249,10 +244,8 @@ public class TractorController : NetworkBehaviour, IInteractable
 
         float currentTorque = CurrentGasInput * motorTorque;
 
-        // El freni veya yön freni tetiklendiyse durdur
         if (isBraking || isDirectionBraking)
         {
-            // W/S ile yapılan fren normal el freninden daha güçlü tutsun (x1.5)
             float activeBrakeForce = isDirectionBraking ? brakeForce * 1.5f : brakeForce;
 
             wcFL.brakeTorque = wcFR.brakeTorque = wcBL.brakeTorque = wcBR.brakeTorque = activeBrakeForce;

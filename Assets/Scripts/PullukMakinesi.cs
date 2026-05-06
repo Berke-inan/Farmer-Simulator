@@ -53,7 +53,7 @@ public class PullukMakinesi : NetworkBehaviour
                     {
                         Debug.Log("ADIM 4: HER ÞEY KUSURSUZ! Boyama komutu gönderildi.");
                         manager.PaintSoilServerRpc(hit.point, 1, fircaBoyutu);
-                            
+
                         islemSayaci = 0f;
                     }
                     else

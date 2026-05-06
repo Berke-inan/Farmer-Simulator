@@ -18,10 +18,8 @@ public class PullukDemirAnimasyonu : NetworkBehaviour
 
     private void Awake()
     {
-        // Traktörden gelen 'V' tuþu sinyalini (isWorking) okumak için ana gövdeyi buluyoruz
         anaGovde = GetComponent<AttachableEquipment>();
 
-        // Eðer bu kodu yanlýþlýkla alt bir objeye atarsan diye güvenlik önlemi
         if (anaGovde == null)
         {
             anaGovde = GetComponentInParent<AttachableEquipment>();
@@ -30,15 +28,12 @@ public class PullukDemirAnimasyonu : NetworkBehaviour
 
     private void Update()
     {
-        // 1. GÜVENLÝK: Ana gövde bulunamadýysa veya 'V' tuþuna basýlýp makine ÇALIÞTIRILMADIYSA dur!
         if (anaGovde == null || !anaGovde.isWorking.Value) return;
 
-        // 2. DÖNÜÞ: Makine çalýþýyorsa, listedeki tüm demirleri yavaþça döndür
         foreach (Transform demir in demirPivotlari)
         {
             if (demir != null)
             {
-                // Space.Self sayesinde demirler traktörün yönüne göre deðil, kendi merkezlerinde döner
                 demir.Rotate(donusEkseni * donusHizi * Time.deltaTime, Space.Self);
             }
         }
