@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 287caf2f6b9289f48a8ed09313390c23, type: 3}
   m_Name: Trailer
   m_EditorClassIdentifier: Assembly-CSharp::MarketItem
-  itemID: 0
-  itemName: 
-  itemIcon: {fileID: 0}
-  price: 0
-  prefabToSpawn: {fileID: 0}
+  itemID: 3
+  itemName: Trailer
+  itemIcon: {fileID: 21300000, guid: 20ebe7bc66137cc4e9b04945d1ef47f6, type: 3}
+  price: 30
+  prefabToSpawn: {fileID: 5527730311695446589, guid: 49978207df9832f4597f88b3f85e9b4e, type: 3}

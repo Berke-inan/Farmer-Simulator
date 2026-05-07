@@ -16,4 +16,4 @@ MonoBehaviour:
   itemName: Farming Hoe
   itemIcon: {fileID: 21300000, guid: c5781db7013fad742981f6bf3a51598c, type: 3}
   price: 15
-  prefabToSpawn: {fileID: 8886272807331329913, guid: c52854c42376ecc4a8302d9e1c2cffba, type: 3}
+  prefabToSpawn: {fileID: 7539315446333618510, guid: c52854c42376ecc4a8302d9e1c2cffba, type: 3}
