@@ -1,34 +1,43 @@
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using Unity.Cinemachine; // Yeni Cinemachine namespace'i
+using Unity.Cinemachine;
 
 public class LaptopInteractable : NetworkBehaviour, IInteractable
 {
     [Header("Cinemachine Ayarları")]
-    public CinemachineCamera laptopCamera; // Yeni kamera sınıfı adı
+    public CinemachineCamera laptopCamera;
     public float blendDuration = 1.5f;
 
     [Header("UI Sistemi")]
     public MarketUIController marketUI;
 
+    // Laptobun kullanım durumunu tüm oyunculara senkronize eden değişken
+    // WritePermission.Server sayesinde sadece sunucu bu değeri değiştirebilir (güvenli yöntem)
+    private NetworkVariable<bool> isBusy = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     public void Interact(NetworkObject playerNetworkObject)
     {
+        // Eğer laptop zaten bir başkası tarafından kullanılıyorsa etkileşimi reddet
+        if (isBusy.Value)
+        {
+            Debug.Log("Laptop şu an meşgul!");
+            return;
+        }
+
+        // Sadece sahibi (Owner) işlemleri başlatır ama meşguliyet bilgisini sunucuya bildirir
         if (!playerNetworkObject.IsOwner) return;
 
-        // Laptobun kamerasının önceliğini artırıyoruz. 
-        laptopCamera.Priority = 20;
+        // Sunucudan laptobu "meşgul" olarak işaretlemesini istiyoruz
+        SetLaptopBusyServerRpc(true);
 
-        // Geçiş bitene kadar bekle, sonra UI'ı aç
+        laptopCamera.Priority = 20;
         StartCoroutine(WaitAndOpenUI());
     }
 
     private IEnumerator WaitAndOpenUI()
     {
-        // Kameranın laptoba tam oturması için geçiş süresi kadar bekliyoruz
         yield return new WaitForSeconds(blendDuration);
-
-        // UI'ı aç ve fareyi serbest bırak
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         marketUI.OpenUI(this);
@@ -36,14 +45,18 @@ public class LaptopInteractable : NetworkBehaviour, IInteractable
 
     public void ExitLaptop()
     {
-        // 1. UI'ı kapat
         marketUI.CloseUI();
-
-        // 2. Fareyi tekrar kilitle
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        // 3. Laptop kamerasının önceliğini geri sıfırla. 
         laptopCamera.Priority = 0;
+
+        // Çıkış yaparken laptobu tekrar "erişilebilir" hale getir
+        SetLaptopBusyServerRpc(false);
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void SetLaptopBusyServerRpc(bool busyStatus)
+    {
+        isBusy.Value = busyStatus;
     }
 }
