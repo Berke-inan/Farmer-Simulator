@@ -112,6 +112,12 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  ilaclandiMi:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  ilacDirenciCarpani: 5
 --- !u!1001 &644181436320191142
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -7,21 +7,22 @@ public class ModularCrop : NetworkBehaviour
     public NetworkVariable<int> mevcutAsama = new NetworkVariable<int>(0);
     public NetworkVariable<bool> sulandiMi = new NetworkVariable<bool>(false);
 
+    [Header("İlaçlama Ayarları (YENİ)")]
+    public NetworkVariable<bool> ilaclandiMi = new NetworkVariable<bool>(false);
+    public float ilacDirenciCarpani = 2f; // İlaçlanınca çürüme süresi 2 kat uzar
+
     [Header("Büyüme Görselleri")]
     [Tooltip("Örn: 0:Fide, 1:Orta, 2:Büyük, 3:Çürümüş")]
     public GameObject[] asamaGorselleri;
 
     [Header("Çürüme Ayarları")]
-    public float curumeSuresi = 120f; // Büyümüş bitki hasat edilmeden ne kadar susuz kalırsa çürür?
+    public float curumeSuresi = 120f;
 
     private TohumVerisi _veriler;
     private float _buyumeSayaci = 0f;
     private float _kurulukSayaci = 0f;
 
-    // Sağlıklı Büyümüş hal SONDAN BİR ÖNCEKİ index
     public bool IsGrown => asamaGorselleri != null && mevcutAsama.Value == asamaGorselleri.Length - 2;
-
-    // Çürümüş hal EN SONDAKİ index
     public bool IsRotted => asamaGorselleri != null && mevcutAsama.Value == asamaGorselleri.Length - 1;
 
     public override void OnNetworkSpawn()
@@ -34,8 +35,6 @@ public class ModularCrop : NetworkBehaviour
     void Update()
     {
         if (!IsServer || _veriler == null) return;
-
-        // Bitki zaten çürümüşse artık hiçbir işlem yapma
         if (IsRotted) return;
 
         if (Time.frameCount % 30 == 0)
@@ -45,9 +44,8 @@ public class ModularCrop : NetworkBehaviour
 
         if (sulandiMi.Value)
         {
-            _kurulukSayaci = 0f; // Toprak ıslaksa kuruluk sayacı sıfırlanır
+            _kurulukSayaci = 0f;
 
-            // Sadece sağlıklı büyümüş aşamaya gelene kadar büyü
             if (mevcutAsama.Value < asamaGorselleri.Length - 2)
             {
                 _buyumeSayaci += Time.deltaTime;
@@ -60,19 +58,14 @@ public class ModularCrop : NetworkBehaviour
         }
         else
         {
-            // TOPRAK KURU İSE:
-            // Sadece ekin tam büyümüş (IsGrown) durumdaysa çürüme başlar
             if (IsGrown)
             {
                 _kurulukSayaci += Time.deltaTime;
                 if (_kurulukSayaci >= curumeSuresi)
                 {
-                    // Süre dolduğunda Çürümüş (Son Index) haline geç
                     mevcutAsama.Value = asamaGorselleri.Length - 1;
                 }
             }
-            // IsGrown değilse (fide vs. ise) hiçbir şey olmaz. 
-            // Büyüme sayacı durur, çürüme sayacı da artmaz. Olduğu gibi bekler.
         }
     }
 
@@ -83,6 +76,21 @@ public class ModularCrop : NetworkBehaviour
         {
             if (asamaGorselleri[i] != null)
                 asamaGorselleri[i].SetActive(i == mevcutAsama.Value);
+        }
+    }
+
+    // ==========================================
+    // YENİ EKLENEN İLAÇLAMA FONKSİYONU
+    // ==========================================
+    [Rpc(SendTo.Server)]
+    public void IlaclandiServerRpc()
+    {
+        // Çürümemişse ve henüz ilaçlanmamışsa
+        if (!ilaclandiMi.Value && !IsRotted)
+        {
+            ilaclandiMi.Value = true;
+            curumeSuresi *= ilacDirenciCarpani; // Kilit Nokta: Update kodunu yormamak için çürüme sınırını direkt 2 katına çıkarıyoruz!
+            Debug.Log("Ekin ilaçlandı! Yeni çürüme süresi: " + curumeSuresi);
         }
     }
 }

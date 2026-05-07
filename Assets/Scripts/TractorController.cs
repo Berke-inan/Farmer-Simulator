@@ -19,11 +19,9 @@ public class TractorController : NetworkBehaviour, IInteractable
     public float brakeForce = 3000f;
     public float maxSpeedKmh = 70f;
 
-    // --- YENİ EKLENEN: Direksiyon Dönüş Hızı ---
     [Tooltip("Direksiyonun ne kadar hızlı döneceği (Düşük sayı = Daha yavaş ve ağır direksiyon)")]
     public float steerSpeed = 1.5f;
-    private float smoothedSteeringInput = 0f; // Mevcut yumuşatılmış girdi
-    // ------------------------------------------
+    private float smoothedSteeringInput = 0f;
 
     [Header("Traktöre Binme Ayarları")]
     public Transform driverSeat;
@@ -43,7 +41,6 @@ public class TractorController : NetworkBehaviour, IInteractable
     private Rigidbody rb;
     private NetworkObject currentDriver;
 
-    // YAKIT SİSTEMİ REFERANSI
     private TractorFuelSystem fuelSystem;
 
     public bool IsOccupied => currentDriver != null;
@@ -54,7 +51,6 @@ public class TractorController : NetworkBehaviour, IInteractable
         rb = GetComponent<Rigidbody>();
         if (centerOfMass != null) rb.centerOfMass = centerOfMass.localPosition;
 
-        // Yakıt sistemini bul (Varsa bağla)
         fuelSystem = GetComponent<TractorFuelSystem>();
     }
 
@@ -163,6 +159,14 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (IsOwner)
         {
+            // --- YENİ EKLENEN: MOTOR ÇALIŞTIRMA (T TUŞU) ---
+            // Sadece aracı süren kişi T tuşuna basabilir
+            if (Keyboard.current != null && Keyboard.current.tKey.wasPressedThisFrame)
+            {
+                if (fuelSystem != null) fuelSystem.ToggleEngineServerRpc();
+            }
+            // ----------------------------------------------
+
             if (wcFL != null && visualFL != null) UpdateSingleWheel(wcFL, visualFL);
             if (wcFR != null && visualFR != null) UpdateSingleWheel(wcFR, visualFR);
             if (wcBL != null && visualBL != null) UpdateSingleWheel(wcBL, visualBL);
@@ -218,16 +222,25 @@ public class TractorController : NetworkBehaviour, IInteractable
             return;
         }
 
-        CurrentGasInput = inputActions.Player.GasBrake.ReadValue<float>();
-
-        // ==========================================
-        // YAKIT KONTROLÜ BURADA DEVREYE GİRİYOR!
-        // Eğer yakıt sistemi varsa ve yakıt bittiyse gazı anında kes.
-        // ==========================================
-        if (fuelSystem != null && !fuelSystem.HasFuel)
+        // --- YENİ EKLENEN: MOTOR KAPALIYSA ENGELLEME ---
+        // Eğer motor kapalıysa arabanın frenlerine sonuna kadar bas ve gidememesini sağla
+        if (fuelSystem != null && !fuelSystem.isEngineRunning.Value)
         {
             CurrentGasInput = 0f;
+            smoothedSteeringInput = 0f; // Direksiyon da kitlensin
+
+            if (wcFL != null)
+            {
+                wcFL.motorTorque = wcFR.motorTorque = wcBL.motorTorque = wcBR.motorTorque = 0f;
+                wcFL.brakeTorque = wcFR.brakeTorque = wcBL.brakeTorque = wcBR.brakeTorque = brakeForce; // Freni çek
+            }
+            return; // Buradan aşağıya inme (WASD çalışmaz)
         }
+        // -----------------------------------------------
+
+        CurrentGasInput = inputActions.Player.GasBrake.ReadValue<float>();
+
+        if (fuelSystem != null && !fuelSystem.HasFuel) CurrentGasInput = 0f;
 
         steeringInput = inputActions.Player.Steering.ReadValue<float>();
         isBraking = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;

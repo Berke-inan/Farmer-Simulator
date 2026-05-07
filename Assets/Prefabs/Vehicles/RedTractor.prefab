@@ -16892,6 +16892,7 @@ GameObject:
   - component: {fileID: 8459287481090592507}
   - component: {fileID: 2113629460142488138}
   - component: {fileID: 1331007290514924771}
+  - component: {fileID: 6310259047591618891}
   m_Layer: 0
   m_Name: RedTractor
   m_TagString: Untagged
@@ -16994,7 +16995,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 113609643
+  GlobalObjectIdHash: 1555016630
   InScenePlacedSourceGlobalObjectIdHash: 1658267771
   DeferredDespawnTick: 0
   Ownership: 1
@@ -17191,6 +17192,11 @@ MonoBehaviour:
   minSpeedForMud: 2
   maxMudEmission: 60
   maxSpeed: 15
+  tasZeminIndex: 3
+  minMudAlpha: 30
+  maxMudAlpha: 160
+  minMudStartSpeed: 10
+  maxMudStartSpeed: 20
 --- !u!114 &1331007290514924771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17230,6 +17236,27 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &6310259047591618891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8569618220671850601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc1f1c10f4f7a5241ac8f85b131d27e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TractorFuelSystem
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxFuel: 100
+  maxRangeKm: 100
+  idleConsumptionPerSecond: 0.01
+  currentFuel:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 100
 --- !u!1 &9048412067266332554
 GameObject:
   m_ObjectHideFlags: 0
