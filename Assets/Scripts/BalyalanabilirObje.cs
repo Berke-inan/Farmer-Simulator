@@ -9,6 +9,7 @@ public class BalyalanabilirObje : NetworkBehaviour, ISecondaryInteractable
     public string objeTipi = "Misir";
     public GameObject balyaPrefab;
     public float aramaYaricapi = 2f;
+    public int balyaIcinGerekenAdet = 3;
 
     // Fonksiyonun adı arayüze uygun olarak SecondaryInteract yapıldı
     public void SecondaryInteract(NetworkObject interactor)
@@ -40,9 +41,9 @@ public class BalyalanabilirObje : NetworkBehaviour, ISecondaryInteractable
             }
         }
 
-        if (ayniTipler.Count >= 3)
+        if (ayniTipler.Count >= balyaIcinGerekenAdet)
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < balyaIcinGerekenAdet; i++)
             {
                 ayniTipler[i].GetComponent<NetworkObject>().Despawn();
             }

@@ -17,17 +17,21 @@ public class PlayerMovement : NetworkBehaviour
     private Vector3 velocity;
     private CharacterController controller;
     private Animator animator;
-    private PlayerEnergy playerEnergy; // ENERJİ SİSTEMİ REFERANSI (YENİ)
+    private PlayerEnergy playerEnergy;
 
     private InputSystem_Actions controls;
     private Vector2 moveInput;
     private bool isRunning;
 
+    [Header("Uyku Sistemi (YENİ)")]
+    private bool isSleeping = false;
+    private Bed currentBed;
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
-        playerEnergy = GetComponent<PlayerEnergy>(); // ENERJİYİ BUL (YENİ)
+        playerEnergy = GetComponent<PlayerEnergy>();
     }
 
     public override void OnNetworkSpawn()
@@ -40,7 +44,6 @@ public class PlayerMovement : NetworkBehaviour
             controls.Player.Sprint.started += ctx => isRunning = true;
             controls.Player.Sprint.canceled += ctx => isRunning = false;
 
-            // Script zaten aktifse (OnEnable daha önce çalıştıysa) inputları etkinleştir
             if (enabled)
             {
                 controls.Enable();
@@ -61,10 +64,8 @@ public class PlayerMovement : NetworkBehaviour
 
     private void OnEnable()
     {
-        // Script aktif olduğunda zıplamayı kısa süreliğine engelle
         jumpCooldownTimer = jumpCooldownDuration;
 
-        // Kontroller oluşturulmuşsa etkinleştir
         if (controls != null)
         {
             controls.Enable();
@@ -73,12 +74,10 @@ public class PlayerMovement : NetworkBehaviour
 
     private void OnDisable()
     {
-        // Script kapandığında (traktöre binildiğinde) eski hareket vektörlerini sıfırla
         velocity = Vector3.zero;
         moveInput = Vector2.zero;
         isRunning = false;
 
-        // Arka planda tuşları dinlemeyi bırak
         if (controls != null)
         {
             controls.Disable();
@@ -88,6 +87,19 @@ public class PlayerMovement : NetworkBehaviour
     private void Update()
     {
         if (!IsOwner) return;
+
+        // --- YENİ: UYKU DURUMU KONTROLÜ ---
+        if (isSleeping)
+        {
+            // Uyuyorken sadece ESC tuşunu veya sabah olmasını bekle
+            if (Keyboard.current.escapeKey.wasPressedThisFrame || !DayNightCycleManager.Instance.IsNight())
+            {
+                WakeUp();
+            }
+
+            // Uyurken hareket kodlarının çalışmaması için Update'in geri kalanını iptal et
+            return;
+        }
 
         if (jumpCooldownTimer > 0)
         {
@@ -102,31 +114,30 @@ public class PlayerMovement : NetworkBehaviour
         // 1. Yerçekimi ve Zemin Kontrolü
         if (controller.isGrounded && velocity.y < 0)
         {
-            velocity.y = -2f; // Yere yapışmayı sağlar
+            velocity.y = -2f;
         }
         velocity.y += gravity * Time.deltaTime;
 
-        // --- YENİ: ENERJİYE BAĞLI KOŞMA KONTROLÜ ---
+        // 2. Enerjiye Bağlı Koşma Kontrolü
         bool canRun = isRunning && moveInput.y > 0;
 
-        // Eğer oyuncu yorgunsa (Enerji <= 0), koşmayı iptal et
         if (playerEnergy != null && !playerEnergy.KosabilirMi())
         {
             canRun = false;
         }
 
-        // 2. Yatay Hareket Hesaplaması
+        // 3. Yatay Hareket Hesaplaması
         float currentSpeed = canRun ? runSpeed : walkSpeed;
         Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
 
-        // 3. Vektörleri Birleştirme
+        // 4. Vektörleri Birleştirme
         Vector3 finalMovement = move * currentSpeed;
         finalMovement.y = velocity.y;
 
-        // 4. TEK BİR Move Çağrısı
+        // 5. TEK BİR Move Çağrısı
         controller.Move(finalMovement * Time.deltaTime);
 
-        // 5. Animasyonlar
+        // 6. Animasyonlar
         if (animator != null)
         {
             float multiplier = canRun ? 2f : 1f;
@@ -145,17 +156,14 @@ public class PlayerMovement : NetworkBehaviour
 
     private void Jump()
     {
-        // Script veya obje devre dışıysa zıplama kodunu reddet
-        if (!enabled) return;
+        // Script veya obje devre dışıysa VEYA oyuncu uyuyorsa zıplamayı reddet
+        if (!enabled || isSleeping) return;
 
-        // --- YENİ: ZIPLAMA İÇİN DE ENERJİ KONTROLÜ (İsteğe bağlı) ---
-        // Eğer yorgunluktan koşamıyorsa, zıplayamasın da.
         if (playerEnergy != null && !playerEnergy.KosabilirMi())
         {
             return;
         }
 
-        // Sadece karakter yerdeyse VE cooldown süresi dolduysa zıpla
         if (controller.isGrounded && jumpCooldownTimer <= 0f)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -163,5 +171,44 @@ public class PlayerMovement : NetworkBehaviour
             if (animator != null)
                 animator.SetBool("isJumping", true);
         }
+    }
+
+    // --- YENİ: UYKU FONKSİYONLARI ---
+    public void StartSleeping(Bed bed)
+    {
+        if (isSleeping) return;
+
+        isSleeping = true;
+        currentBed = bed;
+
+        // Uykuya geçerken önceki hareketleri sıfırla ki karakter yatakta kaymasın
+        moveInput = Vector2.zero;
+        velocity = Vector3.zero;
+        isRunning = false;
+
+        if (animator != null)
+        {
+            animator.SetFloat("Horizontal", 0f);
+            animator.SetFloat("Vertical", 0f);
+            animator.SetBool("isJumping", false);
+        }
+
+        Debug.Log("Uykuya dalındı. Çıkmak için ESC'ye bas.");
+    }
+
+    public void WakeUp()
+    {
+        if (!isSleeping) return;
+
+        isSleeping = false;
+
+        // Yatağı diğer oyuncuların kullanımına aç
+        if (currentBed != null)
+        {
+            currentBed.SetBedOccupiedRpc(false);
+            currentBed = null;
+        }
+
+        Debug.Log("Uyandın, hareket edebilirsin.");
     }
 }

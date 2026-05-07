@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 287caf2f6b9289f48a8ed09313390c23, type: 3}
+  m_Name: Sprinkler
+  m_EditorClassIdentifier: Assembly-CSharp::MarketItem
+  itemID: 9
+  itemName: Sprinkler
+  itemIcon: {fileID: 21300000, guid: 736f976d735a5f64fb1f1e9126d38965, type: 3}
+  price: 5
+  prefabToSpawn: {fileID: 2726892874834242305, guid: b0f07500784ffa841944f76f2d02b25e, type: 3}

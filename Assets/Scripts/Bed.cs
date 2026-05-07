@@ -3,21 +3,45 @@ using UnityEngine;
 
 public class Bed : NetworkBehaviour, IInteractable
 {
+    // Yatağın dolu olup olmadığını tüm ağda takip eder
+    private NetworkVariable<bool> isOccupied = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     public void Interact(NetworkObject playerObject)
     {
-        if (!DayNightCycleManager.Instance.IsNight())
+        // 1. Meşguliyet ve Gece kontrolü
+        if (isOccupied.Value)
         {
-            Debug.Log("Şu an gündüz, uyumak için akşam olmasını beklemelisin.");
+            Debug.Log("Bu yatak şu an dolu!");
             return;
         }
 
+        if (!DayNightCycleManager.Instance.IsNight())
+        {
+            Debug.Log("Sadece gece uyuyabilirsin.");
+            return;
+        }
+
+        // 2. Sahip kontrolü ve İşlemler
         if (playerObject.IsOwner)
         {
-            ulong clientId = playerObject.OwnerClientId;
-            // Güncellenen RPC çağrısı
-            DayNightCycleManager.Instance.SendSleepRequestRpc(clientId);
+            // Sunucuda yatağı meşgul olarak işaretle
+            SetBedOccupiedRpc(true);
 
-            Debug.Log("Yatağa yatıldı. Diğer oyuncuların da uyuması bekleniyor...");
+            // Oyuncu üzerindeki uyku kontrolcüsünü çalıştır
+            if (playerObject.TryGetComponent<PlayerMovement>(out var sleepController))
+            {
+                sleepController.StartSleeping(this);
+            }
+
+            // Mevcut uyku talebi RPC'si
+            ulong clientId = playerObject.OwnerClientId;
+            DayNightCycleManager.Instance.SendSleepRequestRpc(clientId);
         }
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void SetBedOccupiedRpc(bool occupied)
+    {
+        isOccupied.Value = occupied;
     }
 }
