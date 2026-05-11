@@ -29,7 +29,7 @@ public class SprinkleController : NetworkBehaviour
 
     void Update()
     {
-        if (!IsServer) return;
+        if (!IsSpawned || !IsServer) return;
 
         zamanlayici += Time.deltaTime;
 

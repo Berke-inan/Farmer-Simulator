@@ -21,15 +21,21 @@ public class OrakEylemi : NetworkBehaviour, IUseableTool
                     {
                         // Sadece sağlıklı şekilde büyümüşse ürün verecek
                         bool urunVerecekMi = ekin.IsGrown;
-                        HasatEtServerRpc(n.NetworkObjectId, ekin.transform.position, urunVerecekMi);
+
+                        // YENİ: Gübreden gelen ekstra ürün miktarını çekiyoruz
+                        int ekstra = ekin.extraYield.Value;
+
+                        // YENİ: ekstra parametresini RPC'ye yolluyoruz
+                        HasatEtServerRpc(n.NetworkObjectId, ekin.transform.position, urunVerecekMi, ekstra);
                     }
                 }
             }
         }
     }
 
+    // YENİ: int ekstraUrun parametresi eklendi
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void HasatEtServerRpc(ulong id, Vector3 pos, bool urunVer)
+    private void HasatEtServerRpc(ulong id, Vector3 pos, bool urunVer, int ekstraUrun)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(id, out NetworkObject obj))
         {
@@ -39,7 +45,11 @@ public class OrakEylemi : NetworkBehaviour, IUseableTool
                 TohumVerisi v = TerrainLayerManager.Instance.tohumListesi.Find(x => obj.name.Contains(x.tohumAdi));
                 if (v != null)
                 {
-                    for (int i = 0; i < v.hasatMiktari; i++)
+                    // YENİ: Toplam ürün miktarını hesaplıyoruz
+                    int toplamUrun = v.hasatMiktari + ekstraUrun;
+
+                    // YENİ: Döngü artık toplamUrun kadar dönecek
+                    for (int i = 0; i < toplamUrun; i++)
                     {
                         Vector3 off = new Vector3(Random.Range(-0.5f, 0.5f), 1f, Random.Range(-0.5f, 0.5f));
                         GameObject t = Instantiate(v.dusecekTohumPrefab, pos + off, Quaternion.identity);
@@ -58,7 +68,7 @@ public class OrakEylemi : NetworkBehaviour, IUseableTool
             // Eğer altındaki toprak ıslaksa, eski çapalanmış (kuru) haline çevir
             if (wasWet)
             {
-                TerrainLayerManager.Instance.PaintSoilServerRpc(pos, TerrainLayerManager.Instance.tilledLayerIndex,fircaBoyutu);
+                TerrainLayerManager.Instance.PaintSoilServerRpc(pos, TerrainLayerManager.Instance.tilledLayerIndex, fircaBoyutu);
             }
         }
     }
