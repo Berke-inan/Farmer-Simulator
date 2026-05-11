@@ -28,6 +28,19 @@ public class DayNightCycleManager : NetworkBehaviour
         new Keyframe(24f, 0f)
     );
 
+    [Header("Ambient Settings")]
+    [Tooltip("Gece ve gündüz ortam ışığının şiddetini belirler (0.2 gece için ideal bir loşluktur)")]
+    public AnimationCurve ambientIntensityCurve = new AnimationCurve(
+        new Keyframe(0f, 0.1f),   // Gece yarısı hafif loş
+        new Keyframe(5f, 0.15f),   // Sabaha karşı hala loş
+        new Keyframe(7f, 1f),     // Gündüz olunca ortam ışığı tam gücünde (İç mekanlar aydınlanır)
+        new Keyframe(17f, 1f),    // Akşam üstüne kadar tam güç
+        new Keyframe(19f, 0.15f),  // Akşam olunca tekrar loş gece moduna geçiş
+        new Keyframe(24f, 0.1f)
+    );
+
+
+
     // Sadece Server'ın bileceği, yatağa yatan oyuncuların listesi
     private HashSet<ulong> sleepingPlayers = new HashSet<ulong>();
 
@@ -58,10 +71,17 @@ public class DayNightCycleManager : NetworkBehaviour
 
     private void UpdateVisuals()
     {
-        if (sunLight == null) return;
-        float sunAngle = (currentTime.Value / 24f) * 360f - 90f;
-        sunLight.transform.rotation = Quaternion.Euler(sunAngle, 170f, 0f);
-        sunLight.intensity = sunIntensity.Evaluate(currentTime.Value);
+        if (sunLight != null)
+        {
+            float sunAngle = (currentTime.Value / 24f) * 360f - 90f;
+            sunLight.transform.rotation = Quaternion.Euler(sunAngle, 170f, 0f);
+            sunLight.intensity = sunIntensity.Evaluate(currentTime.Value);
+        }
+
+        // YENİ EKLENEN: Ortam ışığının (Global Illumination) saat bazlı güncellenmesi
+        RenderSettings.ambientIntensity = ambientIntensityCurve.Evaluate(currentTime.Value);
+
+
     }
 
     // Gece olup olmadığını kontrol eden metot
@@ -95,7 +115,7 @@ public class DayNightCycleManager : NetworkBehaviour
 
     private void MakeItMorning()
     {
-        currentTime.Value = 6f; // Sabah 8'e atla
+        currentTime.Value = 6f; // Sabah 6'ya atla
         sleepingPlayers.Clear(); // Uyuyanlar listesini sıfırla
         Debug.Log("Herkes uyudu, sabah oldu!");
 
