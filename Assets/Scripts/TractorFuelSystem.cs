@@ -54,7 +54,7 @@ public class TractorFuelSystem : NetworkBehaviour
 
     public bool HasFuel => currentFuel.Value > 0f;
 
-    [Rpc(SendTo.Server, RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void AddFuelServerRpc(float amount)
     {
         currentFuel.Value = Mathf.Min(currentFuel.Value + amount, maxFuel);
