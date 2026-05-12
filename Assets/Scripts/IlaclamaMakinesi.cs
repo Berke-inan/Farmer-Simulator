@@ -30,21 +30,22 @@ public class IlaclamaMakinesi : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        // Sunucu deðilsek veya makine kapalýysa iþlem yapma
-        if (!NetworkManager.Singleton.IsServer || anaGovde == null || !anaGovde.isWorking.Value) return;
+        // 1. Önce NetworkManager'ýn varlýðýný ve Server olup olmadýðýný kontrol et
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
 
-        // ZAMANLAYICIYI SÝLDÝK! Artýk deðdiði her þeyi ayný anda tarayacak.
+        // 2. anaGovde referansýný ve NetworkObject'in spawn durumunu kontrol et
+        if (anaGovde == null || !anaGovde.IsSpawned || !anaGovde.isWorking.Value) return;
 
-        // 1. AÐAÇ KONTROLÜ
+        // 3. AÐAÇ KONTROLÜ
         TreeController agac = other.GetComponentInParent<TreeController>();
-        if (agac != null && !agac.ilaclandiMi.Value)
+        if (agac != null && agac.ilaclandiMi != null && !agac.ilaclandiMi.Value)
         {
             agac.IlaclandiServerRpc();
         }
 
-        // 2. NORMAL EKÝN KONTROLÜ
+        // 4. EKÝN KONTROLÜ
         ModularCrop ekin = other.GetComponentInParent<ModularCrop>();
-        if (ekin != null && !ekin.ilaclandiMi.Value)
+        if (ekin != null && ekin.ilaclandiMi != null && !ekin.ilaclandiMi.Value)
         {
             ekin.IlaclandiServerRpc();
         }

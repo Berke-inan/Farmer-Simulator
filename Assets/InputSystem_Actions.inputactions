@@ -122,6 +122,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "EmptyHand",
+                    "type": "Button",
+                    "id": "08cab4fb-8279-402c-bc67-0d31cd47c4cb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -617,6 +626,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "SecondaryInteract",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1c3d945c-f542-47cf-9948-fe07d56b5ae4",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EmptyHand",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

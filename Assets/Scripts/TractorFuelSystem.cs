@@ -63,7 +63,7 @@ public class TractorFuelSystem : NetworkBehaviour
     public bool HasFuel => currentFuel.Value > 0f;
 
     // YENÝ: T Tuþuna basýldýðýnda motoru açýp kapatacak fonksiyon
-    [Rpc(SendTo.Server, RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void ToggleEngineServerRpc()
     {
         if (currentFuel.Value > 0)
@@ -78,7 +78,7 @@ public class TractorFuelSystem : NetworkBehaviour
         }
     }
 
-    [Rpc(SendTo.Server, RequireOwnership = false)]
+[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void AddFuelServerRpc(float amount)
     {
         currentFuel.Value = Mathf.Min(currentFuel.Value + amount, maxFuel);

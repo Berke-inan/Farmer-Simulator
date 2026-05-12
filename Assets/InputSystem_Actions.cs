@@ -208,6 +208,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""EmptyHand"",
+                    ""type"": ""Button"",
+                    ""id"": ""08cab4fb-8279-402c-bc67-0d31cd47c4cb"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -703,6 +712,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""SecondaryInteract"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1c3d945c-f542-47cf-9948-fe07d56b5ae4"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EmptyHand"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1303,6 +1323,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Steering = m_Player.FindAction("Steering", throwIfNotFound: true);
         m_Player_Drop = m_Player.FindAction("Drop", throwIfNotFound: true);
         m_Player_SecondaryInteract = m_Player.FindAction("SecondaryInteract", throwIfNotFound: true);
+        m_Player_EmptyHand = m_Player.FindAction("EmptyHand", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1409,6 +1430,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Steering;
     private readonly InputAction m_Player_Drop;
     private readonly InputAction m_Player_SecondaryInteract;
+    private readonly InputAction m_Player_EmptyHand;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1472,6 +1494,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/SecondaryInteract".
         /// </summary>
         public InputAction @SecondaryInteract => m_Wrapper.m_Player_SecondaryInteract;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/EmptyHand".
+        /// </summary>
+        public InputAction @EmptyHand => m_Wrapper.m_Player_EmptyHand;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1537,6 +1563,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @SecondaryInteract.started += instance.OnSecondaryInteract;
             @SecondaryInteract.performed += instance.OnSecondaryInteract;
             @SecondaryInteract.canceled += instance.OnSecondaryInteract;
+            @EmptyHand.started += instance.OnEmptyHand;
+            @EmptyHand.performed += instance.OnEmptyHand;
+            @EmptyHand.canceled += instance.OnEmptyHand;
         }
 
         /// <summary>
@@ -1587,6 +1616,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @SecondaryInteract.started -= instance.OnSecondaryInteract;
             @SecondaryInteract.performed -= instance.OnSecondaryInteract;
             @SecondaryInteract.canceled -= instance.OnSecondaryInteract;
+            @EmptyHand.started -= instance.OnEmptyHand;
+            @EmptyHand.performed -= instance.OnEmptyHand;
+            @EmptyHand.canceled -= instance.OnEmptyHand;
         }
 
         /// <summary>
@@ -1978,6 +2010,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSecondaryInteract(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "EmptyHand" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEmptyHand(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

@@ -8,11 +8,10 @@ public class ModularCrop : NetworkBehaviour
     public NetworkVariable<bool> sulandiMi = new NetworkVariable<bool>(false);
 
     [Header("Büyüme Görselleri")]
-    [Tooltip("Örn: 0:Fide, 1:Orta, 2:Büyük, 3:Çürümüş")]
     public GameObject[] asamaGorselleri;
 
     [Header("Çürüme Ayarları")]
-    public float curumeSuresi = 120f; // Büyümüş bitki hasat edilmeden ne kadar susuz kalırsa çürür?
+    public float curumeSuresi = 120f;
 
     private TohumVerisi _veriler;
     private float _buyumeSayaci = 0f;
@@ -23,10 +22,12 @@ public class ModularCrop : NetworkBehaviour
     public NetworkVariable<float> growthTimeMultiplier = new NetworkVariable<float>(1f);
     public NetworkVariable<int> extraYield = new NetworkVariable<int>(0);
 
-    // Sağlıklı Büyümüş hal SONDAN BİR ÖNCEKİ index
-    public bool IsGrown => asamaGorselleri != null && mevcutAsama.Value == asamaGorselleri.Length - 2;
+    // --- YENİ EKLENEN KISIM ---
+    [Header("Pest Control Data")]
+    public NetworkVariable<bool> ilaclandiMi = new NetworkVariable<bool>(false);
+    // --------------------------
 
-    // Çürümüş hal EN SONDAKİ index
+    public bool IsGrown => asamaGorselleri != null && mevcutAsama.Value == asamaGorselleri.Length - 2;
     public bool IsRotted => asamaGorselleri != null && mevcutAsama.Value == asamaGorselleri.Length - 1;
 
     public override void OnNetworkSpawn()
@@ -39,8 +40,6 @@ public class ModularCrop : NetworkBehaviour
     void Update()
     {
         if (!IsServer || _veriler == null) return;
-
-        // Bitki zaten çürümüşse artık hiçbir işlem yapma
         if (IsRotted) return;
 
         if (Time.frameCount % 30 == 0)
@@ -50,9 +49,7 @@ public class ModularCrop : NetworkBehaviour
 
         if (sulandiMi.Value)
         {
-            _kurulukSayaci = 0f; // Toprak ıslaksa kuruluk sayacı sıfırlanır
-
-            // Sadece sağlıklı büyümüş aşamaya gelene kadar büyü
+            _kurulukSayaci = 0f;
             if (mevcutAsama.Value < asamaGorselleri.Length - 2)
             {
                 _buyumeSayaci += Time.deltaTime;
@@ -67,19 +64,14 @@ public class ModularCrop : NetworkBehaviour
         }
         else
         {
-            // TOPRAK KURU İSE:
-            // Sadece ekin tam büyümüş (IsGrown) durumdaysa çürüme başlar
             if (IsGrown)
             {
                 _kurulukSayaci += Time.deltaTime;
                 if (_kurulukSayaci >= curumeSuresi)
                 {
-                    // Süre dolduğunda Çürümüş (Son Index) haline geç
                     mevcutAsama.Value = asamaGorselleri.Length - 1;
                 }
             }
-            // IsGrown değilse (fide vs. ise) hiçbir şey olmaz. 
-            // Büyüme sayacı durur, çürüme sayacı da artmaz. Olduğu gibi bekler.
         }
     }
 
@@ -96,9 +88,15 @@ public class ModularCrop : NetworkBehaviour
     public void ApplyFertilizer(float timeMultiplier, int bonus)
     {
         if (!IsServer) return;
-
         isFertilized.Value = true;
         growthTimeMultiplier.Value = timeMultiplier;
         extraYield.Value = bonus;
+    }
+
+    // --- YENİ EKLENEN RPC METODU ---
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]// İlaclamaMakinesi sahibi olmayan oyuncular da tetikleyebilsin diye false yaptık
+    public void IlaclandiServerRpc()
+    {
+        ilaclandiMi.Value = true;
     }
 }
