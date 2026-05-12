@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Unity.Netcode;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 public class MarketUIController : MonoBehaviour
 {
@@ -49,6 +50,19 @@ public class MarketUIController : MonoBehaviour
         root.Q<Button>("ConfirmSellBtn").clicked += OnSellConfirmed;
 
         root.style.display = DisplayStyle.None;
+    }
+
+    private void Update()
+    {
+        // Klavye bağlı mı kontrol et ve Yeni Input System ile ESC tuşunu dinle
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            // UI görünür durumdaysa kapat
+            if (root != null && root.style.display == DisplayStyle.Flex)
+            {
+                currentLaptop?.ExitLaptop();
+            }
+        }
     }
 
     public void OpenUI(LaptopInteractable laptop)
@@ -194,7 +208,6 @@ public class MarketUIController : MonoBehaviour
         VisualElement info = new VisualElement();
         info.AddToClassList("item-info-group");
 
-        // Hatalı kısımlar düzeltildi
         Label nLabel = new Label(name);
         nLabel.AddToClassList("item-name");
 

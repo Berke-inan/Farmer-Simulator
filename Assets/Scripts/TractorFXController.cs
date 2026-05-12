@@ -5,6 +5,7 @@ using Unity.Netcode;
 public class TractorFXController : NetworkBehaviour
 {
     private TractorController tractorController;
+    private TractorFuelSystem fuelSystem; // YENÝ: Motor beyni referansý
     private Rigidbody rb;
 
     [Header("Partikül Sistemleri")]
@@ -38,6 +39,7 @@ public class TractorFXController : NetworkBehaviour
     {
         rb = GetComponent<Rigidbody>();
         tractorController = GetComponent<TractorController>();
+        fuelSystem = GetComponent<TractorFuelSystem>(); // YENÝ: Yakýt sistemini bul
 
         if (exhaustSmoke == null)
             Debug.LogWarning($"{gameObject.name} üzerinde 'Exhaust Smoke' partikülü eksik!");
@@ -45,12 +47,13 @@ public class TractorFXController : NetworkBehaviour
 
     private void Update()
     {
-        bool isPlayerIn = tractorController.IsOccupied;
+        // YENÝ MANTIK: Sadece biri bindiðinde deðil, MOTOR ÇALIÞIYORSA efektleri oynat
+        bool isEngineOn = fuelSystem != null && fuelSystem.isEngineRunning.Value;
 
-        if (!isPlayerIn)
+        if (!isEngineOn)
         {
             if (exhaustSmoke != null && exhaustSmoke.isPlaying) StopAllEffects();
-            return;
+            return; // Motor kapalýysa aþaðý inme (Duman ve çamur yok)
         }
 
         float currentSpeed = rb.linearVelocity.magnitude;
@@ -67,8 +70,6 @@ public class TractorFXController : NetworkBehaviour
             float targetRate = Mathf.Lerp(idleSmokeRate, maxSmokeRate, speedFactor);
 
             emission.rateOverTime = targetRate;
-
-            // Debug.Log($"Duman Çalýyor: {exhaustSmoke.isPlaying} | Hedef Duman: {targetRate} | Mevcut: {emission.rateOverTime.constant}");
         }
 
         // --- ÇAMUR YÖNETÝMÝ ---
@@ -81,7 +82,7 @@ public class TractorFXController : NetworkBehaviour
         float speedFactor = 0f;
         bool tasZemindeMi = false;
 
-        // 1. ZEMÝN KONTROLÜ (Aþaðýya Lazer At)
+        // 1. ZEMÝN KONTROLÜ
         if (Physics.Raycast(transform.position + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 5f))
         {
             Terrain terrain = hit.collider.GetComponent<Terrain>();
@@ -95,8 +96,7 @@ public class TractorFXController : NetworkBehaviour
             }
         }
 
-        // 2. HIZ VE ÇAMUR ÜRETÝM (Emission) HESAPLAMASI
-        // Taþta deðilsek ve yeterince hýzlýysak çamur üretelim
+        // 2. HIZ VE ÇAMUR ÜRETÝM HESAPLAMASI
         if (speed >= minSpeedForMud && !tasZemindeMi)
         {
             speedFactor = Mathf.InverseLerp(minSpeedForMud, maxSpeed, speed);
@@ -104,27 +104,21 @@ public class TractorFXController : NetworkBehaviour
         }
 
         // 3. DÝNAMÝK GÖRÜNÜM HESAPLAMALARI
-        // Unity'de Alpha deðeri kod içinde 0.0f ile 1.0f arasýndadýr. O yüzden 255'e bölüyoruz.
         float currentAlpha = Mathf.Lerp(minMudAlpha, maxMudAlpha, speedFactor) / 255f;
         float currentStartSpeed = Mathf.Lerp(minMudStartSpeed, maxMudStartSpeed, speedFactor);
 
-        // Bütün tekerlek efektlerine uygula
         foreach (var mud in wheelMuds)
         {
             if (mud != null)
             {
                 var emission = mud.emission;
-                var main = mud.main; // Start Color ve Start Speed'e ulaþmak için Main Modülünü çekiyoruz
+                var main = mud.main;
 
                 if (mudRate > 0 && !mud.isPlaying) mud.Play();
 
-                // Çamur miktarýný uygula
                 emission.rateOverTime = mudRate;
-
-                // Dinamik Hýz ayarýný uygula
                 main.startSpeed = currentStartSpeed;
 
-                // Dinamik Saydamlýk (Alpha) ayarýný uygula
                 Color tempColor = main.startColor.color;
                 tempColor.a = currentAlpha;
                 main.startColor = tempColor;
@@ -134,7 +128,6 @@ public class TractorFXController : NetworkBehaviour
         }
     }
 
-    // --- UNITY TERRAIN DOKU OKUMA MATEMATÝÐÝ ---
     private int BaskinDokuyuBul(Vector3 dunyaPozisyonu, Terrain terrain)
     {
         TerrainData terrainData = terrain.terrainData;

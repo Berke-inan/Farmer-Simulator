@@ -6,7 +6,7 @@ public class SulamaEylemi : MonoBehaviour, IUseableTool
     [Tooltip("Boyama boyutu")]
     public int fircaBoyutu = 3;
 
-    public void EylemYap(RaycastHit hit, PlayerInventory inv)
+    public void EylemYap(RaycastHit hit, InventoryManager inv)
     {
         if (hit.collider is TerrainCollider tCol)
         {

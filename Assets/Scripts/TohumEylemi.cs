@@ -1,17 +1,12 @@
-using Unity.Netcode;
 using UnityEngine;
 
-public class TohumEylemi : NetworkBehaviour, IUseableTool
+public class TohumEylemi : MonoBehaviour, IUseableTool
 {
-    public int tohumID = 1;
-    public GameObject ekinPrefab;
-    public NetworkVariable<int> kalanMiktar = new NetworkVariable<int>(4);
-
     [Header("Ekim Ayarları")]
     [Tooltip("Başka bir tohuma veya bitkiye ne kadar yaklaşabilir?")]
     public float minimumEkimMesafesi = 0.8f;
 
-    public void EylemYap(RaycastHit hit, PlayerInventory inv)
+    public void EylemYap(RaycastHit hit, InventoryManager inv)
     {
         if (hit.collider is TerrainCollider tCol)
         {
@@ -26,52 +21,24 @@ public class TohumEylemi : NetworkBehaviour, IUseableTool
 
             // 2. Etrafta başka bir ekin var mı kontrolü
             Collider[] yakindakiler = Physics.OverlapSphere(hit.point, minimumEkimMesafesi);
-            bool yakinlardaEkinVar = false;
-
             foreach (var col in yakindakiler)
             {
-                // Kendi ektiğimiz ModularCrop scriptine sahip bir obje bulursak
-                if (col.TryGetComponent(out ModularCrop ekin))
+                if (col.TryGetComponent(out ModularCrop _))
                 {
-                    yakinlardaEkinVar = true;
-                    break;
+                    Debug.Log("Buraya ekemezsin, başka bir ekine çok yakın!");
+                    return;
                 }
             }
 
-            if (yakinlardaEkinVar)
+            // 3. Her şey uygunsa komutu PlayerActionManager'a devret
+            if (inv.TryGetComponent(out PlayerActionManager actionManager) && inv.TryGetComponent(out NetworkedHotbar hotbar))
             {
-                Debug.Log("Buraya ekemezsin, başka bir ekine çok yakın!");
-                return; // Ekme işlemini iptal et
-            }
+                int slotIndex = hotbar.ActiveSlotIndex.Value;
 
-            // Her şey uygunsa ve elde tohum varsa ekimi yap
-            if (kalanMiktar.Value > 0)
-            {
-                TohumEkServerRpc(hit.point, inv.NetworkObjectId);
-            }
-        }
-    }
+                // Envanterden o anki slotta tuttuğumuz tohumun ID'sini alıyoruz
+                string itemID = inv.Slots[slotIndex].Item.ItemID;
 
-    [Rpc(SendTo.Server)]
-    private void TohumEkServerRpc(Vector3 nokta, ulong invID)
-    {
-        kalanMiktar.Value--;
-
-        // Ekinin toprağa gömülmemesi için hafif yukarıdan (0.05f) spawn ediyoruz
-        GameObject ekin = Instantiate(ekinPrefab, nokta + Vector3.up * 0.05f, Quaternion.identity);
-        ekin.GetComponent<NetworkObject>().Spawn();
-
-        // Akıllı bitkiye ID'sini veriyoruz
-        if (ekin.TryGetComponent(out ModularCrop sc))
-            sc.tohumID.Value = tohumID;
-
-        // Tohum bittiyse keseyi yok et
-        if (kalanMiktar.Value <= 0)
-        {
-            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(invID, out NetworkObject pObj))
-            {
-                if (pObj.TryGetComponent(out PlayerInventory inv))
-                    inv.EldekiniYokEtServerRpc();
+                actionManager.TohumEkServerRpc(itemID, hit.point, slotIndex);
             }
         }
     }

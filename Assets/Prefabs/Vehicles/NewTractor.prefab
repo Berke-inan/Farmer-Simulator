@@ -6265,6 +6265,7 @@ GameObject:
   - component: {fileID: 4839304907225176253}
   - component: {fileID: 4692755187108537293}
   - component: {fileID: 2075962119377794508}
+  - component: {fileID: 5442484949945036661}
   m_Layer: 0
   m_Name: NewTractor
   m_TagString: Untagged
@@ -6513,6 +6514,7 @@ MonoBehaviour:
   rearHitchPoint: {fileID: 7197809104267485552}
   frontHitchPoint: {fileID: 6796363962265064795}
   maxAttachDistance: 2
+  maxAttachSpeed: 2
   cameraTarget: {fileID: 485022199069134060}
   defaultZOffset: 0
   trailerCameraOffset: -10
@@ -6562,6 +6564,11 @@ MonoBehaviour:
   minSpeedForMud: 2.5
   maxMudEmission: 80
   maxSpeed: 15
+  tasZeminIndex: 3
+  minMudAlpha: 30
+  maxMudAlpha: 160
+  minMudStartSpeed: 10
+  maxMudStartSpeed: 20
 --- !u!114 &2075962119377794508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6601,6 +6608,27 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &5442484949945036661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130530900198711497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc1f1c10f4f7a5241ac8f85b131d27e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TractorFuelSystem
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxFuel: 100
+  maxRangeKm: 100
+  idleConsumptionPerSecond: 0.01
+  currentFuel:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 100
 --- !u!1 &5261454493351848730
 GameObject:
   m_ObjectHideFlags: 0

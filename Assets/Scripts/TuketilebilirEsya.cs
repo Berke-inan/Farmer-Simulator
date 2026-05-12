@@ -1,9 +1,8 @@
 using UnityEngine;
-using Unity.Netcode;
-using UnityEngine.InputSystem;
+using Unity.Netcode; // Sadece NetworkObject kontrolü için durabilir
 
-[RequireComponent(typeof(PickupableTool))]
-public class TuketilebilirEsya : NetworkBehaviour
+// Sadece MonoBehaviour ve IUseableTool! Eski aðýrlýklardan kurtulduk.
+public class TuketilebilirEsya : MonoBehaviour, IUseableTool
 {
     [Header("Eþya Özellikleri")]
     [Tooltip("Eðer bu tikliyse Max Enerjiyi artýrýr (Su mantýðý). Tikli deðilse normal enerjiyi artýrýr (Yemek mantýðý)")]
@@ -12,52 +11,18 @@ public class TuketilebilirEsya : NetworkBehaviour
     [Tooltip("Tüketildiðinde enerjiyi/max enerjiyi kaç puan artýracak?")]
     public float verilecekEnerji = 25f;
 
-    private PickupableTool pickupTool;
-
-    private void Awake()
+    // Oyuncu eline alýp sol týka (veya etkileþim tuþuna) bastýðýnda direkt bu çalýþýr
+    public void EylemYap(RaycastHit hit, InventoryManager inv)
     {
-        pickupTool = GetComponent<PickupableTool>();
-    }
-
-    private void Update()
-    {
-        // Eþya bizdeyse ve elimizde tutuyorsak çalýþýr
-        if (!IsOwner || !pickupTool.isEquipped.Value || pickupTool.isStored.Value) return;
-
-        // F Tuþuna basýldýðýnda
-        if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
+        // Envanter yöneticisinin olduðu obje ayný zamanda Player'ýn kendisidir.
+        if (inv.TryGetComponent(out PlayerEnergy enerjiSistemi) && inv.TryGetComponent(out NetworkedHotbar hotbar))
         {
-            // Kendi karakterimizdeki PlayerEnergy scriptini bul
-            var localClient = NetworkManager.Singleton.LocalClient;
-            if (localClient != null && localClient.PlayerObject != null)
-            {
-                PlayerEnergy enerjiSistemi = localClient.PlayerObject.GetComponent<PlayerEnergy>();
-                PlayerInventory envanter = localClient.PlayerObject.GetComponent<PlayerInventory>();
+            // 1. Enerjiyi ver (Senin yazdýðýn orijinal PlayerEnergy scriptindeki RPC'yi tetikliyoruz)
+            enerjiSistemi.TuketimYapServerRpc(buBirSuMudur, verilecekEnerji);
 
-                if (enerjiSistemi != null && envanter != null)
-                {
-                    // Tüketildiðini sunucuya bildir, eþyayý elden býrak ve yok et
-                    envanter.EldekiniYereAt();
-                    TuketVeYokOlServerRpc(enerjiSistemi.NetworkObjectId);
-                }
-            }
+            // 2. Tüketildiði için envanterden 1 tane eksilt. 
+            // (Eðer sonuncuysa eldeki görsel de otomatik yok olur)
+            inv.RemoveItemServerRpc(hotbar.ActiveSlotIndex.Value, 1, transform.position, Vector3.zero, false);
         }
-    }
-
-    [Rpc(SendTo.Server)]
-    private void TuketVeYokOlServerRpc(ulong oyuncuID)
-    {
-        // Að üzerinden oyuncuyu bul
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(oyuncuID, out NetworkObject oyuncuNetObj))
-        {
-            if (oyuncuNetObj.TryGetComponent(out PlayerEnergy oyuncuEnerji))
-            {
-                // Yemek/Su verisini karakterin midesine gönder
-                oyuncuEnerji.TuketimYapServerRpc(buBirSuMudur, verilecekEnerji);
-            }
-        }
-
-        // Tüketilen bu objeyi oyundan sil
-        GetComponent<NetworkObject>().Despawn();
     }
 }

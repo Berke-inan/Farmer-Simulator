@@ -18,6 +18,11 @@ public class ModularCrop : NetworkBehaviour
     private float _buyumeSayaci = 0f;
     private float _kurulukSayaci = 0f;
 
+    [Header("Fertilizer Data")]
+    public NetworkVariable<bool> isFertilized = new NetworkVariable<bool>(false);
+    public NetworkVariable<float> growthTimeMultiplier = new NetworkVariable<float>(1f);
+    public NetworkVariable<int> extraYield = new NetworkVariable<int>(0);
+
     // Sağlıklı Büyümüş hal SONDAN BİR ÖNCEKİ index
     public bool IsGrown => asamaGorselleri != null && mevcutAsama.Value == asamaGorselleri.Length - 2;
 
@@ -51,7 +56,9 @@ public class ModularCrop : NetworkBehaviour
             if (mevcutAsama.Value < asamaGorselleri.Length - 2)
             {
                 _buyumeSayaci += Time.deltaTime;
-                if (_buyumeSayaci >= _veriler.asamaGecisSuresi)
+                float currentStageTime = _veriler.asamaGecisSuresi * growthTimeMultiplier.Value;
+
+                if (_buyumeSayaci >= currentStageTime)
                 {
                     _buyumeSayaci = 0f;
                     mevcutAsama.Value++;
@@ -84,5 +91,14 @@ public class ModularCrop : NetworkBehaviour
             if (asamaGorselleri[i] != null)
                 asamaGorselleri[i].SetActive(i == mevcutAsama.Value);
         }
+    }
+
+    public void ApplyFertilizer(float timeMultiplier, int bonus)
+    {
+        if (!IsServer) return;
+
+        isFertilized.Value = true;
+        growthTimeMultiplier.Value = timeMultiplier;
+        extraYield.Value = bonus;
     }
 }

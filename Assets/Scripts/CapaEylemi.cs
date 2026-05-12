@@ -5,7 +5,7 @@ public class CapaEylemi : MonoBehaviour, IUseableTool
     [Tooltip("Boyama boyutu")]
     public int fircaBoyutu = 3;
 
-    public void EylemYap(RaycastHit hit, PlayerInventory inv)
+    public void EylemYap(RaycastHit hit, InventoryManager inv)
     {
         // 1. ÖNCE ENERJİ KONTROLÜ YAP
         PlayerEnergy enerji = inv.GetComponent<PlayerEnergy>();

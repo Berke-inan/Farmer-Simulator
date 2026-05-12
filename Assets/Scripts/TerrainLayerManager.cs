@@ -282,4 +282,7 @@ public class TerrainLayerManager : NetworkBehaviour
     }
 
     public TohumVerisi GetTohumVerisi(int id) => tohumListesi.Find(t => t.tohumID == id);
+
+
+
 }
