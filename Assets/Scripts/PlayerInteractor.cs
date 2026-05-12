@@ -10,6 +10,9 @@ public class PlayerInteractor : NetworkBehaviour
     private InputSystem_Actions inputActions;
     private PlayerInventory inventory;
 
+    // YENİ: Hangi eşyaya baktığımızı aklında tutar
+    private PickupableTool currentHighlightedTool;
+
     public override void OnNetworkSpawn()
     {
         if (!IsOwner) return;
@@ -19,13 +22,8 @@ public class PlayerInteractor : NetworkBehaviour
         inputActions = new InputSystem_Actions();
         inputActions.Enable();
 
-        // E tuşu (Normal Etkileşim - Alma vb.)
         inputActions.Player.Interact.started += ctx => HandleInteraction();
-
-        // F tuşu (İkincil Etkileşim - Balyalama vb.)
         inputActions.Player.SecondaryInteract.started += ctx => HandleSecondaryInteraction();
-
-        // G tuşu (Yere Atma)
         inputActions.Player.Drop.started += ctx => DropItem();
     }
 
@@ -40,20 +38,52 @@ public class PlayerInteractor : NetworkBehaviour
         }
     }
 
+    // YENİ: Sadece senin oyuncun (IsOwner) etrafı tarar
+    private void Update()
+    {
+        if (!IsOwner) return;
+        CheckForHighlights();
+    }
+
+    // YENİ: Kameranın baktığı eşyayı parlatma kontrolü
+    private void CheckForHighlights()
+    {
+        Ray ray = new Ray(playerCamera.position, playerCamera.forward);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
+        {
+            PickupableTool tool = hit.collider.GetComponentInParent<PickupableTool>();
+
+            if (tool != null)
+            {
+                if (tool != currentHighlightedTool)
+                {
+                    if (currentHighlightedTool != null) currentHighlightedTool.ParlamaKapat();
+                    currentHighlightedTool = tool;
+                    currentHighlightedTool.ParlamaAc();
+                }
+                return;
+            }
+        }
+
+        if (currentHighlightedTool != null)
+        {
+            currentHighlightedTool.ParlamaKapat();
+            currentHighlightedTool = null;
+        }
+    }
+
     private void HandleInteraction()
     {
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
         {
-            // 1. Vurduğumuz obje (veya ebeveyni) IInteractable mı? (Traktöre binmek, yerden eşya almak vs.)
             IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
 
             if (interactable != null)
             {
-                // Eğer etkileşime girilecek bir şeyse normal Interact çalışsın
                 interactable.Interact(NetworkObject);
             }
-            // 2. Etkileşime girilecek bir şey değilse (Mesela dümdüz Terrain ise) ve elimizde alet varsa aleti kullan!
             else if (inventory != null && inventory.eldekiObje != null)
             {
                 if (inventory.eldekiObje.TryGetComponent(out IUseableTool alet))
@@ -69,7 +99,6 @@ public class PlayerInteractor : NetworkBehaviour
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
         {
-            // Aynı şekilde F tuşu için de Parent (Ebeveyn) kontrolü ekliyoruz.
             ISecondaryInteractable secondaryInteractable = hit.collider.GetComponentInParent<ISecondaryInteractable>();
             if (secondaryInteractable != null)
             {

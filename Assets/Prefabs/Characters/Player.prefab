@@ -21,6 +21,8 @@ GameObject:
   - component: {fileID: -5414915901522307759}
   - component: {fileID: 5718718330254482848}
   - component: {fileID: -3906425227470267114}
+  - component: {fileID: -1390387991516969934}
+  - component: {fileID: -7169171025212092715}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -335,6 +337,8 @@ MonoBehaviour:
   maksimumKapasite: 100
   normalEnerjiDusmeSuresi: 10
   maxEnerjiDusmeSuresi: 30
+  eylemYapmaSiniri: 5
+  kosmaSiniri: 0
   gunlukSuIcmeLimiti: 4
   maxEnerji:
     UpdateTraits:
@@ -351,6 +355,43 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &-1390387991516969934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864111185607732302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: bbaf684436318a348a69aec9929774e1, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: c368a48b9dce7ea42a10efeb25cbfd18, type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &-7169171025212092715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1864111185607732302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cd02f0c0a16d0e47a3913a08343fe93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCrosshair
+  ShowTopMostFoldoutHeaderGroup: 1
+  isDrivingTractor: 0
 --- !u!1 &2772005619223278391
 GameObject:
   m_ObjectHideFlags: 0

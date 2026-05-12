@@ -8,11 +8,15 @@ public class PickupableTool : NetworkBehaviour, IInteractable
 
     [Header("Takip Ayarları")]
     public Vector3 offset = new Vector3(0.5f, -0.4f, 1f);
-    public Vector3 rotationOffset = Vector3.zero; // Yeni eklenen döndürme ofseti
+    public Vector3 rotationOffset = Vector3.zero;
     public float followSpeed = 10f;
 
     [Header("Depolama Ayarları")]
     public bool isStoreable = true;
+
+    [Header("Parlama Ayarları")]
+    [Tooltip("Oluşturduğumuz OutlineMat materyalini buraya atın")]
+    public Material outlineMaterial;
 
     public NetworkVariable<bool> isEquipped = new NetworkVariable<bool>(false);
     public NetworkVariable<bool> isStored = new NetworkVariable<bool>(false);
@@ -21,10 +25,28 @@ public class PickupableTool : NetworkBehaviour, IInteractable
     private Collider aletCollider;
     private Rigidbody rb;
 
+    // YENİ: Parlama için gereken görsel bileşenler
+    private Renderer objRenderer;
+    private Material[] originalMaterials;
+    private bool parlamada = false;
+
     private void Awake()
     {
         aletCollider = GetComponent<Collider>();
         rb = GetComponent<Rigidbody>();
+
+        // DEĞİŞEN KISIM: Sadece kendi üzerinde değil, alt objelerde de modeli ara!
+        objRenderer = GetComponentInChildren<Renderer>();
+
+        if (objRenderer != null)
+        {
+            originalMaterials = objRenderer.materials;
+        }
+        else
+        {
+            // Eğer hala modeli bulamazsa Console'a kırmızı bir hata fırlatacak ki anlayalım
+            Debug.LogError(gameObject.name + " eşyasının 3D modeli (Renderer) bulunamadı! Lütfen kontrol et.");
+        }
     }
 
     public override void OnNetworkSpawn()
@@ -44,9 +66,10 @@ public class PickupableTool : NetworkBehaviour, IInteractable
 
     private void DurumuGuncelle()
     {
-        // Elde veya depodaysa fizikleri ve collider'ı TAMAMEN kapat
         if (isEquipped.Value || isStored.Value)
         {
+            ParlamaKapat(); // Eşyayı alınca parlamayı zorla kapat
+
             if (rb != null) rb.isKinematic = true;
             if (aletCollider != null) aletCollider.enabled = false;
             if (isStored.Value) targetCamera = null;
@@ -59,9 +82,33 @@ public class PickupableTool : NetworkBehaviour, IInteractable
         }
     }
 
+    // --- YENİ EKLENEN PARLAMA FONKSİYONLARI ---
+    public void ParlamaAc()
+    {
+        if (isEquipped.Value || isStored.Value || parlamada || objRenderer == null || outlineMaterial == null) return;
+
+        Material[] newMaterials = new Material[originalMaterials.Length + 1];
+        for (int i = 0; i < originalMaterials.Length; i++)
+        {
+            newMaterials[i] = originalMaterials[i];
+        }
+        newMaterials[newMaterials.Length - 1] = outlineMaterial;
+
+        objRenderer.materials = newMaterials;
+        parlamada = true;
+    }
+
+    public void ParlamaKapat()
+    {
+        if (!parlamada || objRenderer == null) return;
+
+        objRenderer.materials = originalMaterials;
+        parlamada = false;
+    }
+    // ------------------------------------------
+
     public void Interact(NetworkObject interactor)
     {
-        // Römorktaysa veya eldeyse doğrudan alınamaz
         if (isEquipped.Value || isStored.Value) return;
 
         if (interactor.TryGetComponent(out PlayerInventory inventory))
@@ -115,8 +162,6 @@ public class PickupableTool : NetworkBehaviour, IInteractable
         }
 
         Vector3 targetPos = targetCamera.position + targetCamera.TransformDirection(offset);
-
-        // Kameranın mevcut rotasyonunun üzerine belirlediğimiz açı ofsetini ekliyoruz
         Quaternion targetRot = targetCamera.rotation * Quaternion.Euler(rotationOffset);
 
         transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * followSpeed);
