@@ -123,12 +123,18 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  ilaclandiMi:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  ilacDirenciCarpani: 4
   asamaGorselleri:
   - {fileID: 3833228210883587420}
   - {fileID: 3735624278192265284}
   - {fileID: 6425789471141660220}
   - {fileID: 2651328591278061264}
-  curumeSuresi: 10
+  curumeSuresi: 30
 --- !u!65 &432367220110915165
 BoxCollider:
   m_ObjectHideFlags: 0

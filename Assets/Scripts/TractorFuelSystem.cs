@@ -4,25 +4,25 @@ using Unity.Netcode;
 [RequireComponent(typeof(Rigidbody))]
 public class TractorFuelSystem : NetworkBehaviour
 {
+    [Header("Yakýt Ayarlarý")]
     public float maxFuel = 100f;
     public float maxRangeKm = 100f;
-    public float idleConsumptionPerSecond = 0.01f;
+    public float idleConsumptionPerSecond = 0.05f; // Rölanti tüketimi
+    public float maxSpeedConsumptionPerSecond = 0.3f; // Tam gaz giderken tüketim (YENÝ)
 
-    public NetworkVariable<float> currentFuel = new NetworkVariable<float>(
-        100f,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
+    [Header("Canlý Veriler")]
+    public NetworkVariable<float> currentFuel = new NetworkVariable<float>(100f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    // YENÝ: Motorun çalýþýp çalýþmadýðýný aðdaki herkesle senkronize et
+    public NetworkVariable<bool> isEngineRunning = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private Rigidbody rb;
     private TractorController tractorController;
-    private float consumptionPerMeter;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         tractorController = GetComponent<TractorController>();
-        consumptionPerMeter = maxFuel / (maxRangeKm * 1000f);
     }
 
     public override void OnNetworkSpawn()
@@ -32,29 +32,53 @@ public class TractorFuelSystem : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        if (!IsServer || currentFuel.Value <= 0) return;
+        if (!IsServer) return;
 
-        if (tractorController.IsOccupied)
+        // Motor Çalýþýyorsa ve Yakýt Varsa Tüketim Yap
+        if (isEngineRunning.Value && currentFuel.Value > 0)
         {
             float speed = rb.linearVelocity.magnitude;
-            float distanceTraveledThisFrame = speed * Time.fixedDeltaTime;
+            float currentConsumption = idleConsumptionPerSecond; // Baþlangýçta rölanti kadar harcar
 
-            if (Mathf.Abs(tractorController.CurrentGasInput) > 0.05f && speed > 0.1f)
+            // Gaza basýlýyorsa ve hareket varsa tüketimi hýza göre artýr
+            if (Mathf.Abs(tractorController.CurrentGasInput) > 0.05f || speed > 0.5f)
             {
-                currentFuel.Value -= distanceTraveledThisFrame * consumptionPerMeter;
-            }
-            else
-            {
-                currentFuel.Value -= idleConsumptionPerSecond * Time.fixedDeltaTime;
+                // Hýzý traktörün tahmini max hýzýyla (örn 15) orantýla
+                float speedPercent = Mathf.Clamp01(speed / 15f);
+                currentConsumption = Mathf.Lerp(idleConsumptionPerSecond, maxSpeedConsumptionPerSecond, speedPercent);
             }
 
-            if (currentFuel.Value < 0) currentFuel.Value = 0f;
+            // Yakýtý Düþür
+            currentFuel.Value -= currentConsumption * Time.fixedDeltaTime;
+
+            if (currentFuel.Value <= 0)
+            {
+                currentFuel.Value = 0f;
+                isEngineRunning.Value = false; // Yakýt bittiyse motoru zorla kapat
+                Debug.Log("Traktörün yakýtý bitti, motor durdu!");
+            }
         }
     }
 
     public bool HasFuel => currentFuel.Value > 0f;
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    // YENÝ: T Tuþuna basýldýðýnda motoru açýp kapatacak fonksiyon
+    [Rpc(SendTo.Server, RequireOwnership = false)]
+    public void ToggleEngineServerRpc()
+    {
+        if (currentFuel.Value > 0)
+        {
+            isEngineRunning.Value = !isEngineRunning.Value;
+            Debug.Log(isEngineRunning.Value ? "Traktör Motoru ÇALIÞTIRILDI." : "Traktör Motoru DURDURULDU.");
+        }
+        else
+        {
+            isEngineRunning.Value = false;
+            Debug.Log("Yakýt yok, marþ basmýyor!");
+        }
+    }
+
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void AddFuelServerRpc(float amount)
     {
         currentFuel.Value = Mathf.Min(currentFuel.Value + amount, maxFuel);

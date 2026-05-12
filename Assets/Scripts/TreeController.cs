@@ -18,6 +18,13 @@ public class TreeController : NetworkBehaviour, IInteractable
     public NetworkVariable<TreeState> mevcutDurum = new NetworkVariable<TreeState>(TreeState.Fide, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkVariable<int> agactakiMeyve = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    [Header("Ýlaçlama Ayarlarý")]
+    public NetworkVariable<bool> ilaclandiMi = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    [Tooltip("Ýlaçlanýrsa kuruma süresi kaç katýna çýksýn? (Örn: 2 = Ýki kat daha geç kurur)")]
+    public float ilacDirenciCarpani = 2f;
+
+    // Kronometreler
     private float gecenBuyumeSuresi = 0f;
     private float susuzKalanSure = 0f;
     private bool ilkSuVerildiMi = false;
@@ -52,7 +59,15 @@ public class TreeController : NetworkBehaviour, IInteractable
 
         // 1. SUSUZLUK KRONOMETRESÝ
         susuzKalanSure += Time.deltaTime;
-        if (susuzKalanSure >= agacVerisi.kurumaSiniri)
+
+        // --- ÝLAÇLAMA SÜRE UZATMA MANTIÐI ---
+        float mevcutKurumaSiniri = agacVerisi.kurumaSiniri;
+        if (ilaclandiMi.Value)
+        {
+            mevcutKurumaSiniri *= ilacDirenciCarpani; // Sýnýrý belirlediðin katýyla çarp
+        }
+
+        if (susuzKalanSure >= mevcutKurumaSiniri)
         {
             mevcutDurum.Value = TreeState.Kuru;
             return;
@@ -74,27 +89,23 @@ public class TreeController : NetworkBehaviour, IInteractable
         }
     }
 
-    // ==========================================
-    // SEPET KODUNUN ÇAÐIRACAÐI HASAT FONKSÝYONU (Sadece Sunucuda Çalýþýr)
-    // ==========================================
+    // Sepet kodu burayý çaðýrýr
     public bool MeyveHasatEt()
     {
         if (mevcutDurum.Value == TreeState.Meyveli && agactakiMeyve.Value > 0)
         {
-            agactakiMeyve.Value--; // Aðaçtaki meyveyi eksilt
-
-            // Eðer aðaçta meyve bittiyse meyvesiz haline dön ve büyümeye baþtan baþlasýn
+            agactakiMeyve.Value--;
             if (agactakiMeyve.Value <= 0)
             {
                 mevcutDurum.Value = TreeState.Buyumus;
                 gecenBuyumeSuresi = 0f;
             }
-            return true; // Baþarýyla toplandý
+            return true;
         }
-        return false; // Toplanacak meyve yok
+        return false;
     }
 
-    // Aðaca týklanýnca (E) sulanýr
+    // Sulama
     public void Interact(NetworkObject interactor)
     {
         if (mevcutDurum.Value == TreeState.Kuru) return;
@@ -108,6 +119,19 @@ public class TreeController : NetworkBehaviour, IInteractable
         {
             ilkSuVerildiMi = true;
             susuzKalanSure = 0f;
+        }
+    }
+
+    // ==========================================
+    // ÝLAÇLAMA FONKSÝYONU
+    // ==========================================
+    [Rpc(SendTo.Server)]
+    public void IlaclandiServerRpc()
+    {
+        if (!ilaclandiMi.Value && mevcutDurum.Value != TreeState.Kuru)
+        {
+            ilaclandiMi.Value = true;
+            Debug.Log($"Aðaç baþarýyla ilaçlandý! Yeni kuruma sýnýrý: {agacVerisi.kurumaSiniri * ilacDirenciCarpani} saniye oldu.");
         }
     }
 }

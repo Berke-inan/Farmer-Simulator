@@ -4,167 +4,170 @@ using Unity.Netcode;
 [RequireComponent(typeof(TractorController), typeof(Rigidbody))]
 public class TractorAudioManager : NetworkBehaviour
 {
-    [Header("Döngü Sesleri (Sürekli Çalanlar)")]
-    public AudioClip idleSound;         // Rölanti
-    public AudioClip movingSound;       // Sabit hýzda gidiþ (Asýl ses)
-    public AudioClip reverseBeepSound;  // Geri geri bip bip
+    [Header("Döngü Sesleri (Aðdaki Herkes Duyar)")]
+    public AudioClip idleSound;
+    public AudioClip movingSound;
+    public AudioClip reverseBeepSound;
 
-    [Header("Tepki Sesleri (Bir Kez Çalanlar)")]
-    public AudioClip engineStartSound;    // Ýlk biniþ (Kontak açma)
-    public AudioClip initialAccelSound;   // Ýlk kalkýþ / Gaza ilk basma
-    public AudioClip throttleResumeSound; // Giderken tekrar gaza basma
-    public AudioClip decelerationSound;   // Ýlerlerken gazý býrakma
+    [Header("Tepki Sesleri (Sadece Sürücü Duyar)")]
+    public AudioClip engineStartSound;
+    public AudioClip engineStopSound;
+    public AudioClip initialAccelSound;
+    public AudioClip throttleResumeSound;
+    public AudioClip decelerationSound;
 
     [Header("Ses Ayarlarý")]
     public float masterVolume = 1f;
-    public float fadeSpeed = 5f;        // Sesler arasý geçiþ hýzý
-    public float maxPitch = 1.5f;       // Son hýzda motor ne kadar baðýrsýn?
-    public float maxSpeedForPitch = 70f;// Traktörün son hýzý
+    public float fadeSpeed = 5f;
+    public float maxPitch = 1.5f;
+    public float maxSpeedForPitch = 70f;
 
-    // Arka Plandaki Hoparlörler
+    // Arka Plandaki Hoparlörler (Kanallar)
     private AudioSource idleSource;
     private AudioSource movingSource;
     private AudioSource reverseSource;
-    private AudioSource oneShotSource;  // Tepkiler için anlýk hoparlör
+    private AudioSource reactionSource; // Eskiden oneShotSource idi, artýk üst üste binmeyen tekli kanalýmýz.
 
     private Rigidbody rb;
     private TractorController tractorController;
+    private TractorFuelSystem fuelSystem;
 
     // Durum Takip Deðiþkenleri
-    private bool wasOccupied = false;
+    private bool wasEngineRunning = false;
     private bool wasPressingGas = false;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         tractorController = GetComponent<TractorController>();
+        fuelSystem = GetComponent<TractorFuelSystem>();
 
-        // Sürekli çalan döngü hoparlörlerini otomatik oluþtur
-        idleSource = CreateLoopSource(idleSound);
-        movingSource = CreateLoopSource(movingSound);
-        reverseSource = CreateLoopSource(reverseBeepSound);
+        // Hoparlörleri oluþtur
+        idleSource = CreateAudioSource(idleSound, true);
+        movingSource = CreateAudioSource(movingSound, true);
+        reverseSource = CreateAudioSource(reverseBeepSound, true);
 
-        // Anlýk tepki hoparlörünü oluþtur
-        oneShotSource = gameObject.AddComponent<AudioSource>();
-        oneShotSource.spatialBlend = 1f; // 3D Ses
-        oneShotSource.minDistance = 5f;
-        oneShotSource.maxDistance = 50f;
+        reactionSource = CreateAudioSource(null, false); // Tek seferlik sesler için döngüsüz kanal
     }
 
-    private AudioSource CreateLoopSource(AudioClip clip)
+    private AudioSource CreateAudioSource(AudioClip clip, bool loop)
     {
         AudioSource source = gameObject.AddComponent<AudioSource>();
         source.clip = clip;
-        source.loop = true;
+        source.loop = loop;
         source.spatialBlend = 1f;
         source.minDistance = 5f;
         source.maxDistance = 50f;
-        source.volume = 0f; // Baþta sessiz
-        if (clip != null) source.Play();
+        source.volume = 0f;
         return source;
     }
 
     private void Update()
     {
-        // 1. MOTOR KAPALIYKEN
-        if (!tractorController.IsOccupied)
-        {
-            FadeOutAll();
-            wasOccupied = false;
-            wasPressingGas = false;
-            return;
-        }
+        bool isEngineOn = fuelSystem != null && fuelSystem.isEngineRunning.Value;
 
-        // 2. KONTAK AÇMA (Ýlk Biniþ)
-        if (!wasOccupied)
-        {
-            if (engineStartSound != null) oneShotSource.PlayOneShot(engineStartSound, masterVolume);
-            wasOccupied = true;
-        }
+        // 1. Motorun Açýlýþ/Kapanýþ Kontrolü
+        HandleEnginePower(isEngineOn);
 
-        // Fiziksel Verileri Oku
-        float currentSpeed = rb.linearVelocity.magnitude * 3.6f; // km/h
-        float gasInput = tractorController.CurrentGasInput;
-        bool isPressingGas = Mathf.Abs(gasInput) > 0.05f;
+        // Eðer motor kapalýysa alt kýsýmlarý (gaz, hýz hesaplamalarý) HÝÇ ÇALIÞTIRMA (Performans tasarrufu)
+        if (!isEngineOn) return;
 
-        // Geri vites kontrolü (Traktörün burnu ile gidiþ yönü zýtsa geri gidiyordur)
-        float forwardSpeed = Vector3.Dot(rb.linearVelocity, transform.forward);
-        bool isReversing = forwardSpeed < -0.5f;
+        // 2. Fiziksel Verileri Oku
+        float speed = rb.linearVelocity.magnitude * 3.6f;
+        bool isPressingGas = Mathf.Abs(tractorController.CurrentGasInput) > 0.05f;
+        bool isReversing = Vector3.Dot(rb.linearVelocity, transform.forward) < -0.5f;
 
-        // =========================================================
-        // 3. TEPKÝ SESLERÝ (SADECE SÜRÜCÜ DUYAR)
-        // =========================================================
+        // 3. Sürücü Tepkilerini Ýþle (Gaz verme, gazdan çekme)
         if (tractorController.IsDrivenByMe)
         {
-            if (isPressingGas && !wasPressingGas) // Gaza ÞU AN basýldý
-            {
-                if (currentSpeed < 3f)
-                {
-                    // Dururken gaza bastý (Ýlk Kalkýþ)
-                    if (initialAccelSound != null) oneShotSource.PlayOneShot(initialAccelSound, masterVolume);
-                }
-                else
-                {
-                    // Giderken tekrar gaza yüklendi
-                    if (throttleResumeSound != null) oneShotSource.PlayOneShot(throttleResumeSound, masterVolume * 0.8f);
-                }
-            }
-            else if (!isPressingGas && wasPressingGas) // Gaz ÞU AN býrakýldý
-            {
-                if (currentSpeed > 3f)
-                {
-                    // Ýlerlerken gazý kesti (Motor kompresörü/Yýðýlma sesi)
-                    if (decelerationSound != null) oneShotSource.PlayOneShot(decelerationSound, masterVolume * 0.8f);
-                }
-            }
+            HandleReactions(speed, isPressingGas);
         }
-        wasPressingGas = isPressingGas; // Durumu hafýzaya al
 
-        // =========================================================
-        // 4. DÖNGÜ SESLERÝ VE CROSSFADE (HERKES DUYAR)
-        // =========================================================
-        float targetIdle = 0f;
-        float targetMoving = 0f;
-        float targetReverse = 0f;
+        // 4. Arka Plan Motor Gürültülerini Ýþle (Rölanti, Yürüme, Geri vites)
+        HandleLoopSounds(speed, isPressingGas, isReversing);
+    }
 
-        if (currentSpeed < 1f && !isPressingGas)
+    // --- TEMÝZ KOD (CLEAN CODE) MODÜLLERÝ ---
+
+    private void HandleEnginePower(bool isEngineOn)
+    {
+        // MOTOR KAPATILDIÐI AN
+        if (!isEngineOn && wasEngineRunning)
         {
-            // Traktör duruyor ve gaza basýlmýyor -> Sadece Rölanti
-            targetIdle = masterVolume;
+            StopAllSources();
+            PlayReaction(engineStopSound); // Anýnda kapanýþ sesini çal
+            wasEngineRunning = false;
+            wasPressingGas = false;
         }
-        else
+        // MOTOR ÇALIÞTIRILDIÐI AN
+        else if (isEngineOn && !wasEngineRunning)
         {
-            // Traktör hareket ediyor VEYA gaza basýlýyor -> Asýl yürüme sesi
-            targetMoving = masterVolume;
+            StopAllSources(); // Önceki kapanýþ veya yarým kalan sesleri HÝÇ ACIMADAN KES
+            PlayReaction(engineStartSound);
 
-            if (isReversing)
+            idleSource.Play();
+            movingSource.Play();
+            reverseSource.Play();
+
+            wasEngineRunning = true;
+        }
+        // GÜVENLÝK: Motor kapalýyken çalan kapanýþ sesi 3 saniyeyi geçerse zorla sustur
+        else if (!isEngineOn && !wasEngineRunning)
+        {
+            if (reactionSource.isPlaying && reactionSource.time > 3f)
             {
-                // Geri gidiyorsa Bip Bip sesini aç
-                targetReverse = masterVolume;
+                reactionSource.Stop();
             }
         }
+    }
 
-        // Hacimleri hedefe doðru yumuþakça kaydýr (Crossfade)
+    private void HandleReactions(float speed, bool isPressingGas)
+    {
+        // Gaza ÞU AN basýldý
+        if (isPressingGas && !wasPressingGas)
+        {
+            if (speed < 3f) PlayReaction(initialAccelSound);
+            else PlayReaction(throttleResumeSound);
+        }
+        // Gaz ÞU AN býrakýldý
+        else if (!isPressingGas && wasPressingGas)
+        {
+            if (speed > 3f) PlayReaction(decelerationSound);
+        }
+
+        wasPressingGas = isPressingGas;
+    }
+
+    private void HandleLoopSounds(float speed, bool isPressingGas, bool isReversing)
+    {
+        float targetIdle = (speed < 1f && !isPressingGas) ? masterVolume : 0f;
+        float targetMoving = (speed >= 1f || isPressingGas) ? masterVolume : 0f;
+        float targetReverse = (isReversing && targetMoving > 0f) ? masterVolume : 0f;
+
+        // Ses seviyelerini yumuþakça ayarla (Crossfade)
         idleSource.volume = Mathf.Lerp(idleSource.volume, targetIdle, Time.deltaTime * fadeSpeed);
         movingSource.volume = Mathf.Lerp(movingSource.volume, targetMoving, Time.deltaTime * fadeSpeed);
-        reverseSource.volume = Mathf.Lerp(reverseSource.volume, targetReverse, Time.deltaTime * fadeSpeed * 2f); // Bip sesi biraz daha hýzlý girsin
+        reverseSource.volume = Mathf.Lerp(reverseSource.volume, targetReverse, Time.deltaTime * fadeSpeed * 2f);
 
-        // =========================================================
-        // 5. MOTOR BAÐIRMASI (PITCH)
-        // =========================================================
-        // Hýz arttýkça ana motor sesi incelir
-        float pitchOffset = (currentSpeed / maxSpeedForPitch) * (maxPitch - 1f);
-        movingSource.pitch = 1f + pitchOffset;
-
-        // Rölantideyken gaza hafif dokunursa rölanti sesi de hafif incelsin
+        // Motor Baðýrmasý (Pitch ayarý)
+        movingSource.pitch = 1f + ((speed / maxSpeedForPitch) * (maxPitch - 1f));
         idleSource.pitch = isPressingGas ? 1.15f : 1f;
     }
 
-    private void FadeOutAll()
+    // Bu fonksiyon hayat kurtarýr: Verilen sesi çalarken, kanalda eski ne varsa anýnda ezer geçer.
+    private void PlayReaction(AudioClip clip)
     {
-        // Traktörden inilince sesler býçak gibi kesilmez, yavaþça susar
-        idleSource.volume = Mathf.Lerp(idleSource.volume, 0f, Time.deltaTime * fadeSpeed);
-        movingSource.volume = Mathf.Lerp(movingSource.volume, 0f, Time.deltaTime * fadeSpeed);
-        reverseSource.volume = Mathf.Lerp(reverseSource.volume, 0f, Time.deltaTime * fadeSpeed);
+        if (clip == null) return;
+        reactionSource.clip = clip;
+        reactionSource.volume = masterVolume;
+        reactionSource.Play();
+    }
+
+    private void StopAllSources()
+    {
+        idleSource.Stop();
+        movingSource.Stop();
+        reverseSource.Stop();
+        reactionSource.Stop();
     }
 }
