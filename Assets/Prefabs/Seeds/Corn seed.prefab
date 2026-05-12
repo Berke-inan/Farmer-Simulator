@@ -77,16 +77,10 @@ PrefabInstance:
       addedObject: {fileID: -1863869590904597460}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4828579398828383694}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 5390506949437469592}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 562801622352838114}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: -1077355658375115819}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1636888713371021781}
@@ -96,6 +90,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8358509352309134394}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -4997584963487210634}
   m_SourcePrefab: {fileID: 100100000, guid: 47669afe5b5430141b917ee78924102d, type: 3}
 --- !u!1 &7226053109832198535 stripped
 GameObject:
@@ -127,35 +124,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &4828579398828383694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7226053109832198535}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d41fa61c8ca5f348b4a8319794d4241, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PickableTool
-  ShowTopMostFoldoutHeaderGroup: 1
-  aletTipi: 1
-  offset: {x: 0.5, y: -0.4, z: 1}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  followSpeed: 10
-  isStoreable: 1
-  isEquipped:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  isStored:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  targetCamera: {fileID: 0}
 --- !u!54 &5390506949437469592
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -204,27 +172,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.019498564, y: 0.01900969, z: 0.0752144}
   m_Center: {x: 0, y: 0.0004951549, z: -0.00019485508}
---- !u!114 &-1077355658375115819
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7226053109832198535}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90054ed25bde0e44eb3805f8c9bcafa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TohumEylemi
-  ShowTopMostFoldoutHeaderGroup: 1
-  tohumID: 0
-  ekinPrefab: {fileID: 3241866977498237123, guid: 66f1d948a1eb9e246a38b2da3b3d33e3, type: 3}
-  kalanMiktar:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 4
-  minimumEkimMesafesi: 3
 --- !u!114 &1636888713371021781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303,3 +250,18 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &-4997584963487210634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226053109832198535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  ShowTopMostFoldoutHeaderGroup: 1
+  ItemData: {fileID: 11400000, guid: 0adefb3c269d63541b7a23e089616c79, type: 2}
+  Amount: 1

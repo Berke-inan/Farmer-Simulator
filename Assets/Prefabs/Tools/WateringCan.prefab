@@ -79,16 +79,13 @@ PrefabInstance:
       addedObject: {fileID: 3399886030201457959}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 87f61b00c4cd0234f9c2d6d3f660d982, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2555919529129329371}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 87f61b00c4cd0234f9c2d6d3f660d982, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4744841250024072019}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 87f61b00c4cd0234f9c2d6d3f660d982, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 7201767242771692662}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 87f61b00c4cd0234f9c2d6d3f660d982, type: 3}
       insertIndex: -1
       addedObject: {fileID: -2031984395193525226}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 87f61b00c4cd0234f9c2d6d3f660d982, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7239236720405934595}
   m_SourcePrefab: {fileID: 100100000, guid: 87f61b00c4cd0234f9c2d6d3f660d982, type: 3}
 --- !u!1 &526959027620238915 stripped
 GameObject:
@@ -168,48 +165,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &2555919529129329371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 526959027620238915}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d41fa61c8ca5f348b4a8319794d4241, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PickableTool
-  ShowTopMostFoldoutHeaderGroup: 1
-  aletTipi: 3
-  offset: {x: 0.5, y: -0.4, z: 1}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  followSpeed: 10
-  isStoreable: 1
-  isEquipped:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  isStored:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  targetCamera: {fileID: 0}
---- !u!114 &4744841250024072019
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 526959027620238915}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18c56375dcf21fb40a2656886f1a5af9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SulamaEylemi
-  fircaBoyutu: 3
 --- !u!114 &7201767242771692662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273,3 +228,18 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &7239236720405934595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 526959027620238915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  ShowTopMostFoldoutHeaderGroup: 1
+  ItemData: {fileID: 11400000, guid: 758ec5198d88e3f489e2e4f57c446315, type: 2}
+  Amount: 1

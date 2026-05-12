@@ -66,7 +66,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a525b5e10c3191b4788aec4028da044f, type: 2}
     - target: {fileID: 919132149155446097, guid: 60df871e27d107c4b91a345c5ccb9d51, type: 3}
       propertyPath: m_Name
-      value: Sprinkler (1)
+      value: Sprinkler
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -90,6 +90,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 60df871e27d107c4b91a345c5ccb9d51, type: 3}
       insertIndex: -1
       addedObject: {fileID: -6482134286760686255}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 60df871e27d107c4b91a345c5ccb9d51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7264242390707815665}
   m_SourcePrefab: {fileID: 100100000, guid: 60df871e27d107c4b91a345c5ccb9d51, type: 3}
 --- !u!1 &2726892874834242305 stripped
 GameObject:
@@ -248,3 +251,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.02, y: 0.006893016, z: 0.015466242}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7264242390707815665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2726892874834242305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  ShowTopMostFoldoutHeaderGroup: 1
+  ItemData: {fileID: 11400000, guid: 5ac786581a4a36842bbb3dc8e2ad9287, type: 2}
+  Amount: 1

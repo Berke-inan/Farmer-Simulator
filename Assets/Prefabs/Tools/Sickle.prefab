@@ -83,16 +83,13 @@ PrefabInstance:
       addedObject: {fileID: 1077464004161493344}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8267250982903165291}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 670205369603743659}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
-      insertIndex: -1
       addedObject: {fileID: -4291707181372285031}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
       insertIndex: -1
       addedObject: {fileID: -4103712139762960434}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -3400244042109602524}
   m_SourcePrefab: {fileID: 100100000, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
 --- !u!1 &7992183745427110616 stripped
 GameObject:
@@ -172,50 +169,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &8267250982903165291
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7992183745427110616}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d41fa61c8ca5f348b4a8319794d4241, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PickableTool
-  ShowTopMostFoldoutHeaderGroup: 1
-  aletTipi: 4
-  offset: {x: 0.5, y: -0.4, z: 1}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  followSpeed: 10
-  isStoreable: 1
-  isEquipped:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  isStored:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  targetCamera: {fileID: 0}
---- !u!114 &670205369603743659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7992183745427110616}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88b490feeabf3954fa501c5321f9470a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OrakEylemi
-  ShowTopMostFoldoutHeaderGroup: 1
-  yaricap: 2.5
-  fircaBoyutu: 3
 --- !u!114 &-4291707181372285031
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,3 +232,18 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &-3400244042109602524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7992183745427110616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  ShowTopMostFoldoutHeaderGroup: 1
+  ItemData: {fileID: 11400000, guid: 42b604803f038a94cb3d683585245a3e, type: 2}
+  Amount: 1

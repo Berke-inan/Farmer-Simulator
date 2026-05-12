@@ -2,5 +2,6 @@ using UnityEngine;
 
 public interface IUseableTool
 {
-    void EylemYap(RaycastHit hit, PlayerInventory envanter);
+    // PlayerInventory yerine InventoryManager kullanıldı
+    void EylemYap(RaycastHit hit, InventoryManager envanter);
 }

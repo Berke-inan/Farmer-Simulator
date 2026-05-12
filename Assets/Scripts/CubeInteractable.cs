@@ -3,56 +3,53 @@ using UnityEngine;
 
 public class CubeInteractable : NetworkBehaviour, IInteractable
 {
-    [Header("Ayarlar")]
-    public GameObject spherePrefab;
+    [Header("Eşya Ayarları")]
+    [Tooltip("ItemDatabase içindeki ItemID ile birebir aynı olmalı!")]
+    public string verilecekItemID = "CornSeed";
+    public int miktar = 1;
 
     public void Interact(NetworkObject interactor)
     {
-        if (interactor.TryGetComponent(out PlayerInventory inventory))
+        // Oyuncunun üzerindeki yeni managerları bul
+        if (interactor.TryGetComponent(out InventoryManager inventory) &&
+            interactor.TryGetComponent(out NetworkedHotbar hotbar))
         {
-            // EĞER OYUNCUNUN ELİNDE ZATEN HERHANGİ BİR EŞYA VARSA İŞLEM YAPMA
-            if (inventory.aktifAlet != ToolType.Yok)
-            {
-                Debug.Log("Eliniz zaten dolu, yeni tohum alınamaz!");
-                return;
-            }
+            // O anki aktif slotun indeksini al (Eline direkt gelsin diye lazım)
+            int activeSlot = hotbar.ActiveSlotIndex.Value;
 
-            SpawnSphereServerRpc(interactor.OwnerClientId);
+            // Sunucuya "Bana bu itemı ver" komutunu gönder
+            GiveItemServerRpc(interactor.NetworkObjectId, activeSlot);
         }
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void SpawnSphereServerRpc(ulong clientId)
+    private void GiveItemServerRpc(ulong oyuncuID, int activeSlot)
     {
-        if (spherePrefab == null) return;
-
-        if (NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out NetworkClient client))
+        // Ağ üzerindeki oyuncu objesini bul
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(oyuncuID, out NetworkObject oyuncuNetObj))
         {
-            if (client.PlayerObject.TryGetComponent(out PlayerInventory inventory))
+            if (oyuncuNetObj.TryGetComponent(out InventoryManager inventory))
             {
-                // Hata payına karşı oyuncunun elinde asılı kalmış bir obje varsa önce onu sil 
-                if (inventory.eldekiObje != null && inventory.eldekiObje.IsSpawned)
+                // 1. Veritabanından mısır tohumu verisini çek
+                ItemData cornData = ItemDatabase.Instance.GetItemByID(verilecekItemID);
+
+                if (cornData == null)
                 {
-                    inventory.eldekiObje.Despawn();
+                    Debug.LogError($"<color=red>[HATA]</color> {verilecekItemID} ID'li eşya veritabanında bulunamadı!");
+                    return;
                 }
 
-                // Tohumu sandığın hemen üstünde spawnla
-                GameObject spawnedSphere = Instantiate(spherePrefab, transform.position + Vector3.up, Quaternion.identity);
-                spawnedSphere.SetActive(true);
-
-                if (spawnedSphere.TryGetComponent(out NetworkObject sphereObj))
+                // 2. Envanterde yer var mı kontrol et
+                if (inventory.HasSpaceFor(cornData, miktar))
                 {
-                    sphereObj.SpawnWithOwnership(clientId);
+                    // 3. Envantere ekle (Senin istediğin gibi: Eğer elindeki slot boşsa direkt eline gelecek)
+                    inventory.AddItemServer(cornData, miktar, activeSlot);
 
-                    // Yeni sisteme göre objeyi doğrudan ele ver ve takibi başlat
-                    if (spawnedSphere.TryGetComponent(out PickupableTool tool))
-                    {
-                        tool.isEquipped.Value = true;
-
-                        // DİKKAT: tohumID ve tohumMiktari kısımları silindi. 
-                        // Tohumun kendi özellikleri artık kendi üzerindeki TohumEylemi scriptinde yaşıyor.
-                        inventory.AletKusanServerRpc(sphereObj, tool.aletTipi);
-                    }
+                    Debug.Log($"<color=green>[Cube]</color> {oyuncuNetObj.name} oyuncusuna {cornData.ItemName} verildi.");
+                }
+                else
+                {
+                    Debug.LogWarning("<color=yellow>[Cube]</color> Oyuncunun envanteri dolu!");
                 }
             }
         }

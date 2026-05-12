@@ -62,7 +62,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: da7de93a4444e7b4991ea24f45a75566, type: 3}
       propertyPath: m_Name
-      value: Fertiizer
+      value: Fertilizer
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -71,12 +71,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: da7de93a4444e7b4991ea24f45a75566, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5984943124400816338}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: da7de93a4444e7b4991ea24f45a75566, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3209380978658408842}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: da7de93a4444e7b4991ea24f45a75566, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6390478737208906778}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: da7de93a4444e7b4991ea24f45a75566, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6406211687252313385}
@@ -89,6 +83,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: da7de93a4444e7b4991ea24f45a75566, type: 3}
       insertIndex: -1
       addedObject: {fileID: 719074462203479543}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: da7de93a4444e7b4991ea24f45a75566, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2398146372848121893}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: da7de93a4444e7b4991ea24f45a75566, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -8352770851432132375}
   m_SourcePrefab: {fileID: 100100000, guid: da7de93a4444e7b4991ea24f45a75566, type: 3}
 --- !u!1 &2663570300883223035 stripped
 GameObject:
@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2423592381
+  GlobalObjectIdHash: 906892892
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -120,50 +120,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &3209380978658408842
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2663570300883223035}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d41fa61c8ca5f348b4a8319794d4241, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PickupableTool
-  ShowTopMostFoldoutHeaderGroup: 1
-  aletTipi: 1
-  offset: {x: 0.5, y: -0.4, z: 1}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  followSpeed: 10
-  isStoreable: 1
-  isEquipped:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  isStored:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  targetCamera: {fileID: 0}
---- !u!114 &6390478737208906778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2663570300883223035}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02b1fdb0867a9884ab37dd6686d981d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FertilizerItem
-  ShowTopMostFoldoutHeaderGroup: 1
-  growthTimeMultiplier: 0.5
-  yieldBonus: 1
 --- !u!54 &6406211687252313385
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -275,3 +231,33 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.007999757, y: 0.020784365, z: 0.013351226}
   m_Center: {x: -0.00044570887, y: 0.009816962, z: 0.00000007194467}
+--- !u!114 &2398146372848121893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2663570300883223035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  ShowTopMostFoldoutHeaderGroup: 1
+  ItemData: {fileID: 11400000, guid: 23f10a376703a244c9c3bd23e8a111b2, type: 2}
+  Amount: 1
+--- !u!114 &-8352770851432132375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2663570300883223035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ef29a84fb4e2084a8b7da3280acf06b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SellableItem
+  ShowTopMostFoldoutHeaderGroup: 1
+  itemData: {fileID: 11400000, guid: 194031e841eaaa543b5182a14e5afabe, type: 2}
+  price: 0

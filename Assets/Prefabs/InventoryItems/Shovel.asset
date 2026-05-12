@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
+  m_Name: Shovel
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  ItemID: 8
+  ItemName: Shovel
+  Type: 1
+  Icon: {fileID: 0}
+  EquipPrefab: {fileID: 5305824883323697836, guid: 938abb104a9957d43a5ab480e607e7d4, type: 3}
+  DropPrefab: {fileID: 5305824883323697836, guid: 6cdf9221b7601574389c8d948bf16d4b, type: 3}
+  MaxStack: 1
+  EkinPrefab: {fileID: 0}
+  TohumID: 0

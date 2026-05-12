@@ -99,6 +99,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1259890408933313590}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -427736984220121261}
   m_SourcePrefab: {fileID: 100100000, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
 --- !u!1 &6163511954771487862 stripped
 GameObject:
@@ -171,14 +174,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90054ed25bde0e44eb3805f8c9bcafa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TohumEylemi
-  ShowTopMostFoldoutHeaderGroup: 1
-  tohumID: 2
-  ekinPrefab: {fileID: 5881475121120310442, guid: 0a0d16e9ce9a15143a615b7f7c2f2176, type: 3}
-  kalanMiktar:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 4
   minimumEkimMesafesi: 0.8
 --- !u!114 &7054101615716226076
 MonoBehaviour:
@@ -194,7 +189,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BalyalanabilirObje
   ShowTopMostFoldoutHeaderGroup: 1
   objeTipi: Wheat
-  balyaPrefab: {fileID: 7729114668798275592, guid: 41856efed283b8746907b716f3524aa9, type: 3}
+  balyaPrefab: {fileID: 2660502362499645756, guid: d1196eb92dd3af746a17da5246a506ea, type: 3}
   aramaYaricapi: 2
   balyaIcinGerekenAdet: 1
 --- !u!114 &1531877000690889721
@@ -323,3 +318,18 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &-427736984220121261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6163511954771487862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  ShowTopMostFoldoutHeaderGroup: 1
+  ItemData: {fileID: 11400000, guid: e434e5912e52a9b4a9b59df3e3f7a8ba, type: 2}
+  Amount: 1

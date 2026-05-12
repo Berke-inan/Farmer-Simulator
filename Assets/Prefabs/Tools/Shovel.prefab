@@ -12,10 +12,9 @@ GameObject:
   - component: {fileID: 6228548265813730201}
   - component: {fileID: 1462754382567835588}
   - component: {fileID: 4417189682507548130}
-  - component: {fileID: 6213365264450903175}
-  - component: {fileID: 7826296093591086916}
   - component: {fileID: 4044043076823820320}
   - component: {fileID: -923757692814748562}
+  - component: {fileID: -4918045364615395410}
   m_Layer: 0
   m_Name: Shovel
   m_TagString: Untagged
@@ -99,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2946542784
+  GlobalObjectIdHash: 332465315
   InScenePlacedSourceGlobalObjectIdHash: 332465315
   DeferredDespawnTick: 0
   Ownership: 1
@@ -112,48 +111,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &6213365264450903175
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5305824883323697836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d41fa61c8ca5f348b4a8319794d4241, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PickupableTool
-  ShowTopMostFoldoutHeaderGroup: 1
-  aletTipi: 11
-  offset: {x: 0.5, y: -0.4, z: 1}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  followSpeed: 10
-  isStoreable: 1
-  isEquipped:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  isStored:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  targetCamera: {fileID: 0}
---- !u!114 &7826296093591086916
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5305824883323697836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 970d7706a40d871438b6904d4794337f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::KurekEylemi
-  fircaBoyutu: 3
 --- !u!114 &4044043076823820320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217,6 +174,21 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &-4918045364615395410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5305824883323697836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  ShowTopMostFoldoutHeaderGroup: 1
+  ItemData: {fileID: 11400000, guid: 45b3c9f3ee5a03742a92bba100c25a43, type: 2}
+  Amount: 1
 --- !u!1001 &7852466512112865420
 PrefabInstance:
   m_ObjectHideFlags: 0
