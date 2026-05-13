@@ -8,40 +8,32 @@ public class LaptopSellStation : NetworkBehaviour, IInteractable
         if (!playerNetworkObject.IsOwner) return;
 
         PlayerInventory inventory = playerNetworkObject.GetComponent<PlayerInventory>();
+        int activeIdx = inventory.activeHotbarIndex.Value;
+        InventorySlot activeSlot = inventory.slots[activeIdx];
 
-        if (inventory != null && inventory.eldekiObje != null)
+        // Slot boş değilse satma işlemini başlat
+        if (!activeSlot.IsEmpty)
         {
-            if (inventory.eldekiObje.TryGetComponent<SellableItem>(out SellableItem itemToSell))
-            {
-                ulong itemNetworkId = inventory.eldekiObje.GetComponent<NetworkObject>().NetworkObjectId;
-                ulong playerNetworkId = playerNetworkObject.NetworkObjectId;
-
-                SellItemServerRpc(itemNetworkId, playerNetworkId);
-            }
+            SellItemServerRpc(playerNetworkObject.NetworkObjectId, activeIdx);
         }
     }
-
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void SellItemServerRpc(ulong itemNetworkId, ulong playerNetworkId)
+    private void SellItemServerRpc(ulong playerNetworkId, int slotIndex)
     {
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(itemNetworkId, out NetworkObject itemObj))
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerNetworkId, out NetworkObject playerObj))
         {
-            SellableItem itemToSell = itemObj.GetComponent<SellableItem>();
+            PlayerInventory inventory = playerObj.GetComponent<PlayerInventory>();
+            InventorySlot slot = inventory.slots[slotIndex];
 
-            if (itemToSell != null)
+            if (!slot.IsEmpty)
             {
-                EconomyManager.Instance.AddMoney(itemToSell.price);
+                // Parayı ekle (EconomyManager scriptinin var olduğu varsayılır)
+                EconomyManager.Instance.AddMoney(slot.itemData.price);
 
-                if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerNetworkId, out NetworkObject playerObj))
-                {
-                    PlayerInventory inventory = playerObj.GetComponent<PlayerInventory>();
-                    if (inventory != null)
-                    {
-                        inventory.EnvanteriTemizleServerRpc();
-                    }
-                }
+                // Envanterden eşyayı tamamen sil (tüm miktarını düşür)
+                inventory.DecreaseItemAmountServerRpc(slotIndex, slot.amount);
 
-                itemObj.Despawn();
+                Debug.Log($"{slot.itemData.itemName} satıldı!");
             }
         }
     }

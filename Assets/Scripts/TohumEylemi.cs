@@ -3,23 +3,20 @@ using UnityEngine;
 public class TohumEylemi : MonoBehaviour, IUseableTool
 {
     [Header("Ekim Ayarları")]
-    [Tooltip("Başka bir tohuma veya bitkiye ne kadar yaklaşabilir?")]
     public float minimumEkimMesafesi = 0.8f;
 
-    public void EylemYap(RaycastHit hit, InventoryManager inv)
+    public void EylemYap(RaycastHit hit, PlayerInventory inventory)
     {
         if (hit.collider is TerrainCollider tCol)
         {
             var manager = tCol.GetComponent<TerrainLayerManager>();
 
-            // 1. Zemin çapalanmış mı kontrolü
             if (!manager.IsSoilTilled(hit.point))
             {
                 Debug.Log("Burası çapalanmamış, ekim yapılamaz.");
                 return;
             }
 
-            // 2. Etrafta başka bir ekin var mı kontrolü
             Collider[] yakindakiler = Physics.OverlapSphere(hit.point, minimumEkimMesafesi);
             foreach (var col in yakindakiler)
             {
@@ -30,13 +27,12 @@ public class TohumEylemi : MonoBehaviour, IUseableTool
                 }
             }
 
-            // 3. Her şey uygunsa komutu PlayerActionManager'a devret
-            if (inv.TryGetComponent(out PlayerActionManager actionManager) && inv.TryGetComponent(out NetworkedHotbar hotbar))
+            if (inventory.TryGetComponent(out PlayerActionManager actionManager))
             {
-                int slotIndex = hotbar.ActiveSlotIndex.Value;
+                int slotIndex = inventory.activeHotbarIndex.Value;
 
-                // Envanterden o anki slotta tuttuğumuz tohumun ID'sini alıyoruz
-                string itemID = inv.Slots[slotIndex].Item.ItemID;
+                // Yeni envanter yapısına göre ID çekme
+                int itemID = inventory.slots[slotIndex].itemData.itemID;
 
                 actionManager.TohumEkServerRpc(itemID, hit.point, slotIndex);
             }

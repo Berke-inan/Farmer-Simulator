@@ -1,22 +1,28 @@
 using System;
 
 [Serializable]
-public struct InventorySlot
+public class InventorySlot
 {
-    public ItemData Item;
-    public int Amount;
+    public ItemData itemData;
+    public int amount;
 
-    public bool IsEmpty => Item == null || Amount <= 0;
-
-    public InventorySlot(ItemData item, int amount)
+    public InventorySlot()
     {
-        Item = item;
-        Amount = amount;
+        itemData = null;
+        amount = 0;
     }
 
-    public void Clear()
+    public bool IsEmpty => itemData == null || amount <= 0;
+
+    public void AddItem(ItemData data, int count)
     {
-        Item = null;
-        Amount = 0;
+        itemData = data;
+        amount += count;
+    }
+
+    public void ClearSlot()
+    {
+        itemData = null;
+        amount = 0;
     }
 }

@@ -4,172 +4,105 @@ using UnityEngine.InputSystem;
 
 public class PlayerInteractor : NetworkBehaviour
 {
-    [Header("Ayarlar")]
     public float interactionDistance = 5f;
     public Transform playerCamera;
 
     private InputSystem_Actions inputActions;
-    private InventoryManager inventory;
-    private NetworkedHotbar hotbar;
+    private PlayerInventory inventory;
 
     public override void OnNetworkSpawn()
     {
         if (!IsOwner) return;
 
-        inventory = GetComponent<InventoryManager>();
-        hotbar = GetComponent<NetworkedHotbar>();
-
+        inventory = GetComponent<PlayerInventory>();
         inputActions = new InputSystem_Actions();
         inputActions.Enable();
 
+        // E tuşu
         inputActions.Player.Interact.started += ctx => HandleInteraction();
-        inputActions.Player.Attack.started += ctx => HandleUse();
+        // F tuşu
         inputActions.Player.SecondaryInteract.started += ctx => HandleSecondaryInteraction();
+        // G tuşu
         inputActions.Player.Drop.started += ctx => DropItem();
-    }
+        // Sol Tık
+        inputActions.Player.Attack.started += ctx => UseHeldItem();
 
-    public override void OnNetworkDespawn()
-    {
-        if (IsOwner && inputActions != null)
-        {
-            inputActions.Player.Interact.started -= ctx => HandleInteraction();
-            inputActions.Player.Attack.started -= ctx => HandleUse();
-            inputActions.Player.SecondaryInteract.started -= ctx => HandleSecondaryInteraction();
-            inputActions.Player.Drop.started -= ctx => DropItem();
-            inputActions.Disable();
-        }
+        // --- YENİ: Klavye Slot Değiştirme (1-9) ---
+        inputActions.Player.Hotbar1.started += ctx => inventory.ChangeHotbarSlot(0);
+        inputActions.Player.Hotbar2.started += ctx => inventory.ChangeHotbarSlot(1);
+        inputActions.Player.Hotbar3.started += ctx => inventory.ChangeHotbarSlot(2);
+        inputActions.Player.Hotbar4.started += ctx => inventory.ChangeHotbarSlot(3);
+        inputActions.Player.Hotbar5.started += ctx => inventory.ChangeHotbarSlot(4);
+        inputActions.Player.Hotbar6.started += ctx => inventory.ChangeHotbarSlot(5);
+        inputActions.Player.Hotbar7.started += ctx => inventory.ChangeHotbarSlot(6);
+        inputActions.Player.Hotbar8.started += ctx => inventory.ChangeHotbarSlot(7);
+        inputActions.Player.Hotbar9.started += ctx => inventory.ChangeHotbarSlot(8);
+        inputActions.Player.Hotbar0.started += ctx => inventory.ChangeHotbarSlot(9);
     }
 
     private void HandleInteraction()
     {
-        // ~0 ekleyerek tüm layer'ları görmesini sağlıyoruz (Terrain, Default, vb.)
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance, ~0))
+        if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
         {
-            // IInteractable'ı ana objede veya alt objelerde ara
-            IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
-
-            if (interactable != null)
+            // 1. Yerden eşya alma kontrolü
+            if (hit.collider.TryGetComponent(out InteractableItem groundItem))
             {
-                if (interactable is WorldItem worldItem)
+                // Aktif slot alabilir mi kontrol et
+                if (inventory.CanPickupToActiveSlot(groundItem.itemID))
                 {
-                    // HATA BURADAYDI: NetworkObject'i sadece çarptığın yerde değil, en üstte ara!
-                    NetworkObject netObj = hit.collider.GetComponentInParent<NetworkObject>();
-
-                    if (netObj != null)
-                    {
-                        Debug.Log($"<color=green>[Alındı]</color> {worldItem.ItemData.ItemName} toplanıyor.");
-                        TryPickupItemServerRpc(netObj.NetworkObjectId, hotbar.ActiveSlotIndex.Value);
-                    }
+                    // Alabiliyorsak normal pickup
+                    inventory.RequestPickupServerRpc(hit.collider.GetComponent<NetworkObject>().NetworkObjectId);
                 }
                 else
                 {
-                    // Traktör vb. için normal etkileşim
-                    interactable.Interact(NetworkObject);
+                    // Slot doluysa zıplat
+                    inventory.RequestBounceServerRpc(hit.collider.GetComponent<NetworkObject>().NetworkObjectId);
+                    Debug.Log("Slot dolu, eşya zıplatılıyor!");
                 }
+                return;
+            }
+
+            // 2. Diğer etkileşimler (Laptop, Traktör vb.)
+            IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+            if (interactable != null)
+            {
+                interactable.Interact(NetworkObject);
             }
         }
     }
-
-    private void HandleUse()
+    private void UseHeldItem()
     {
-        int currentSlot = hotbar.ActiveSlotIndex.Value;
-        if (!inventory.Slots[currentSlot].IsEmpty && hotbar.CurrentEquippedObject != null)
+        // Elimizde bir alet görseli var mı?
+        if (inventory != null && inventory.eldekiObje != null)
         {
-            if (hotbar.CurrentEquippedObject.TryGetComponent(out IUseableTool alet))
+            // Elimizdeki görselin üzerinde Useable scripti var mı?
+            if (inventory.eldekiObje.TryGetComponent(out IUseableTool alet))
             {
-                // Raycast vurduğumuz yer alet kullanımı için (Terrain/Ekin)
                 Ray ray = new Ray(playerCamera.position, playerCamera.forward);
-                if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance, ~0))
+                if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
                 {
+                    // Aleti çalıştır (Çapa, Tohum vs.)
                     alet.EylemYap(hit, inventory);
                 }
             }
         }
     }
 
-    // --- RPC VE DİĞERLERİ DEĞİŞMEDİ ---
-
     private void HandleSecondaryInteraction()
     {
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance, ~0))
+        if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
         {
             ISecondaryInteractable secondary = hit.collider.GetComponentInParent<ISecondaryInteractable>();
             if (secondary != null) secondary.SecondaryInteract(NetworkObject);
         }
     }
 
-    private void DropItem()
+    private void DropItem() => inventory?.EldekiniYereAt();
+
+    public override void OnNetworkDespawn()
     {
-        int currentSlot = hotbar.ActiveSlotIndex.Value;
-        if (inventory != null && !inventory.Slots[currentSlot].IsEmpty)
-        {
-            Vector3 camPos = playerCamera.position + (playerCamera.forward * 0.5f);
-            Vector3 camDir = playerCamera.forward;
-            DropItemServerRpc(currentSlot, camPos, camDir);
-        }
-    }
-
-    [ServerRpc]
-    private void TryPickupItemServerRpc(ulong targetObjectId, int activeSlot)
-    {
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetObjectId, out NetworkObject targetObject))
-        {
-            if (targetObject.TryGetComponent(out WorldItem worldItem))
-            {
-                // 1. ÖNCELİKLİ KONTROL: Seçili (aktif) slot boş mu?
-                // Kullanıcının isteği: "Elimdeki slot doluysa alamasın"
-                bool slotBosMu = inventory.Slots[activeSlot].IsEmpty;
-
-                if (slotBosMu)
-                {
-                    // Envanterde yer varsa al (AddItemServer zaten aktif slotu öncelikli tutuyor)
-                    if (inventory.HasSpaceFor(worldItem.ItemData, worldItem.Amount))
-                    {
-                        Debug.Log($"<color=green>[Pickup]</color> {worldItem.ItemData.ItemName} alındı.");
-                        inventory.AddItemServer(worldItem.ItemData, worldItem.Amount, activeSlot);
-                        targetObject.Despawn(true);
-                    }
-                }
-                else
-                {
-                    // ELİ DOLUYSA: Eşyayı alma, sadece havaya zıplat!
-                    Debug.Log("<color=yellow>[Pickup]</color> El dolu! Eşya havaya fırlatılıyor.");
-
-                    if (targetObject.TryGetComponent(out Rigidbody rb))
-                    {
-                        // Hafif yukarı ve rastgele yana doğru bir güç verelim
-                        Vector3 jumpForce = Vector3.up * 4f + Random.insideUnitSphere * 1f;
-                        rb.AddForce(jumpForce, ForceMode.Impulse);
-
-                        // Rastgele bir takla (tork) ekle
-                        rb.AddTorque(Random.insideUnitSphere * 2f, ForceMode.Impulse);
-                    }
-                }
-            }
-        }
-    }
-
-    [ServerRpc]
-    private void DropItemServerRpc(int slotIndex, Vector3 spawnPos, Vector3 throwDir)
-    {
-        inventory.RemoveItemServerRpc(slotIndex, 1, spawnPos, throwDir, true);
-    }
-
-
-   
-
-    // Metot olarak tanımla:
-    private void ToggleHandVisibility()
-    {
-        if (hotbar != null)
-        {
-            // Mevcut durumun tersini gönder (Toggle)
-            bool currentStatus = hotbar.isHandVisualHidden.Value;
-            hotbar.SetHandVisualVisibilityServerRpc(!currentStatus);
-
-            Debug.Log($"<color=orange>[Hotbar]</color> El Görünürlüğü: {(!currentStatus ? "Gizli" : "Görünür")}");
-        }
+        if (IsOwner && inputActions != null) inputActions.Disable();
     }
 }

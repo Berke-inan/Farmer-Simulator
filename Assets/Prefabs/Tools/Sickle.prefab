@@ -89,7 +89,7 @@ PrefabInstance:
       addedObject: {fileID: -4103712139762960434}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -3400244042109602524}
+      addedObject: {fileID: 7684796370979189026}
   m_SourcePrefab: {fileID: 100100000, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
 --- !u!1 &7992183745427110616 stripped
 GameObject:
@@ -232,7 +232,7 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
---- !u!114 &-3400244042109602524
+--- !u!114 &7684796370979189026
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -241,9 +241,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 7992183745427110616}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Script: {fileID: 11500000, guid: 612f05db04357c24385249c73c6317fe, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableItem
   ShowTopMostFoldoutHeaderGroup: 1
-  ItemData: {fileID: 11400000, guid: 42b604803f038a94cb3d683585245a3e, type: 2}
-  Amount: 1
+  itemID: 2
+  amount: 1

@@ -51,8 +51,7 @@ GameObject:
   - component: {fileID: 5728171432467663253}
   - component: {fileID: -5414915901522307759}
   - component: {fileID: -3906425227470267114}
-  - component: {fileID: 6236908208924764527}
-  - component: {fileID: 5032653344861101821}
+  - component: {fileID: 3792292711585191216}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -370,7 +369,7 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
---- !u!114 &6236908208924764527
+--- !u!114 &3792292711585191216
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -379,31 +378,49 @@ MonoBehaviour:
   m_GameObject: {fileID: 1864111185607732302}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 955df9e843e392c47b20f367927bd599, type: 3}
+  m_Script: {fileID: 11500000, guid: 0c5f5fe993f2ef249a4bfd9bf7266a64, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
   ShowTopMostFoldoutHeaderGroup: 1
-  inventorySize: 10
-  Slots: []
---- !u!114 &5032653344861101821
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1864111185607732302}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81db913c48dd0974aab71daaf2582312, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetworkedHotbar
-  ShowTopMostFoldoutHeaderGroup: 1
-  ActiveSlotIndex:
+  maxSlots: 10
+  slots:
+  - itemData: {fileID: 0}
+    amount: 0
+  - itemData: {fileID: 0}
+    amount: 0
+  - itemData: {fileID: 0}
+    amount: 0
+  - itemData: {fileID: 0}
+    amount: 0
+  - itemData: {fileID: 0}
+    amount: 0
+  - itemData: {fileID: 0}
+    amount: 0
+  - itemData: {fileID: 0}
+    amount: 0
+  - itemData: {fileID: 0}
+    amount: 0
+  - itemData: {fileID: 0}
+    amount: 0
+  - itemData: {fileID: 0}
+    amount: 0
+  handTransform: {fileID: 4205934887589964364}
+  eldekiObje: {fileID: 0}
+  activeHotbarIndex:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  handAttachmentPoint: {fileID: 4205934887589964364}
+  sepetDoluluk:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  bidonMevcutYakit:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 25
 --- !u!1 &2772005619223278391
 GameObject:
   m_ObjectHideFlags: 0

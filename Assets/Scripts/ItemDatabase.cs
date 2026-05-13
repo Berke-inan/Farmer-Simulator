@@ -1,46 +1,14 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
-public class ItemDatabase : MonoBehaviour
+[CreateAssetMenu(fileName = "ItemDatabase", menuName = "Inventory/ItemDatabase")]
+public class ItemDatabase : ScriptableObject
 {
-    public static ItemDatabase Instance { get; private set; }
+    public List<ItemData> allItems;
 
-    [Tooltip("Tüm ScriptableObject ItemData'ları buraya eklenmeli.")]
-    public List<ItemData> AllItems;
-
-    private Dictionary<string, ItemData> itemDictionary;
-
-    private void Awake()
+    public ItemData GetItemByID(int id)
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); // Sahne geçişlerinde silinmemesi için
-            InitializeDatabase();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    private void InitializeDatabase()
-    {
-        itemDictionary = new Dictionary<string, ItemData>();
-        foreach (var item in AllItems)
-        {
-            if (item != null && !itemDictionary.ContainsKey(item.ItemID))
-            {
-                itemDictionary.Add(item.ItemID, item);
-            }
-        }
-    }
-
-    public ItemData GetItemByID(string id)
-    {
-        if (string.IsNullOrEmpty(id)) return null;
-
-        itemDictionary.TryGetValue(id, out ItemData item);
-        return item;
+        return allItems.Find(x => x.itemID == id);
     }
 }
+

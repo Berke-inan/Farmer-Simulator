@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
   m_Name: Sprinkler
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  ItemID: 10
-  ItemName: Sprinkler
-  Type: 1
-  Icon: {fileID: 0}
-  EquipPrefab: {fileID: 2726892874834242305, guid: 0bb283ebe36b46e489dfb69b9e73ca27, type: 3}
-  DropPrefab: {fileID: 2726892874834242305, guid: b0f07500784ffa841944f76f2d02b25e, type: 3}
-  MaxStack: 1
-  EkinPrefab: {fileID: 0}
-  TohumID: 0
+  itemID: 3
+  itemName: Sprinkler
+  itemType: 1
+  maxStack: 1
+  price: 0
+  icon: {fileID: 0}
+  heldModelPrefab: {fileID: 2726892874834242305, guid: 0bb283ebe36b46e489dfb69b9e73ca27, type: 3}
+  groundPrefab: {fileID: 2726892874834242305, guid: b0f07500784ffa841944f76f2d02b25e, type: 3}
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}
