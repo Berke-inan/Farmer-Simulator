@@ -28,28 +28,27 @@ public class DayNightCycleManager : NetworkBehaviour
     );
 
     [Header("Ortam Işığı (Yerlerin Kararması İçin)")]
-    [Tooltip("Gece dünyayı gerçekten karartan ayar budur.")]
     public AnimationCurve ambientIntensityCurve = new AnimationCurve(
-        new Keyframe(0f, 0.02f),   // Gece yarısı zifiri (0'a yakın)
-        new Keyframe(6f, 0.05f),   // Şafak öncesi loşluk
-        new Keyframe(7.5f, 1.0f),  // Gündüz tam aydınlık
-        new Keyframe(17f, 1.0f),   // Akşam üstüne kadar parlak
-        new Keyframe(18.5f, 0.05f),// Gün batımı sonrası hızlı kararma
+        new Keyframe(0f, 0.02f),
+        new Keyframe(6f, 0.05f),
+        new Keyframe(7.5f, 1.0f),
+        new Keyframe(17f, 1.0f),
+        new Keyframe(18.5f, 0.05f),
         new Keyframe(24f, 0.02f)
     );
 
     [Header("Yansıma Şiddeti (Parlama Sorunu Çözümü)")]
-    [Tooltip("Gece yerlerin parlamasını engelleyen kritik eğri.")]
     public AnimationCurve reflectionIntensityCurve = new AnimationCurve(
-        new Keyframe(0f, 0.01f),   // Gece yansıma kapalı (Yer parlamaz)
+        new Keyframe(0f, 0.01f),
         new Keyframe(6f, 0.01f),
-        new Keyframe(8f, 1.0f),    // Gündüz yansıma açık
+        new Keyframe(8f, 1.0f),
         new Keyframe(16.5f, 1.0f),
         new Keyframe(18.5f, 0.01f),
         new Keyframe(24f, 0.01f)
     );
 
     private HashSet<ulong> sleepingPlayers = new HashSet<ulong>();
+    private bool morningTriggered = false; // Doğal sabahı yakalamak için kilit
 
     private void Awake()
     {
@@ -63,7 +62,6 @@ public class DayNightCycleManager : NetworkBehaviour
             AdvanceTime();
         }
 
-        // Görseller tüm oyuncuların bilgisayarında güncellenir
         UpdateVisuals();
     }
 
@@ -71,7 +69,20 @@ public class DayNightCycleManager : NetworkBehaviour
     {
         float timeMultiplier = 24f / realSecondsPerDay;
         currentTime.Value += Time.deltaTime * timeMultiplier;
-        if (currentTime.Value >= 24f) currentTime.Value = 0f;
+
+        // Doğal yollarla sabah saat 6'yı geçtiğinde sinyali tetikle
+        if (currentTime.Value >= 6f && currentTime.Value < 7f && !morningTriggered)
+        {
+            morningTriggered = true;
+            YeniGunBasladiSinyali?.Invoke();
+            Debug.Log("Doğal yollarla sabah oldu, yeni gün sinyali gönderildi.");
+        }
+
+        if (currentTime.Value >= 24f)
+        {
+            currentTime.Value = 0f;
+            morningTriggered = false; // Yeni gece yarısı olduğunda kilidi sıfırla
+        }
     }
 
     private void UpdateVisuals()
@@ -79,7 +90,6 @@ public class DayNightCycleManager : NetworkBehaviour
         float t = currentTime.Value;
         float sunAngle = (t / 24f) * 360f - 90f;
 
-        // 1. Güneş ve Ay Işıkları
         if (sunLight != null)
         {
             sunLight.transform.rotation = Quaternion.Euler(sunAngle, 170f, 0f);
@@ -89,17 +99,13 @@ public class DayNightCycleManager : NetworkBehaviour
         if (moonLight != null)
         {
             moonLight.transform.rotation = Quaternion.Euler(sunAngle + 180f, 170f, 0f);
-            // Ay sadece gece ufkun üzerindeyse loş bir ışık verir
             float moonHeight = Mathf.Clamp01(-moonLight.transform.forward.y);
             moonLight.intensity = moonHeight * 0.15f;
         }
 
-        // 2. Yerlerin Parlamasını Engelleyen Kritik Ayarlar
-        // Ortam ışığını (Ambient) ve Gökyüzü yansımasını (Reflection) karartıyoruz
         RenderSettings.ambientIntensity = ambientIntensityCurve.Evaluate(t);
         RenderSettings.reflectionIntensity = reflectionIntensityCurve.Evaluate(t);
 
-        // 3. Ultra Gerçekçi Skybox Senkronizasyonu
         if (RenderSettings.skybox != null)
         {
             if (sunLight != null)
@@ -125,7 +131,9 @@ public class DayNightCycleManager : NetworkBehaviour
     private void MakeItMorning()
     {
         currentTime.Value = 6.5f;
+        morningTriggered = true; // Oyuncular uyuyarak sabahı getirdi, kilidi kapat
         sleepingPlayers.Clear();
         YeniGunBasladiSinyali?.Invoke();
+        Debug.Log("Herkes uyudu, yeni gün sinyali gönderildi.");
     }
 }
