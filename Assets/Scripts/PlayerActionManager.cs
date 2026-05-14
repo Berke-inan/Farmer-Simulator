@@ -3,32 +3,35 @@ using UnityEngine;
 
 public class PlayerActionManager : NetworkBehaviour
 {
-    private InventoryManager inventory;
+    private PlayerInventory inventory;
 
     private void Awake()
     {
-        inventory = GetComponent<InventoryManager>();
+        inventory = GetComponent<PlayerInventory>();
     }
 
-    // --- TOHUM EKME ---
     [ServerRpc]
-    public void TohumEkServerRpc(string itemID, Vector3 nokta, int slotIndex)
+    public void TohumEkServerRpc(int itemID, Vector3 nokta, int slotIndex)
     {
-        ItemData data = ItemDatabase.Instance.GetItemByID(itemID);
-        if (data != null && data.EkinPrefab != null)
+        // ItemData verisini çek (Resources içinden)
+        ItemData data = Resources.Load<ItemData>("Items/" + itemID);
+
+        // EkinPrefab'ın ItemData içine eklenmiş olması gerekir (Daha önce yaptığımız gibi)
+        if (data != null && data.groundPrefab != null)
         {
-            GameObject ekin = Instantiate(data.EkinPrefab, nokta + Vector3.up * 0.05f, Quaternion.identity);
+            GameObject ekin = Instantiate(data.groundPrefab, nokta + Vector3.up * 0.05f, Quaternion.identity);
             ekin.GetComponent<NetworkObject>().Spawn();
 
             if (ekin.TryGetComponent(out ModularCrop sc))
             {
-                sc.tohumID.Value = data.TohumID;
+                sc.tohumID.Value = data.itemID;
             }
-            inventory.RemoveItemServerRpc(slotIndex, 1, nokta, Vector3.up, false);
+
+            // Envanterden düşür
+            inventory.DecreaseItemAmountServerRpc(slotIndex, 1);
         }
     }
 
-    // --- HASAT ETME ---
     [ServerRpc]
     public void HasatEtServerRpc(ulong ekinNetID, Vector3 pos, bool urunVer, int ekstraUrun)
     {
@@ -36,6 +39,7 @@ public class PlayerActionManager : NetworkBehaviour
         {
             if (urunVer)
             {
+                // TerrainLayerManager üzerinden tohum verisini bul
                 TohumVerisi v = TerrainLayerManager.Instance.tohumListesi.Find(x => obj.name.Contains(x.tohumAdi));
                 if (v != null)
                 {
@@ -51,7 +55,6 @@ public class PlayerActionManager : NetworkBehaviour
 
             bool wasWet = TerrainLayerManager.Instance.IsSoilWet(pos);
             obj.Despawn();
-            Destroy(obj.gameObject);
 
             if (wasWet)
             {
@@ -60,8 +63,6 @@ public class PlayerActionManager : NetworkBehaviour
         }
     }
 
-    // --- GÜBRELEME ---
-    // PlayerActionManager.cs içine eklenecek/güncellenecek kısım
     [ServerRpc]
     public void GubreleServerRpc(ulong cropNetId, float growthMultiplier, int yBonus, int slotIndex)
     {
@@ -69,21 +70,15 @@ public class PlayerActionManager : NetworkBehaviour
         {
             if (cropObj.TryGetComponent(out ModularCrop targetCrop))
             {
-                // Ekin zaten gübrelenmiş mi kontrol et
                 if (!targetCrop.isFertilized.Value)
                 {
-                    // Gübreleme mantığını çalıştır
                     targetCrop.ApplyFertilizer(growthMultiplier, yBonus);
-
-                    // Envanterden 1 adet eksilt (kendi local değişkenimiz olan inventory üzerinden)
-                    inventory.RemoveItemServerRpc(slotIndex, 1, transform.position, Vector3.up, false);
+                    inventory.DecreaseItemAmountServerRpc(slotIndex, 1);
                 }
             }
         }
     }
 
-
-    // PlayerActionManager.cs içine eklenecek yeni metod
     [ServerRpc]
     public void RemoveTerrainDetailsServerRpc(Vector3 worldPos, float radius)
     {
@@ -92,39 +87,31 @@ public class PlayerActionManager : NetworkBehaviour
 
         TerrainData tData = terrain.terrainData;
 
-        // 1. Dünya koordinatlarını Detail Map (0-512 veya 0-1024) koordinatlarına çevir
         float prcEx = (worldPos.x - terrain.transform.position.x) / tData.size.x;
         float prcEz = (worldPos.z - terrain.transform.position.z) / tData.size.z;
 
         int posX = (int)(prcEx * tData.detailWidth);
         int posZ = (int)(prcEz * tData.detailHeight);
-
-        // Yarıçapı detail map ölçeğine çevir
         int detRadius = Mathf.RoundToInt((radius / tData.size.x) * tData.detailWidth);
 
-        // 2. Belirlenen alanı tara ve temizle
         int startX = Mathf.Clamp(posX - detRadius, 0, tData.detailWidth);
         int startZ = Mathf.Clamp(posZ - detRadius, 0, tData.detailHeight);
         int width = Mathf.Clamp(detRadius * 2, 0, tData.detailWidth - startX);
         int height = Mathf.Clamp(detRadius * 2, 0, tData.detailHeight - startZ);
 
-        // Terrain üzerindeki tüm detay katmanlarını (ot türlerini) tek tek temizle
         for (int i = 0; i < tData.detailPrototypes.Length; i++)
         {
             int[,] details = tData.GetDetailLayer(startX, startZ, width, height, i);
-
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    // Daire şeklinde silme yapmak için mesafe kontrolü (opsiyonel ama daha güzel durur)
                     if (Vector2.Distance(new Vector2(x, y), new Vector2(detRadius, detRadius)) <= detRadius)
                     {
                         details[x, y] = 0;
                     }
                 }
             }
-            // Değişikliği sunucu tarafında terrain verisine uygula
             tData.SetDetailLayer(startX, startZ, i, details);
         }
     }

@@ -1,38 +1,29 @@
 using UnityEngine;
 
-// Eşya türlerini belirleyen Enum
 public enum ItemType
 {
     Seed,
     Tool,
     Crop,
-    Material,
-    Consumable,
-    Bale
+    Material
 }
 
-[CreateAssetMenu(fileName = "NewItemData", menuName = "FarmerSim/Inventory/ItemData")]
+[CreateAssetMenu(fileName = "NewItemData", menuName = "Inventory/ItemData")]
 public class ItemData : ScriptableObject
 {
-    [Header("Temel Veriler")]
-    public string ItemID;        // Ağ senkronizasyonu ve Database araması için benzersiz ID
-    public string ItemName;      // UI'da görünecek isim
-    public ItemType Type;        // Eşyanın türü
+    [Header("Basic Info")]
+    public int itemID;
+    public string itemName;
+    public ItemType itemType;
+    public int maxStack = 64;
+    public int price;
 
-    [Header("Görsel Ayarlar")]
-    public Sprite Icon;          // Envanter slotundaki resim
+    [Header("UI Visuals")]
+    public Sprite icon;
 
-    [Tooltip("Elde tutulurken görünecek hafif model (NetworkObject/Rigidbody OLMAMALI)")]
-    public GameObject EquipPrefab;
-
-    [Tooltip("Yere atıldığında görünecek fiziksel model (NetworkObject/Rigidbody OLMALI)")]
-    public GameObject DropPrefab;
-
-    [Header("Envanter Ayarları")]
-    public int MaxStack = 64;    // Bir slotta en fazla kaç adet birikebilir?
-
-    [Header("Tohum ve Makine Ayarları")]
-    [Tooltip("Sadece Tohum türündeki eşyalar için doldurulmalıdır.")]
-    public GameObject EkinPrefab; // Toprakta doğacak bitki modeli
-    public int TohumID;           // Bitkinin büyüme aşamalarını takip etmek için kullanılan ID
+    [Header("In-Game Visuals")]
+    public GameObject heldModelPrefab;
+    public GameObject groundPrefab;
+    public Vector3 holdPositionOffset;
+    public Vector3 holdRotationOffset;
 }

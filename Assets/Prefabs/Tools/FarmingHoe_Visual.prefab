@@ -100,7 +100,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5134229616788976342}
   - component: {fileID: 736634748807457412}
-  - component: {fileID: -4694748943005144397}
   m_Layer: 0
   m_Name: FarmingHoe_Visual
   m_TagString: Untagged
@@ -137,18 +136,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CapaEylemi
   fircaBoyutu: 3
---- !u!114 &-4694748943005144397
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7539315446333618510}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45ba8cd433a670846b7d3f1a42cfe62d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LocalToolTracker
-  offset: {x: 0.5, y: -0.4, z: 1}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  followSpeed: 10

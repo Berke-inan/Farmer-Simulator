@@ -17,112 +17,97 @@ public class Romork : NetworkBehaviour, IInteractable
     public float aralikZ = 0.6f;
     public float yiginYuksekligi = 0.6f;
 
+    // Römork içindeki fiziksel objeleri tutan yığın
     private Stack<NetworkObject> icindekiEsyalar = new Stack<NetworkObject>();
 
     public void Interact(NetworkObject interactor)
     {
         if (interactor.TryGetComponent(out PlayerInventory inventory))
         {
-            if (inventory.aktifAlet != ToolType.Yok && inventory.eldekiObje != null)
-            {
-                if (inventory.eldekiObje.TryGetComponent(out PickupableTool tool))
-                {
-                    if (tool.isStoreable)
-                    {
-                        int maksimumKapasite = sutunSayisi * satirSayisi * maksimumKat;
-                        if (icindekiEsyalar.Count >= maksimumKapasite)
-                        {
-                            Debug.Log("Römork tamamen dolu!");
-                            return;
-                        }
+            int aktifSlotIdx = inventory.activeHotbarIndex.Value;
+            InventorySlot aktifSlot = inventory.slots[aktifSlotIdx];
 
-                        RomorkaKoyServerRpc(inventory.eldekiObje);
-                        inventory.EnvanteriTemizleServerRpc();
-                    }
+            // 1. DURUM: Elimiz doluysa römorka koymaya çalış
+            if (!aktifSlot.IsEmpty)
+            {
+                int maksimumKapasite = sutunSayisi * satirSayisi * maksimumKat;
+                if (icindekiEsyalar.Count >= maksimumKapasite)
+                {
+                    Debug.Log("Römork tamamen dolu!");
+                    return;
+                }
+
+                // Elimizdeki eşyanın ID'sini sunucuya yolluyoruz
+                RomorkaKoyServerRpc(interactor.NetworkObjectId, aktifSlot.itemData.itemID, aktifSlotIdx);
+            }
+            // 2. DURUM: Elimiz boşsa römorktan en üstteki eşyayı al
+            else
+            {
+                if (icindekiEsyalar.Count > 0)
+                {
+                    RomorktanAlServerRpc(interactor.NetworkObjectId);
                 }
             }
-            else if (inventory.aktifAlet == ToolType.Yok)
+        }
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void RomorkaKoyServerRpc(ulong playerNetId, int itemID, int slotIndex)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerNetId, out NetworkObject playerObj))
+        {
+            PlayerInventory inventory = playerObj.GetComponent<PlayerInventory>();
+            ItemData data = Resources.Load<ItemData>("Items/" + itemID);
+
+            if (data != null && data.groundPrefab != null)
             {
-                RomorktanAlServerRpc(interactor.OwnerClientId);
+                // Fiziksel objeyi römork için spawn et
+                GameObject kargo = Instantiate(data.groundPrefab);
+                NetworkObject kargoNetObj = kargo.GetComponent<NetworkObject>();
+                kargoNetObj.Spawn();
+                kargoNetObj.TrySetParent(transform);
+
+                // Fizik ve Collider'ı kapat (Römorkta sabit dursun)
+                if (kargo.TryGetComponent(out Rigidbody rb)) rb.isKinematic = true;
+                if (kargo.TryGetComponent(out Collider col)) col.enabled = false;
+
+                // Dizilim hesaplama
+                int sira = icindekiEsyalar.Count;
+                int katKapasitesi = sutunSayisi * satirSayisi;
+                int katIndex = sira / katKapasitesi;
+                int katIciSira = sira % katKapasitesi;
+                int xIndex = katIciSira % sutunSayisi;
+                int zIndex = katIciSira / sutunSayisi;
+
+                Vector3 yerelOffset = new Vector3(xIndex * aralikX, katIndex * yiginYuksekligi, -(zIndex * aralikZ));
+                kargo.transform.localPosition = kargoNoktasi.localPosition + yerelOffset;
+                kargo.transform.localRotation = kargoNoktasi.localRotation;
+
+                icindekiEsyalar.Push(kargoNetObj);
+
+                // Envanterden 1 tane düşür
+                inventory.DecreaseItemAmountServerRpc(slotIndex, 1);
             }
         }
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void RomorkaKoyServerRpc(NetworkObjectReference objeRef)
-    {
-        if (objeRef.TryGet(out NetworkObject obje))
-        {
-            obje.RemoveOwnership();
-
-            if (obje.TryGetComponent(out PickupableTool tool))
-            {
-                // Anında fizik ve collider kapatma (Gecikme önlemi)
-                if (tool.TryGetComponent(out Rigidbody rb)) rb.isKinematic = true;
-                if (tool.TryGetComponent(out Collider col)) col.enabled = false;
-
-                tool.isStored.Value = true;
-                tool.isEquipped.Value = false;
-            }
-
-            icindekiEsyalar.Push(obje);
-            obje.TrySetParent(transform);
-
-            int sira = icindekiEsyalar.Count - 1;
-            int katKapasitesi = sutunSayisi * satirSayisi;
-
-            int katIndex = sira / katKapasitesi;
-            int katIciSira = sira % katKapasitesi;
-
-            int xIndex = katIciSira % sutunSayisi;
-            int zIndex = katIciSira / sutunSayisi;
-
-            Vector3 yerelOffset = new Vector3(xIndex * aralikX, katIndex * yiginYuksekligi, -(zIndex * aralikZ));
-            Vector3 nihaiLokalPozisyon = kargoNoktasi.localPosition + yerelOffset;
-            Quaternion nihaiLokalRotasyon = kargoNoktasi.localRotation;
-
-            SetClientLocalTransformRpc(objeRef, nihaiLokalPozisyon, nihaiLokalRotasyon);
-        }
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void SetClientLocalTransformRpc(NetworkObjectReference objeRef, Vector3 localPos, Quaternion localRot)
-    {
-        if (objeRef.TryGet(out NetworkObject obje))
-        {
-            // İstemcilerde de anında fizik ve collider kapatma
-            if (obje.TryGetComponent(out Rigidbody rb)) rb.isKinematic = true;
-            if (obje.TryGetComponent(out Collider col)) col.enabled = false;
-
-            obje.transform.localPosition = localPos;
-            obje.transform.localRotation = localRot;
-        }
-    }
-
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void RomorktanAlServerRpc(ulong oyuncuID)
+    private void RomorktanAlServerRpc(ulong playerNetId)
     {
         if (icindekiEsyalar.Count == 0) return;
 
-        NetworkObject alinanObje = icindekiEsyalar.Pop();
-
-        if (alinanObje != null && alinanObje.IsSpawned)
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerNetId, out NetworkObject playerObj))
         {
-            alinanObje.TryRemoveParent();
-            alinanObje.ChangeOwnership(oyuncuID);
+            PlayerInventory inventory = playerObj.GetComponent<PlayerInventory>();
+            NetworkObject alinanKargo = icindekiEsyalar.Pop();
 
-            if (alinanObje.TryGetComponent(out PickupableTool tool))
+            if (alinanKargo != null && alinanKargo.TryGetComponent(out InteractableItem item))
             {
-                tool.isEquipped.Value = true;
-                tool.isStored.Value = false;
+                // Envantere ekle
+                inventory.GiveSpecificItemServerRpc(item.itemID, 1);
 
-                if (NetworkManager.Singleton.ConnectedClients.TryGetValue(oyuncuID, out NetworkClient client))
-                {
-                    if (client.PlayerObject.TryGetComponent(out PlayerInventory inventory))
-                    {
-                        inventory.AletKusanServerRpc(alinanObje, tool.aletTipi);
-                    }
-                }
+                // Sahadaki fiziksel objeyi yok et
+                alinanKargo.Despawn();
             }
         }
     }

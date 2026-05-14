@@ -1,25 +1,43 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using TMPro; // Eğer TextMeshPro kullanıyorsan
 
 public class SlotUI : MonoBehaviour
 {
-    [SerializeField] private Image iconImage;
-    [SerializeField] private TextMeshProUGUI amountText;
+    [Header("Görsel Bileşenler")]
+    public Image iconImage;
+    public TextMeshProUGUI amountText; // Standart Text kullanıyorsan 'Text' olarak değiştir
 
-    public void UpdateUI(InventorySlot slot)
+    // Bu metot InventoryUIManager tarafından çağrılacak
+    public void SetSlot(InventorySlot slot)
     {
-        if (slot.IsEmpty)
+        // Eski kodda muhtemelen 'slot.Item' yazıyordu, burayı 'itemData' yaptık
+        if (slot == null || slot.IsEmpty)
         {
-            iconImage.sprite = null;
-            iconImage.enabled = false;
-            amountText.text = "";
+            ClearSlot();
+            return;
+        }
+
+        // İkonu ayarla
+        iconImage.sprite = slot.itemData.icon;
+        iconImage.enabled = true;
+
+        // Miktarı ayarla (1'den büyükse göster)
+        if (slot.amount > 1)
+        {
+            amountText.text = slot.amount.ToString();
+            amountText.enabled = true;
         }
         else
         {
-            iconImage.sprite = slot.Item.Icon;
-            iconImage.enabled = true;
-            amountText.text = slot.Amount > 1 ? slot.Amount.ToString() : "";
+            amountText.enabled = false;
         }
+    }
+
+    public void ClearSlot()
+    {
+        iconImage.sprite = null;
+        iconImage.enabled = false;
+        amountText.enabled = false;
     }
 }

@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 162432077986324154}
   - component: {fileID: 7826296093591086916}
-  - component: {fileID: -8378856299789645821}
   m_Layer: 0
   m_Name: Shovel_Visual
   m_TagString: Untagged
@@ -47,21 +46,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KurekEylemi
   fircaBoyutu: 3
---- !u!114 &-8378856299789645821
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5305824883323697836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45ba8cd433a670846b7d3f1a42cfe62d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LocalToolTracker
-  offset: {x: 0.5, y: -0.4, z: 1}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  followSpeed: 10
 --- !u!1001 &7852466512112865420
 PrefabInstance:
   m_ObjectHideFlags: 0

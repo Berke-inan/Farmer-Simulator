@@ -5,28 +5,35 @@ public class CapaEylemi : MonoBehaviour, IUseableTool
     [Tooltip("Boyama boyutu")]
     public int fircaBoyutu = 3;
 
-    public void EylemYap(RaycastHit hit, InventoryManager inv)
+    // Parametre tipini InventoryManager'dan PlayerInventory'e güncelledik.
+    public void EylemYap(RaycastHit hit, PlayerInventory inventory)
     {
         // 1. ÖNCE ENERJİ KONTROLÜ YAP
-        PlayerEnergy enerji = inv.GetComponent<PlayerEnergy>();
+        // PlayerInventory bir NetworkBehaviour olduğu için GetComponent ile aynı obje üzerindeki enerjiye ulaşabiliriz.
+        PlayerEnergy enerji = inventory.GetComponent<PlayerEnergy>();
+
         if (enerji != null && !enerji.EylemYapabilirMi())
         {
             Debug.Log("Çok yorgunsun! Bu eylemi yapmak için yeterli enerjin yok.");
-            return; // Gücü yoksa alttaki kodlar hiç çalışmaz, toprağa vuramaz.
+            return;
         }
 
         // 2. GÜCÜ YETİYORSA İŞLEMİ YAP
-        Debug.Log("Çapa şuna vurdu: " + hit.collider.name);
-
-        if (hit.collider is TerrainCollider tCol)
+        if (hit.collider != null)
         {
-            tCol.GetComponent<TerrainLayerManager>().PaintSoilServerRpc(hit.point, 1, fircaBoyutu);
-            Debug.Log("Terrain boyama komutu gönderildi!");
+            Debug.Log("Çapa şuna vurdu: " + hit.collider.name);
 
-            // 3. İŞLEM BAŞARILI OLDUĞU İÇİN ENERJİYİ DÜŞÜR
-            if (enerji != null)
+            if (hit.collider is TerrainCollider tCol)
             {
-                enerji.EnerjiHarcaServerRpc(2f);
+                // TerrainLayerManager scriptinin bu metodu desteklediğinden emin ol.
+                tCol.GetComponent<TerrainLayerManager>().PaintSoilServerRpc(hit.point, 1, fircaBoyutu);
+                Debug.Log("Terrain boyama komutu gönderildi!");
+
+                // 3. İŞLEM BAŞARILI OLDUĞU İÇİN ENERJİYİ DÜŞÜR
+                if (enerji != null)
+                {
+                    enerji.EnerjiHarcaServerRpc(2f);
+                }
             }
         }
     }

@@ -92,7 +92,7 @@ PrefabInstance:
       addedObject: {fileID: -6482134286760686255}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 60df871e27d107c4b91a345c5ccb9d51, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7264242390707815665}
+      addedObject: {fileID: 6286235334974480278}
   m_SourcePrefab: {fileID: 100100000, guid: 60df871e27d107c4b91a345c5ccb9d51, type: 3}
 --- !u!1 &2726892874834242305 stripped
 GameObject:
@@ -251,7 +251,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.02, y: 0.006893016, z: 0.015466242}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7264242390707815665
+--- !u!114 &6286235334974480278
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -260,9 +260,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2726892874834242305}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Script: {fileID: 11500000, guid: 612f05db04357c24385249c73c6317fe, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableItem
   ShowTopMostFoldoutHeaderGroup: 1
-  ItemData: {fileID: 11400000, guid: 5ac786581a4a36842bbb3dc8e2ad9287, type: 2}
-  Amount: 1
+  itemID: 3
+  amount: 1

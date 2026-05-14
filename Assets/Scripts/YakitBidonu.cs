@@ -2,55 +2,48 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(PickupableTool))]
-public class YakitBidonu : NetworkBehaviour
+public class YakitBidonu : MonoBehaviour
 {
-    [Header("Bidon Ayarlarý")]
-    public float maxKapasite = 25f;
-    public NetworkVariable<float> mevcutYakit = new NetworkVariable<float>(25f);
-
     [Header("Dolum Ayarlarý")]
     public float dolumMesafesi = 4f;
-    public float dolumHizi = 25f; // Saniyede 25L (25L kapasiteyi tam 1 saniyede boþaltýr)
+    public float dolumHizi = 25f; // Saniyede 25L
 
-    private PickupableTool pickupTool;
-    private Quaternion orijinalRotasyon;
+    private PlayerInventory inventory;
     private float aktarimBirikimi = 0f;
 
-    private void Awake()
+    private void Start()
     {
-        pickupTool = GetComponent<PickupableTool>();
+        // Oyuncuyu bulur
+        inventory = GetComponentInParent<PlayerInventory>();
     }
 
     private void Update()
     {
-        if (!IsOwner || !pickupTool.isEquipped.Value || pickupTool.isStored.Value) return;
+        if (inventory == null || !inventory.IsOwner) return;
 
-        // Eðer R tuþuna BASILI TUTULUYORSA
+        // R tuþuna basýlý tutuluyorsa
         if (Keyboard.current != null && Keyboard.current.rKey.isPressed)
         {
-            if (pickupTool.targetCamera != null)
+            Transform cam = inventory.GetComponent<PlayerInteractor>().playerCamera;
+            Ray ray = new Ray(cam.position, cam.forward);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, dolumMesafesi))
             {
-                Ray ray = new Ray(pickupTool.targetCamera.position, pickupTool.targetCamera.forward);
-                if (Physics.Raycast(ray, out RaycastHit hit, dolumMesafesi))
+                TractorFuelSystem traktor = hit.collider.GetComponentInParent<TractorFuelSystem>();
+                if (traktor != null)
                 {
-                    TractorFuelSystem traktor = hit.collider.GetComponentInParent<TractorFuelSystem>();
-                    if (traktor != null)
+                    // Animasyon: Bidonu eð
+                    transform.localRotation = Quaternion.Lerp(transform.localRotation, Quaternion.Euler(60f, 0, 0), Time.deltaTime * 8f);
+
+                    // Bidonda yakýt varsa ve traktör dolmadýysa
+                    if (inventory.bidonMevcutYakit.Value > 0 && traktor.currentFuel.Value < traktor.maxFuel)
                     {
-                        // Animasyon: R'ye basýldýðý sürece bidonu yavaþça eð
-                        transform.localRotation = Quaternion.Lerp(transform.localRotation, Quaternion.Euler(60f, 0, 0), Time.deltaTime * 8f);
+                        aktarimBirikimi += dolumHizi * Time.deltaTime;
 
-                        // Yakýt bitmediyse ve traktör dolmadýysa aktarýma baþla
-                        if (mevcutYakit.Value > 0 && traktor.currentFuel.Value < traktor.maxFuel)
+                        if (aktarimBirikimi >= 2.5f)
                         {
-                            aktarimBirikimi += dolumHizi * Time.deltaTime;
-
-                            // Her 2.5 Litre biriktiðinde sunucuya yolla (Að optimizasyonu)
-                            if (aktarimBirikimi >= 2.5f)
-                            {
-                                BidondanTraktoreServerRpc(traktor.NetworkObjectId, aktarimBirikimi);
-                                aktarimBirikimi = 0f;
-                            }
+                            inventory.BidondanTraktoreServerRpc(traktor.NetworkObjectId, aktarimBirikimi);
+                            aktarimBirikimi = 0f;
                         }
                     }
                 }
@@ -58,43 +51,20 @@ public class YakitBidonu : NetworkBehaviour
         }
         else
         {
-            // R tuþu BIRAKILDIYSA (Veya traktöre bakýlmýyorsa)
-            // Kalan küsurat yakýtý yolla ve bidonu yavaþça düzelt
+            // R tuþu býrakýldýysa bidonu düzelt
             if (aktarimBirikimi > 0f)
             {
-                Ray ray = new Ray(pickupTool.targetCamera.position, pickupTool.targetCamera.forward);
+                Transform cam = inventory.GetComponent<PlayerInteractor>().playerCamera;
+                Ray ray = new Ray(cam.position, cam.forward);
                 if (Physics.Raycast(ray, out RaycastHit hit, dolumMesafesi))
                 {
                     TractorFuelSystem traktor = hit.collider.GetComponentInParent<TractorFuelSystem>();
-                    if (traktor != null) BidondanTraktoreServerRpc(traktor.NetworkObjectId, aktarimBirikimi);
+                    if (traktor != null) inventory.BidondanTraktoreServerRpc(traktor.NetworkObjectId, aktarimBirikimi);
                 }
                 aktarimBirikimi = 0f;
             }
 
             transform.localRotation = Quaternion.Lerp(transform.localRotation, Quaternion.identity, Time.deltaTime * 8f);
-        }
-    }
-
-    [Rpc(SendTo.Server)]
-    private void BidondanTraktoreServerRpc(ulong traktorID, float miktar)
-    {
-        // Elimizde o kadar yakýt var mý kontrol et
-        if (mevcutYakit.Value < miktar) miktar = mevcutYakit.Value;
-        if (miktar <= 0) return;
-
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(traktorID, out NetworkObject netObj))
-        {
-            if (netObj.TryGetComponent(out TractorFuelSystem traktor))
-            {
-                float bosYer = traktor.maxFuel - traktor.currentFuel.Value;
-                float eklenecek = Mathf.Min(miktar, bosYer);
-
-                if (eklenecek > 0)
-                {
-                    traktor.AddFuelServerRpc(eklenecek);
-                    mevcutYakit.Value -= eklenecek;
-                }
-            }
         }
     }
 }

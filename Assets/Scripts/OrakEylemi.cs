@@ -1,15 +1,14 @@
-using Unity.Netcode;
 using UnityEngine;
+using Unity.Netcode;
 
 public class OrakEylemi : MonoBehaviour, IUseableTool
 {
     public float yaricap = 2.5f;
 
-    public void EylemYap(RaycastHit hit, InventoryManager inv)
+    public void EylemYap(RaycastHit hit, PlayerInventory inventory)
     {
-        if (inv.TryGetComponent(out PlayerActionManager actionManager))
+        if (inventory.TryGetComponent(out PlayerActionManager actionManager))
         {
-            // 1. Ekinleri Hasat Et (Mevcut kod)
             Collider[] cols = Physics.OverlapSphere(hit.point, yaricap);
             foreach (var c in cols)
             {
@@ -21,9 +20,6 @@ public class OrakEylemi : MonoBehaviour, IUseableTool
                     }
                 }
             }
-
-            // 2. YENİ: Terrain detaylarını (otları) sil
-            // Burayı çağırdığında vurduğun yerin etrafındaki otlar ağda silinecek
             actionManager.RemoveTerrainDetailsServerRpc(hit.point, yaricap);
         }
     }

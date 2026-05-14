@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 8343466120561548899}
   - component: {fileID: 5820282734572978733}
   - component: {fileID: -5475884196895884991}
-  - component: {fileID: 2446861405965444694}
+  - component: {fileID: -5911612694883959188}
   m_Layer: 0
   m_Name: FarmingHoe
   m_TagString: Untagged
@@ -264,7 +264,7 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
---- !u!114 &2446861405965444694
+--- !u!114 &-5911612694883959188
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -273,9 +273,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 7539315446333618510}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Script: {fileID: 11500000, guid: 612f05db04357c24385249c73c6317fe, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableItem
   ShowTopMostFoldoutHeaderGroup: 1
-  ItemData: {fileID: 11400000, guid: 2a43f87ed6f2f7d4eaa290449b4c1859, type: 2}
-  Amount: 1
+  itemID: 0
+  amount: 1

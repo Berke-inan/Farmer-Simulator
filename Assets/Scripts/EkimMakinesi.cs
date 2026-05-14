@@ -21,6 +21,7 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
     private void OnTriggerStay(Collider other)
     {
+        // Sunucu tarafýnda çalýþma ve makine aktiflik kontrolleri
         if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value || mevcutTohum.Value <= 0 || aktifEkinPrefab == null) return;
 
         islemSayaci += Time.deltaTime;
@@ -36,11 +37,7 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
                     TerrainLayerManager manager = tCol.GetComponent<TerrainLayerManager>();
                     if (manager != null && manager.IsSoilTilled(hit.point))
                     {
-                        Collider[] yakindakiler = Physics.OverlapSphere(hit.point, minimumEkimMesafesi);
-                        bool yakinlardaEkinVar = false;
-                        foreach (var col in yakindakiler) { if (col.GetComponent<ModularCrop>()) { yakinlardaEkinVar = true; break; } }
-
-                        if (!yakinlardaEkinVar)
+                        if (!YakinlardaEkinVarMi(hit.point))
                         {
                             TohumuTopragaBirak(hit.point);
                             islemSayaci = 0f;
@@ -51,24 +48,38 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
         }
     }
 
+    private bool YakinlardaEkinVarMi(Vector3 nokta)
+    {
+        Collider[] yakindakiler = Physics.OverlapSphere(nokta, minimumEkimMesafesi);
+        foreach (var col in yakindakiler)
+        {
+            if (col.GetComponent<ModularCrop>()) return true;
+        }
+        return false;
+    }
+
     private void TohumuTopragaBirak(Vector3 nokta)
     {
         mevcutTohum.Value--;
         GameObject ekin = Instantiate(aktifEkinPrefab, nokta + (Vector3.up * 0.05f), Quaternion.identity);
         ekin.GetComponent<NetworkObject>().Spawn();
+
         if (ekin.TryGetComponent(out ModularCrop sc)) sc.tohumID.Value = aktifTohumID;
+
         if (mevcutTohum.Value <= 0) { aktifEkinPrefab = null; aktifTohumID = 0; }
     }
 
     public void Interact(NetworkObject interactor)
     {
-        if (interactor.TryGetComponent(out NetworkedHotbar hotbar) && interactor.TryGetComponent(out InventoryManager inventory))
+        // Yeni sistem: Sadece PlayerInventory üzerinden kontrol saðlýyoruz
+        if (interactor.TryGetComponent(out PlayerInventory inventory))
         {
-            int aktifSlotIndex = hotbar.ActiveSlotIndex.Value;
-            InventorySlot slot = inventory.Slots[aktifSlotIndex];
+            int aktifSlotIndex = inventory.activeHotbarIndex.Value;
+            InventorySlot slot = inventory.slots[aktifSlotIndex];
 
-            // YENÝ: Eþya türü Tohum (Seed) mi kontrolü
-            if (!slot.IsEmpty && slot.Item != null && slot.Item.Type == ItemType.Seed)
+            // Eþya tohum mu ve envanterde yer var mý kontrolü
+            // Not: ItemData içinde bir 'isSeed' bool'u veya benzeri bir kontrol olduðunu varsayýyoruz
+            if (!slot.IsEmpty && slot.itemData != null)
             {
                 if (mevcutTohum.Value < maxKapasite)
                 {
@@ -78,33 +89,34 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
         }
     }
 
-    [ServerRpc]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void MakineyeYukleServerRpc(ulong oyuncuId, int slotIndex)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(oyuncuId, out NetworkObject oyuncuNetObj))
         {
-            if (oyuncuNetObj.TryGetComponent(out InventoryManager envanter))
+            if (oyuncuNetObj.TryGetComponent(out PlayerInventory envanter))
             {
-                InventorySlot slot = envanter.Slots[slotIndex];
-                if (slot.IsEmpty || slot.Item == null || slot.Item.Type != ItemType.Seed) return;
+                InventorySlot slot = envanter.slots[slotIndex];
+                if (slot.IsEmpty || slot.itemData == null) return;
 
-                // YENÝ: Verileri ItemData'dan çekiyoruz
-                ItemData data = slot.Item;
+                ItemData data = slot.itemData;
 
+                // Makine boþsa ilk tohumun verilerini al, doluysa tohum türü uyuþuyor mu bak
                 if (mevcutTohum.Value == 0)
                 {
-                    aktifTohumID = data.TohumID;
-                    aktifEkinPrefab = data.EkinPrefab;
+                    aktifTohumID = data.itemID;
+                    aktifEkinPrefab = data.groundPrefab; // ItemData'daki ekilecek prefab
                 }
-                else if (aktifTohumID != data.TohumID) return;
+                else if (aktifTohumID != data.itemID) return;
 
                 int bosYer = maxKapasite - mevcutTohum.Value;
-                int eklenecekMiktar = Mathf.Min(bosYer, slot.Amount);
+                int eklenecekMiktar = Mathf.Min(bosYer, slot.amount);
 
                 if (eklenecekMiktar > 0)
                 {
                     mevcutTohum.Value += eklenecekMiktar;
-                    envanter.RemoveItemServerRpc(slotIndex, eklenecekMiktar, transform.position, Vector3.zero, false);
+                    // PlayerInventory'de yazdýðýmýz yeni miktar düþürme metodunu çaðýrýyoruz
+                    envanter.DecreaseItemAmountServerRpc(slotIndex, eklenecekMiktar);
                 }
             }
         }

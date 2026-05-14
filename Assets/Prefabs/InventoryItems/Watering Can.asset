@@ -10,14 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
-  m_Name: CornSeed
+  m_Name: Watering Can
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  ItemID: 5
-  ItemName: Corn Seed
-  Type: 0
-  Icon: {fileID: 0}
-  EquipPrefab: {fileID: 7226053109832198535, guid: 859b770b80235d047aa5bccb6054518e, type: 3}
-  DropPrefab: {fileID: 7226053109832198535, guid: 133e067dc97b6834c916501bd4efabdc, type: 3}
-  MaxStack: 64
-  EkinPrefab: {fileID: 3241866977498237123, guid: 66f1d948a1eb9e246a38b2da3b3d33e3, type: 3}
-  TohumID: 0
+  itemID: 4
+  itemName: Watering Can
+  itemType: 1
+  maxStack: 1
+  price: 0
+  icon: {fileID: 0}
+  heldModelPrefab: {fileID: 526959027620238915, guid: 6ebd8f8d6ac8fa74596c686eb04d5348, type: 3}
+  groundPrefab: {fileID: 526959027620238915, guid: 187025386d0942f4484f9420dce7f687, type: 3}
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}

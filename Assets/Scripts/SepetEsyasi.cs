@@ -2,8 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(PickupableTool))]
-public class SepetEsyasi : NetworkBehaviour
+public class SepetEsyasi : MonoBehaviour
 {
     [Header("Sepet Modelleri")]
     public GameObject modelBos;
@@ -13,25 +12,29 @@ public class SepetEsyasi : NetworkBehaviour
     [Header("Toplama Ayarlarý")]
     public float toplamaMenzili = 4f;
 
-    // 0 = Boþ, 1 = Yarým, 2 = Tam Dolu
-    public NetworkVariable<int> sepetDoluluk = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private PlayerInventory inventory;
 
-    private PickupableTool pickupTool;
-
-    private void Awake()
+    private void Start()
     {
-        pickupTool = GetComponent<PickupableTool>();
+        // Obje eline verildiðinde (Instantiate edildiðinde) oyuncunun envanter koduna ulaþýr
+        inventory = GetComponentInParent<PlayerInventory>();
+
+        if (inventory != null)
+        {
+            // Sepetin ilk doluluk durumuna göre görseli ayarla
+            GorselleriGuncelle(inventory.sepetDoluluk.Value);
+
+            // Doluluk deðiþtiðinde (NetworkVariable) görselleri güncellemesi için abone ol
+            inventory.sepetDoluluk.OnValueChanged += DolulukDegistigindeGorselleriGuncelle;
+        }
     }
 
-    public override void OnNetworkSpawn()
+    private void OnDestroy()
     {
-        sepetDoluluk.OnValueChanged += DolulukDegistigindeGorselleriGuncelle;
-        GorselleriGuncelle(sepetDoluluk.Value); // Ýlk doðduðunda modeli ayarla
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        sepetDoluluk.OnValueChanged -= DolulukDegistigindeGorselleriGuncelle;
+        if (inventory != null)
+        {
+            inventory.sepetDoluluk.OnValueChanged -= DolulukDegistigindeGorselleriGuncelle;
+        }
     }
 
     private void DolulukDegistigindeGorselleriGuncelle(int eskiDurum, int yeniDurum)
@@ -39,7 +42,6 @@ public class SepetEsyasi : NetworkBehaviour
         GorselleriGuncelle(yeniDurum);
     }
 
-    // Sepetin içindeki meyve modellerini doluluða göre açýp kapatýr
     private void GorselleriGuncelle(int durum)
     {
         if (modelBos != null) modelBos.SetActive(durum == 0);
@@ -49,49 +51,28 @@ public class SepetEsyasi : NetworkBehaviour
 
     private void Update()
     {
-        // Bizim deðilse veya elimizde takýlý deðilse iþlem yapma
-        if (!IsOwner || !pickupTool.isEquipped.Value || pickupTool.isStored.Value) return;
+        // Sadece sahibi bizsek ve F tuþuna basýldýysa
+        if (inventory == null || !inventory.IsOwner) return;
 
-        // F Tuþuna basýldýðýnda
         if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
         {
-            if (sepetDoluluk.Value >= 2)
+            if (inventory.sepetDoluluk.Value >= 2)
             {
-                Debug.Log("Sepet tamamen dolu! Daha fazla meyve alamazsýn.");
+                Debug.Log("Sepet tamamen dolu!");
                 return;
             }
 
-            if (pickupTool.targetCamera != null)
-            {
-                Ray ray = new Ray(pickupTool.targetCamera.position, pickupTool.targetCamera.forward);
-                if (Physics.Raycast(ray, out RaycastHit hit, toplamaMenzili))
-                {
-                    // Týkladýðýmýz þey bir aðaç mý?
-                    TreeController agac = hit.collider.GetComponentInParent<TreeController>();
-                    if (agac != null && agac.mevcutDurum.Value == TreeState.Meyveli)
-                    {
-                        ToplamaIstegiGonderServerRpc(agac.NetworkObjectId);
-                    }
-                }
-            }
-        }
-    }
+            // PlayerInteractor üzerinden kameraya ulaþýrýz
+            Transform cam = inventory.GetComponent<PlayerInteractor>().playerCamera;
+            Ray ray = new Ray(cam.position, cam.forward);
 
-    [Rpc(SendTo.Server)]
-    private void ToplamaIstegiGonderServerRpc(ulong agacID)
-    {
-        if (sepetDoluluk.Value >= 2) return;
-
-        // Sunucuda aðacý bul
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(agacID, out NetworkObject netObj))
-        {
-            if (netObj.TryGetComponent(out TreeController agac))
+            if (Physics.Raycast(ray, out RaycastHit hit, toplamaMenzili))
             {
-                // Aðaçtan meyveyi çekiriz, eðer baþarýlýysa (true dönerse) sepeti doldururuz
-                bool hasatBasarili = agac.MeyveHasatEt();
-                if (hasatBasarili)
+                TreeController agac = hit.collider.GetComponentInParent<TreeController>();
+                if (agac != null && agac.mevcutDurum.Value == TreeState.Meyveli)
                 {
-                    sepetDoluluk.Value++;
+                    // RPC artýk PlayerInventory üzerinden gönderilmeli
+                    inventory.ToplamaIstegiServerRpc(agac.NetworkObjectId);
                 }
             }
         }

@@ -10,14 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
-  m_Name: Water
+  m_Name: Farming Hoe
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  ItemID: 4
-  ItemName: Water
-  Type: 4
-  Icon: {fileID: 0}
-  EquipPrefab: {fileID: 4079859512506773140, guid: 82019aaf2e6fad6419a98136b9821b0b, type: 3}
-  DropPrefab: {fileID: 4079859512506773140, guid: f72f11151ab411d4a9263986fe24a6b5, type: 3}
-  MaxStack: 64
-  EkinPrefab: {fileID: 0}
-  TohumID: 0
+  itemID: 0
+  itemName: Farming Hoe
+  itemType: 1
+  maxStack: 1
+  price: 15
+  icon: {fileID: 0}
+  heldModelPrefab: {fileID: 7539315446333618510, guid: 6ba3e1923fed56844809f2b6b39a798e, type: 3}
+  groundPrefab: {fileID: 7539315446333618510, guid: c52854c42376ecc4a8302d9e1c2cffba, type: 3}
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}

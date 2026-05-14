@@ -17,7 +17,7 @@ public class BalyalanabilirObje : NetworkBehaviour, ISecondaryInteractable
         if (interactor.TryGetComponent(out PlayerInventory inventory))
         {
             // Sadece elinde hiçbir şey yoksa (boş elleyse) balyalama yapabilir
-            if (inventory.aktifAlet == ToolType.Yok)
+            if (inventory.slots[inventory.activeHotbarIndex.Value].IsEmpty)
             {
                 BalyalaServerRpc();
             }
