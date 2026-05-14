@@ -12,6 +12,7 @@ public class PlayerInventory : NetworkBehaviour
     public Transform handTransform;
     public GameObject eldekiObje;
 
+    public NetworkVariable<bool> isHolstered = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public NetworkVariable<int> activeHotbarIndex = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public event Action<int, InventorySlot> OnSlotChanged;
 
@@ -27,17 +28,24 @@ public class PlayerInventory : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         activeHotbarIndex.OnValueChanged += HandleHotbarChanged;
+        isHolstered.OnValueChanged += HandleHolsterChanged; // YENİ EKLENDİ
         UpdateHeldItemVisuals(activeHotbarIndex.Value);
     }
 
     public override void OnNetworkDespawn()
     {
         activeHotbarIndex.OnValueChanged -= HandleHotbarChanged;
+        isHolstered.OnValueChanged -= HandleHolsterChanged; // YENİ EKLENDİ
     }
 
     private void HandleHotbarChanged(int previousIndex, int newIndex)
     {
         UpdateHeldItemVisuals(newIndex);
+    }
+
+    private void HandleHolsterChanged(bool previousVal, bool newVal)
+    {
+        UpdateHeldItemVisuals(activeHotbarIndex.Value);
     }
 
     // --- YENİ: Zıplatma İsteği ---
@@ -103,18 +111,40 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
+    public void ToggleHolster()
+    {
+        if (!IsOwner) return;
+        isHolstered.Value = !isHolstered.Value; // Durumu tersine çevir
+    }
+
+    public void SetHolstered(bool state)
+    {
+        if (!IsOwner) return;
+        isHolstered.Value = state; // Durumu zorla ayarla (Traktör için)
+    }
+
     public void ChangeHotbarSlot(int index)
     {
         if (!IsOwner) return;
         if (index >= 0 && index < maxSlots)
         {
             activeHotbarIndex.Value = index;
+
+            // YENİ: 1-9 arası bir tuşa basılırsa eşya otomatik olarak geri gelsin
+            if (isHolstered.Value)
+            {
+                isHolstered.Value = false;
+            }
         }
     }
 
     private void UpdateHeldItemVisuals(int slotIndex)
     {
         if (eldekiObje != null) Destroy(eldekiObje);
+
+        // YENİ: Eğer gizlenme modu açıksa, eskiyi sildikten sonra yenisini oluşturmadan çık
+        if (isHolstered.Value) return;
+
         if (slotIndex < 0 || slotIndex >= slots.Length) return;
 
         InventorySlot currentSlot = slots[slotIndex];

@@ -27,6 +27,8 @@ public class PlayerInteractor : NetworkBehaviour
         // Sol Tık
         inputActions.Player.Attack.started += ctx => UseHeldItem();
 
+        inputActions.Player.Holster.started += ctx => inventory.ToggleHolster();
+
         // --- YENİ: Klavye Slot Değiştirme (1-9) ---
         inputActions.Player.Hotbar1.started += ctx => inventory.ChangeHotbarSlot(0);
         inputActions.Player.Hotbar2.started += ctx => inventory.ChangeHotbarSlot(1);

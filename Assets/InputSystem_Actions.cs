@@ -298,6 +298,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Holster"",
+                    ""type"": ""Button"",
+                    ""id"": ""3c1471f7-9087-45be-848e-a0753e6a2d59"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -903,6 +912,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Hotbar0"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d58cf479-5358-4593-87a3-8591855caa5a"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Holster"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1513,6 +1533,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Hotbar8 = m_Player.FindAction("Hotbar8", throwIfNotFound: true);
         m_Player_Hotbar9 = m_Player.FindAction("Hotbar9", throwIfNotFound: true);
         m_Player_Hotbar0 = m_Player.FindAction("Hotbar0", throwIfNotFound: true);
+        m_Player_Holster = m_Player.FindAction("Holster", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1629,6 +1650,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Hotbar8;
     private readonly InputAction m_Player_Hotbar9;
     private readonly InputAction m_Player_Hotbar0;
+    private readonly InputAction m_Player_Holster;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1733,6 +1755,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Hotbar0 => m_Wrapper.m_Player_Hotbar0;
         /// <summary>
+        /// Provides access to the underlying input action "Player/Holster".
+        /// </summary>
+        public InputAction @Holster => m_Wrapper.m_Player_Holster;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1827,6 +1853,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Hotbar0.started += instance.OnHotbar0;
             @Hotbar0.performed += instance.OnHotbar0;
             @Hotbar0.canceled += instance.OnHotbar0;
+            @Holster.started += instance.OnHolster;
+            @Holster.performed += instance.OnHolster;
+            @Holster.canceled += instance.OnHolster;
         }
 
         /// <summary>
@@ -1907,6 +1936,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Hotbar0.started -= instance.OnHotbar0;
             @Hotbar0.performed -= instance.OnHotbar0;
             @Hotbar0.canceled -= instance.OnHotbar0;
+            @Holster.started -= instance.OnHolster;
+            @Holster.performed -= instance.OnHolster;
+            @Holster.canceled -= instance.OnHolster;
         }
 
         /// <summary>
@@ -2368,6 +2400,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnHotbar0(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Holster" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnHolster(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
