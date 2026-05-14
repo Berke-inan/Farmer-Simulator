@@ -10,27 +10,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalScale.x
-      value: 30
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalScale.y
-      value: 30
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalScale.z
-      value: 30
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -9.918695
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.86
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.53
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -75,9 +75,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8060752028558952693}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7519914972377510621}
   m_SourcePrefab: {fileID: 100100000, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
 --- !u!1 &6163511954771487862 stripped
 GameObject:
@@ -97,18 +94,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TohumEylemi
   minimumEkimMesafesi: 0.8
---- !u!114 &7519914972377510621
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6163511954771487862}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45ba8cd433a670846b7d3f1a42cfe62d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LocalToolTracker
-  offset: {x: 0.5, y: -0.4, z: 1}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  followSpeed: 10

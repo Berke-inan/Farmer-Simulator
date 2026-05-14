@@ -32,8 +32,21 @@ public class ModularCrop : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        _veriler = TerrainLayerManager.Instance.GetTohumVerisi(tohumID.Value);
+        // YENİ: Tohum ID'si sunucudan geldiği anda verileri çek
+        tohumID.OnValueChanged += (eski, yeni) =>
+        {
+            _veriler = TerrainLayerManager.Instance.GetTohumVerisi(yeni);
+        };
+
+        // Görsel güncelleme dinleyicisi
         mevcutAsama.OnValueChanged += (eski, yeni) => GorseliGuncelle();
+
+        // Eğer ID halihazırda atanmışsa (Host için), direkt çek
+        if (tohumID.Value != 0)
+        {
+            _veriler = TerrainLayerManager.Instance.GetTohumVerisi(tohumID.Value);
+        }
+
         GorseliGuncelle();
     }
 

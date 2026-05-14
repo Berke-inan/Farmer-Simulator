@@ -27,15 +27,10 @@ public class TohumEylemi : MonoBehaviour, IUseableTool
                 }
             }
 
-            if (inventory.TryGetComponent(out PlayerActionManager actionManager))
-            {
-                int slotIndex = inventory.activeHotbarIndex.Value;
+            int slotIndex = inventory.activeHotbarIndex.Value;
 
-                // Yeni envanter yapısına göre ID çekme
-                int itemID = inventory.slots[slotIndex].itemData.itemID;
-
-                actionManager.TohumEkServerRpc(itemID, hit.point, slotIndex);
-            }
+            // YENİ SİSTEM: Dikme isteğini doğrudan yeni envanter sistemine yolluyoruz
+            inventory.DikmeIstegiServerRpc(hit.point, slotIndex);
         }
     }
 }

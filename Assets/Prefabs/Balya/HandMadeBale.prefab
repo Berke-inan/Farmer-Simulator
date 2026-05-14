@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2993353052673774135}
   - component: {fileID: 5571606022049916099}
   - component: {fileID: 3599709289157354149}
-  - component: {fileID: 2159805616621012163}
+  - component: {fileID: 4301130485576364903}
   m_Layer: 0
   m_Name: HandMadeBale
   m_TagString: Untagged
@@ -225,7 +225,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   itemData: {fileID: 11400000, guid: 82cf6a291ddeac341b99f8e844a84118, type: 2}
   price: 15
---- !u!114 &2159805616621012163
+--- !u!114 &4301130485576364903
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -234,12 +234,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 2660502362499645756}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Script: {fileID: 11500000, guid: 612f05db04357c24385249c73c6317fe, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableItem
   ShowTopMostFoldoutHeaderGroup: 1
-  ItemData: {fileID: 11400000, guid: a9e1355e0e96c27469a9baceff70de85, type: 2}
-  Amount: 1
+  itemID: 8
+  amount: 1
 --- !u!1 &4801378952753712981
 GameObject:
   m_ObjectHideFlags: 0

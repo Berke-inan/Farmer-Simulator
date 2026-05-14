@@ -301,13 +301,120 @@ public class PlayerInventory : NetworkBehaviour
 
         ItemData data = slots[slotIndex].itemData;
 
-        if (data.groundPrefab != null)
+        // DEĞİŞİKLİK: Artık groundPrefab değil, ekinPrefab arıyoruz
+        if (data.ekinPrefab != null)
         {
-            GameObject yeniFide = Instantiate(data.groundPrefab, nokta + (Vector3.up * 0.05f), Quaternion.identity);
+            GameObject yeniFide = Instantiate(data.ekinPrefab, nokta + (Vector3.up * 0.05f), Quaternion.identity);
             NetworkObject netObj = yeniFide.GetComponent<NetworkObject>();
             netObj.Spawn();
+
+            // Ekilen bitkiye tohumun ID'sini otomatik veriyoruz
+            if (yeniFide.TryGetComponent(out ModularCrop crop))
+            {
+                crop.tohumID.Value = data.itemID;
+            }
 
             DecreaseItemAmountServerRpc(slotIndex, 1);
         }
     }
+
+    [Rpc(SendTo.Server)]
+    public void HasatEtServerRpc(ulong ekinNetID, Vector3 pos)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(ekinNetID, out NetworkObject obj))
+        {
+            if (obj.TryGetComponent(out ModularCrop ekin))
+            {
+                // YENİ SİSTEM: İsme göre değil, direkt ID'ye göre çekiyoruz
+                TohumVerisi v = TerrainLayerManager.Instance.GetTohumVerisi(ekin.tohumID.Value);
+
+                if (v != null && v.dusecekTohumPrefab != null)
+                {
+                    int toplamUrun = v.hasatMiktari + ekin.extraYield.Value;
+                    for (int i = 0; i < toplamUrun; i++)
+                    {
+                        // Eşyaları etrafa saçma efekti
+                        Vector3 off = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), 1f, UnityEngine.Random.Range(-0.5f, 0.5f));
+                        GameObject t = Instantiate(v.dusecekTohumPrefab, pos + off, Quaternion.identity);
+                        t.GetComponent<NetworkObject>().Spawn();
+                    }
+                }
+
+                bool wasWet = TerrainLayerManager.Instance.IsSoilWet(pos);
+
+                // Güvenli silme işlemi
+                if (obj.IsSceneObject == true)
+                {
+                    obj.Despawn(false);
+                    obj.gameObject.SetActive(false);
+                }
+                else
+                {
+                    obj.Despawn(true);
+                }
+
+                // Toprak ıslaksa hasattan sonra tekrar ıslak görünüme çevir
+                if (wasWet)
+                {
+                    TerrainLayerManager.Instance.PaintSoilServerRpc(pos, TerrainLayerManager.Instance.tilledLayerIndex, 3);
+                }
+            }
+        }
+    }
+    [Rpc(SendTo.Server)]
+    public void GubreleServerRpc(ulong cropNetId, float growthMultiplier, int yBonus, int slotIndex)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(cropNetId, out NetworkObject cropObj))
+        {
+            if (cropObj.TryGetComponent(out ModularCrop targetCrop))
+            {
+                if (!targetCrop.isFertilized.Value)
+                {
+                    targetCrop.ApplyFertilizer(growthMultiplier, yBonus);
+
+                    // Gübreyi envanterden düş
+                    DecreaseItemAmountServerRpc(slotIndex, 1);
+                }
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void RemoveTerrainDetailsServerRpc(Vector3 worldPos, float radius)
+    {
+        Terrain terrain = Terrain.activeTerrain;
+        if (terrain == null) return;
+
+        TerrainData tData = terrain.terrainData;
+
+        float prcEx = (worldPos.x - terrain.transform.position.x) / tData.size.x;
+        float prcEz = (worldPos.z - terrain.transform.position.z) / tData.size.z;
+
+        int posX = (int)(prcEx * tData.detailWidth);
+        int posZ = (int)(prcEz * tData.detailHeight);
+        int detRadius = Mathf.RoundToInt((radius / tData.size.x) * tData.detailWidth);
+
+        int startX = Mathf.Clamp(posX - detRadius, 0, tData.detailWidth);
+        int startZ = Mathf.Clamp(posZ - detRadius, 0, tData.detailHeight);
+        int width = Mathf.Clamp(detRadius * 2, 0, tData.detailWidth - startX);
+        int height = Mathf.Clamp(detRadius * 2, 0, tData.detailHeight - startZ);
+
+        for (int i = 0; i < tData.detailPrototypes.Length; i++)
+        {
+            int[,] details = tData.GetDetailLayer(startX, startZ, width, height, i);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (Vector2.Distance(new Vector2(x, y), new Vector2(detRadius, detRadius)) <= detRadius)
+                    {
+                        details[x, y] = 0;
+                    }
+                }
+            }
+            tData.SetDetailLayer(startX, startZ, i, details);
+        }
+    }
+
+
 }
