@@ -18,7 +18,7 @@ public class PullukMakinesi : NetworkBehaviour
     private void OnTriggerStay(Collider other)
     {
         // 1. AÞAMA: Kutu bir þeye deðiyor mu?
-        Debug.Log("ADIM 1: Sensör þuna deðiyor -> " + other.gameObject.name);
+       // Debug.Log("ADIM 1: Sensör þuna deðiyor -> " + other.gameObject.name);
 
         if (!IsServer) return;
 
@@ -58,7 +58,7 @@ public class PullukMakinesi : NetworkBehaviour
                     }
                     else
                     {
-                        Debug.LogError("HATA: Terrain üzerinde 'TerrainLayerManager' kodu bulunamadý! Arkadaþýn bu kodu nereye koydu?");
+                        Debug.LogError("HATA: Terrain üzerinde 'TerrainLayerManager' kodu bulunamadý!");
                     }
                 }
             }

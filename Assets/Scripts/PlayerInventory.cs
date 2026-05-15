@@ -166,6 +166,13 @@ public class PlayerInventory : NetworkBehaviour
 
         Vector3 spawnPos = dropPosition + forwardDirection * 1.5f;
         GameObject droppedObj = Instantiate(data.groundPrefab, spawnPos, Quaternion.identity);
+
+        // 1. Yerden alabilmek için
+        if (droppedObj.TryGetComponent(out InteractableItem groundItem))
+            groundItem.itemID = itemID;
+
+     
+
         NetworkObject netObj = droppedObj.GetComponent<NetworkObject>();
         netObj.Spawn();
 
