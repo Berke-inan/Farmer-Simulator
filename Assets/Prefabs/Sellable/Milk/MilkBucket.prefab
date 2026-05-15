@@ -356,7 +356,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemVisualState
   liquidMesh: {fileID: 1573031363842750334}
-  fullItemID: 6
+  fullItemID: 12
 --- !u!4 &6078638369151675809 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2774220344278030320, guid: 0104ec46adacda24e83774b5a7ef81ea, type: 3}

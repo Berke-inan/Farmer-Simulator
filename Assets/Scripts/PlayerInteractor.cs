@@ -10,6 +10,9 @@ public class PlayerInteractor : NetworkBehaviour
     private InputSystem_Actions inputActions;
     private PlayerInventory inventory;
 
+    // --- YENİ: Baktığımız parlayan objeyi hafızada tutacak değişken ---
+    private OutlineGlow currentGlowingObject;
+
     public override void OnNetworkSpawn()
     {
         if (!IsOwner) return;
@@ -29,7 +32,7 @@ public class PlayerInteractor : NetworkBehaviour
 
         inputActions.Player.Holster.started += ctx => inventory.ToggleHolster();
 
-        // --- YENİ: Klavye Slot Değiştirme (1-9) ---
+        // Klavye Slot Değiştirme (1-9)
         inputActions.Player.Hotbar1.started += ctx => inventory.ChangeHotbarSlot(0);
         inputActions.Player.Hotbar2.started += ctx => inventory.ChangeHotbarSlot(1);
         inputActions.Player.Hotbar3.started += ctx => inventory.ChangeHotbarSlot(2);
@@ -41,6 +44,53 @@ public class PlayerInteractor : NetworkBehaviour
         inputActions.Player.Hotbar9.started += ctx => inventory.ChangeHotbarSlot(8);
         inputActions.Player.Hotbar0.started += ctx => inventory.ChangeHotbarSlot(9);
     }
+
+    // --- YENİ EKLENEN KISIM: Her karede nereye baktığımızı kontrol eder ---
+    private void Update()
+    {
+        // Sadece kendi karakterimizin gözünden ışın atalım, başkasınınkiyle karışmasın
+        if (!IsOwner || playerCamera == null) return;
+
+        // Kameranın tam ortasından ileriye doğru görünmez bir lazer atıyoruz
+        Ray ray = new Ray(playerCamera.position, playerCamera.forward);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
+        {
+            // Işınımız bir objeye çarptı! Çarptığı objede veya ebeveyninde OutlineGlow kodu var mı?
+            OutlineGlow targetGlow = hit.collider.GetComponentInParent<OutlineGlow>();
+
+            if (targetGlow != null)
+            {
+                // Eğer yeni bir objeye bakmaya başladıysak
+                if (currentGlowingObject != targetGlow)
+                {
+                    if (currentGlowingObject != null) currentGlowingObject.DisableGlow(); // Eskiyi söndür
+
+                    currentGlowingObject = targetGlow; // Yeniyi hafızaya al
+                    currentGlowingObject.EnableGlow(); // Yeniyi parlat!
+                }
+            }
+            else
+            {
+                // Bir şeye çarpıyoruz ama parlayacak bir şey değil (örn: Duvar). Parlamayı kapat.
+                if (currentGlowingObject != null)
+                {
+                    currentGlowingObject.DisableGlow();
+                    currentGlowingObject = null;
+                }
+            }
+        }
+        else
+        {
+            // Işın hiçbir şeye çarpmıyor (örn: Gökyüzü). Parlamayı kapat.
+            if (currentGlowingObject != null)
+            {
+                currentGlowingObject.DisableGlow();
+                currentGlowingObject = null;
+            }
+        }
+    }
+    // -----------------------------------------------------------------
 
     private void HandleInteraction()
     {
@@ -73,6 +123,7 @@ public class PlayerInteractor : NetworkBehaviour
             }
         }
     }
+
     private void UseHeldItem()
     {
         // Elimizde bir alet görseli var mı?

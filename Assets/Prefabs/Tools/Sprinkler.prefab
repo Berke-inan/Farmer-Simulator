@@ -93,6 +93,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 60df871e27d107c4b91a345c5ccb9d51, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6286235334974480278}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 60df871e27d107c4b91a345c5ccb9d51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -2013841798045395954}
   m_SourcePrefab: {fileID: 100100000, guid: 60df871e27d107c4b91a345c5ccb9d51, type: 3}
 --- !u!1 &2726892874834242305 stripped
 GameObject:
@@ -266,3 +269,16 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   itemID: 3
   amount: 1
+--- !u!114 &-2013841798045395954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2726892874834242305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db2339895f30054996e390caae573fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineGlow
+  outlineMaterial: {fileID: 2100000, guid: 61f03632b09ed084fb84a868a906cdf5, type: 2}

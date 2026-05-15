@@ -210,7 +210,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemVisualState
   liquidMesh: {fileID: 2739206479565246030}
-  fullItemID: 6
+  fullItemID: 12
 --- !u!114 &1606048804595721053
 MonoBehaviour:
   m_ObjectHideFlags: 0

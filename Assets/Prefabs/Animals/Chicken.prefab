@@ -26,15 +26,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: 28f3bd8b984c7264ab5fe12290416317, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 45.3
+      value: 47.138645
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: 28f3bd8b984c7264ab5fe12290416317, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.3603
+      value: 0.042879045
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: 28f3bd8b984c7264ab5fe12290416317, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -34.6
+      value: -36.083763
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: 28f3bd8b984c7264ab5fe12290416317, type: 3}
       propertyPath: m_LocalRotation.w
@@ -91,6 +91,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8771091787928289351, guid: 28f3bd8b984c7264ab5fe12290416317, type: 3}
       insertIndex: -1
       addedObject: {fileID: 883092481104677545}
+    - targetCorrespondingSourceObject: {fileID: 8771091787928289351, guid: 28f3bd8b984c7264ab5fe12290416317, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5983853673249436751}
+    - targetCorrespondingSourceObject: {fileID: 8771091787928289351, guid: 28f3bd8b984c7264ab5fe12290416317, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2926103367612676255}
   m_SourcePrefab: {fileID: -4161369568681901532, guid: 28f3bd8b984c7264ab5fe12290416317, type: 3}
 --- !u!1 &7724080808079705955 stripped
 GameObject:
@@ -131,7 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4065841496
+  GlobalObjectIdHash: 1172770017
   InScenePlacedSourceGlobalObjectIdHash: 1172770017
   DeferredDespawnTick: 0
   Ownership: 1
@@ -203,8 +209,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChickenAI
   ShowTopMostFoldoutHeaderGroup: 1
-  coopTransform: {fileID: 0}
-  wanderRadius: 30
+  coopTransform: {fileID: 1342972450305131076, guid: 7dde7e9332e22ed47b430d18508eabcb, type: 3}
+  wanderRadius: 5
   walkSpeed: 1
   runSpeed: 4
   fleeDistance: 1.5
@@ -252,3 +258,118 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   eggPrefab: {fileID: 926321984778759642, guid: 8038eac4c67234242b314e0c7ac1a6b1, type: 3}
   eggSpawnArea: {fileID: 0}
+--- !u!82 &5983853673249436751
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7724080808079705955}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 20
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &2926103367612676255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7724080808079705955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3de98861e6a993488127b6757f3bce2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RandomAnimalSound
+  ShowTopMostFoldoutHeaderGroup: 1
+  animalSounds:
+  - {fileID: 8300000, guid: e87f0500484d5c241bc6f7bda4294aa5, type: 3}
+  - {fileID: 8300000, guid: 6e6aebaea13495141bebbfc868c2bcce, type: 3}
+  minWaitTime: 10
+  maxWaitTime: 25

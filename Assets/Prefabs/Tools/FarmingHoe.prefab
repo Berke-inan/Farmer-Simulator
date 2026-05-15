@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 5820282734572978733}
   - component: {fileID: -5475884196895884991}
   - component: {fileID: -5911612694883959188}
+  - component: {fileID: -8177125310847478147}
   m_Layer: 0
   m_Name: FarmingHoe
   m_TagString: Untagged
@@ -279,3 +280,16 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   itemID: 0
   amount: 1
+--- !u!114 &-8177125310847478147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7539315446333618510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db2339895f30054996e390caae573fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineGlow
+  outlineMaterial: {fileID: 2100000, guid: 61f03632b09ed084fb84a868a906cdf5, type: 2}
