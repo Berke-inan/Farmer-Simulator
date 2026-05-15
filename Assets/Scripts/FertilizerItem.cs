@@ -7,7 +7,6 @@ public class FertilizerItem : MonoBehaviour, IUseableTool
     public float growthTimeMultiplier = 0.5f;
     public int yieldBonus = 1;
 
-    // Parametre tipini PlayerInventory olarak güncelledik.
     public void EylemYap(RaycastHit hit, PlayerInventory inventory)
     {
         // 1. Işının çarptığı objede ModularCrop ara
@@ -17,22 +16,18 @@ public class FertilizerItem : MonoBehaviour, IUseableTool
         {
             if (hedefEkin.TryGetComponent(out NetworkObject n))
             {
-                // 2. PlayerActionManager'ı bulmaya çalışıyoruz
-                if (inventory.TryGetComponent(out PlayerActionManager actionManager))
-                {
-                    // 3. Yeni sistemde hotbar indeksi doğrudan inventory içinde duruyor
-                    int slotIndex = inventory.activeHotbarIndex.Value;
+                // 2. Yeni sistemde hotbar indeksi ve metodlar doğrudan inventory içinde
+                int slotIndex = inventory.activeHotbarIndex.Value;
 
-                    // RPC komutunu gönderiyoruz
-                    actionManager.GubreleServerRpc(
-                        n.NetworkObjectId,
-                        growthTimeMultiplier,
-                        yieldBonus,
-                        slotIndex
-                    );
+                // RPC komutunu gönderiyoruz
+                inventory.GubreleServerRpc(
+                    n.NetworkObjectId,
+                    growthTimeMultiplier,
+                    yieldBonus,
+                    slotIndex
+                );
 
-                    Debug.Log("Gübreleme komutu gönderildi!");
-                }
+                Debug.Log("Gübreleme komutu gönderildi!");
             }
         }
     }

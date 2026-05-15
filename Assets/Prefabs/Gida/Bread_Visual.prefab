@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: bf7813b9ee81ec54cb938197fdfcbeac, type: 3}
       propertyPath: m_LocalScale.x
-      value: 51.917
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bf7813b9ee81ec54cb938197fdfcbeac, type: 3}
       propertyPath: m_LocalScale.y
-      value: 51.917
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bf7813b9ee81ec54cb938197fdfcbeac, type: 3}
       propertyPath: m_LocalScale.z
-      value: 51.917
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bf7813b9ee81ec54cb938197fdfcbeac, type: 3}
       propertyPath: m_LocalPosition.x
@@ -75,9 +75,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bf7813b9ee81ec54cb938197fdfcbeac, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1000368725777972306}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bf7813b9ee81ec54cb938197fdfcbeac, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: -595820091202537463}
   m_SourcePrefab: {fileID: 100100000, guid: bf7813b9ee81ec54cb938197fdfcbeac, type: 3}
 --- !u!1 &7798523875705588319 stripped
 GameObject:
@@ -98,18 +95,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TuketilebilirEsya
   buBirSuMudur: 0
   verilecekEnerji: 25
---- !u!114 &-595820091202537463
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7798523875705588319}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45ba8cd433a670846b7d3f1a42cfe62d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LocalToolTracker
-  offset: {x: 0.5, y: -0.4, z: 1}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  followSpeed: 10

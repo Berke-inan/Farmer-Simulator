@@ -149,6 +149,14 @@ public class TractorController : NetworkBehaviour, IInteractable
 
         if (player.IsOwner)
         {
+            // YENİ EKLENEN KISIM: Traktöre binerken eşyayı sakla, inerken geri getir
+            if (player.TryGetComponent(out PlayerInventory inventory))
+            {
+                // state = false demek traktöre biniyor demektir.
+                // Bu durumda SetHolstered(true) ile eşyayı saklıyoruz.
+                inventory.SetHolstered(!state);
+            }
+
             if (player.TryGetComponent(out PlayerCameraController camController)) camController.enabled = state;
             Unity.Cinemachine.CinemachineCamera playerCam = player.GetComponentInChildren<Unity.Cinemachine.CinemachineCamera>(true);
             if (playerCam != null) playerCam.Priority = state ? 10 : 0;

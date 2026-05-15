@@ -20,5 +20,5 @@ MonoBehaviour:
   icon: {fileID: 0}
   heldModelPrefab: {fileID: 526959027620238915, guid: 6ebd8f8d6ac8fa74596c686eb04d5348, type: 3}
   groundPrefab: {fileID: 526959027620238915, guid: 187025386d0942f4484f9420dce7f687, type: 3}
-  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdPositionOffset: {x: 0.07, y: -0.21, z: 0.1}
   holdRotationOffset: {x: 0, y: 0, z: 0}

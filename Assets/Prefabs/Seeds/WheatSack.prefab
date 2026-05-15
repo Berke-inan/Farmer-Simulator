@@ -77,9 +77,6 @@ PrefabInstance:
       addedObject: {fileID: 8322033910866662545}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 5584759009984950403}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 8060752028558952693}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       insertIndex: -1
@@ -101,7 +98,7 @@ PrefabInstance:
       addedObject: {fileID: 1259890408933313590}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -427736984220121261}
+      addedObject: {fileID: 8659174389925917290}
   m_SourcePrefab: {fileID: 100100000, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
 --- !u!1 &6163511954771487862 stripped
 GameObject:
@@ -133,35 +130,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &5584759009984950403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6163511954771487862}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d41fa61c8ca5f348b4a8319794d4241, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PickupableTool
-  ShowTopMostFoldoutHeaderGroup: 1
-  aletTipi: 1
-  offset: {x: 0.5, y: -0.4, z: 1}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  followSpeed: 10
-  isStoreable: 1
-  isEquipped:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  isStored:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  targetCamera: {fileID: 0}
 --- !u!114 &8060752028558952693
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,7 +286,7 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
---- !u!114 &-427736984220121261
+--- !u!114 &8659174389925917290
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -327,9 +295,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6163511954771487862}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 412a389f8819d034abaf4ef6e7467feb, type: 3}
+  m_Script: {fileID: 11500000, guid: 612f05db04357c24385249c73c6317fe, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableItem
   ShowTopMostFoldoutHeaderGroup: 1
-  ItemData: {fileID: 11400000, guid: e434e5912e52a9b4a9b59df3e3f7a8ba, type: 2}
-  Amount: 1
+  itemID: 13
+  amount: 1

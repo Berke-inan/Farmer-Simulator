@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
-  m_Name: Shovel
+  m_Name: CornSeed
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemID: 1
-  itemName: Shovel
-  itemType: 1
-  maxStack: 1
-  price: 15
+  itemID: 12
+  itemName: Corn Seed
+  itemType: 0
+  maxStack: 64
+  price: 0
   icon: {fileID: 0}
-  heldModelPrefab: {fileID: 5305824883323697836, guid: 938abb104a9957d43a5ab480e607e7d4, type: 3}
-  groundPrefab: {fileID: 5305824883323697836, guid: 6cdf9221b7601574389c8d948bf16d4b, type: 3}
-  holdPositionOffset: {x: 0.7, y: -0.9, z: 0.67}
+  heldModelPrefab: {fileID: 7226053109832198535, guid: 859b770b80235d047aa5bccb6054518e, type: 3}
+  groundPrefab: {fileID: 7226053109832198535, guid: 133e067dc97b6834c916501bd4efabdc, type: 3}
+  holdPositionOffset: {x: 0.09, y: -0.09, z: 0.05}
   holdRotationOffset: {x: 60, y: 180, z: 180}
+  ekinPrefab: {fileID: 3241866977498237123, guid: 66f1d948a1eb9e246a38b2da3b3d33e3, type: 3}

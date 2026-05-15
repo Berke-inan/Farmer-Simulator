@@ -26,4 +26,7 @@ public class ItemData : ScriptableObject
     public GameObject groundPrefab;
     public Vector3 holdPositionOffset;
     public Vector3 holdRotationOffset;
+
+    [Header("Tarım Ayarları")]
+    public GameObject ekinPrefab;
 }

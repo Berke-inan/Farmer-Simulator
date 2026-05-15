@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
-  m_Name: Shovel
+  m_Name: Fuel Can
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemID: 1
-  itemName: Shovel
+  itemID: 9
+  itemName: Fuel Can
   itemType: 1
   maxStack: 1
   price: 15
   icon: {fileID: 0}
-  heldModelPrefab: {fileID: 5305824883323697836, guid: 938abb104a9957d43a5ab480e607e7d4, type: 3}
-  groundPrefab: {fileID: 5305824883323697836, guid: 6cdf9221b7601574389c8d948bf16d4b, type: 3}
-  holdPositionOffset: {x: 0.7, y: -0.9, z: 0.67}
-  holdRotationOffset: {x: 60, y: 180, z: 180}
+  heldModelPrefab: {fileID: 6286283783404981776, guid: 88a92e37d3d928c41b1237fbfc247291, type: 3}
+  groundPrefab: {fileID: 6286283783404981776, guid: 1e4517548d277594c8e0e8af1f3f6926, type: 3}
+  holdPositionOffset: {x: 0.46, y: -0.47, z: 0.74}
+  holdRotationOffset: {x: 270, y: 270, z: 0}
