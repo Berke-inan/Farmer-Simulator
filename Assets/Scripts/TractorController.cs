@@ -169,9 +169,14 @@ public class TractorController : NetworkBehaviour, IInteractable
         {
             // --- YENİ EKLENEN: MOTOR ÇALIŞTIRMA (T TUŞU) ---
             // Sadece aracı süren kişi T tuşuna basabilir
-            if (Keyboard.current != null && Keyboard.current.tKey.wasPressedThisFrame)
+            if (IsOccupied &&
+                currentDriver != null &&
+                currentDriver.IsOwner &&
+                Keyboard.current != null &&
+                Keyboard.current.tKey.wasPressedThisFrame)
             {
-                if (fuelSystem != null) fuelSystem.ToggleEngineServerRpc();
+                if (fuelSystem != null)
+                    fuelSystem.ToggleEngineServerRpc();
             }
             // ----------------------------------------------
 

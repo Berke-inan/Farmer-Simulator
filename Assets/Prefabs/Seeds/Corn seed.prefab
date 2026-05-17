@@ -22,15 +22,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.8737869
+      value: -32.00903
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.9988475
+      value: -0.11987664
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 14.477147
+      value: -28.562643
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -93,6 +93,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4689053252987359667}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 47669afe5b5430141b917ee78924102d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8778219771806812007}
   m_SourcePrefab: {fileID: 100100000, guid: 47669afe5b5430141b917ee78924102d, type: 3}
 --- !u!1 &7226053109832198535 stripped
 GameObject:
@@ -111,14 +114,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3860594327
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 4074783253
+  InScenePlacedSourceGlobalObjectIdHash: 3860594327
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
+  SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
@@ -265,3 +268,16 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   itemID: 12
   amount: 1
+--- !u!114 &8778219771806812007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7226053109832198535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db2339895f30054996e390caae573fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineGlow
+  outlineMaterial: {fileID: 2100000, guid: 61f03632b09ed084fb84a868a906cdf5, type: 2}

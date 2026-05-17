@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 5571606022049916099}
   - component: {fileID: 3599709289157354149}
   - component: {fileID: 4301130485576364903}
+  - component: {fileID: 6021614101302566371}
   m_Layer: 0
   m_Name: HandMadeBale
   m_TagString: Untagged
@@ -134,8 +135,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1900491002
-  InScenePlacedSourceGlobalObjectIdHash: 3527026997
+  GlobalObjectIdHash: 3017239924
+  InScenePlacedSourceGlobalObjectIdHash: 1900491002
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -240,6 +241,19 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   itemID: 8
   amount: 1
+--- !u!114 &6021614101302566371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2660502362499645756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db2339895f30054996e390caae573fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineGlow
+  outlineMaterial: {fileID: 2100000, guid: 61f03632b09ed084fb84a868a906cdf5, type: 2}
 --- !u!1 &4801378952753712981
 GameObject:
   m_ObjectHideFlags: 0

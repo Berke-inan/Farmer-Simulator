@@ -136,3 +136,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CapaEylemi
   fircaBoyutu: 3
+  harcananEnerji: 2
+  maxVurusMesafesi: 4
+  vurusAcisi: {x: -65, y: 0, z: 0}
+  vurusSuresi: 0.4
+  vurusSesi: {fileID: 8300000, guid: 4e4801fadc2b4ca4fbf54b0c5d92b1c5, type: 3}
+  tozEfektiPrefab: {fileID: 4827770507229295053, guid: 2216e6e9ddb6d6840b0f4acdee3e6a57, type: 3}

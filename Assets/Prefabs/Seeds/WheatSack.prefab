@@ -22,15 +22,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -9.918695
+      value: -33.947193
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.86
+      value: -0.20991866
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.53
+      value: -28.695795
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -99,6 +99,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8659174389925917290}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8759781332525421148}
   m_SourcePrefab: {fileID: 100100000, guid: 11014700d65f2844aa10be1cd681fb3d, type: 3}
 --- !u!1 &6163511954771487862 stripped
 GameObject:
@@ -117,7 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3280670815
+  GlobalObjectIdHash: 2895274958
   InScenePlacedSourceGlobalObjectIdHash: 3280670815
   DeferredDespawnTick: 0
   Ownership: 1
@@ -301,3 +304,16 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   itemID: 13
   amount: 1
+--- !u!114 &8759781332525421148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6163511954771487862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db2339895f30054996e390caae573fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineGlow
+  outlineMaterial: {fileID: 2100000, guid: 61f03632b09ed084fb84a868a906cdf5, type: 2}

@@ -46,6 +46,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KurekEylemi
   fircaBoyutu: 3
+  harcananEnerji: 2
+  maxVurusMesafesi: 4
+  toplamAnimasyonSuresi: 1
+  hareketSiddeti: 0.4
+  vurusAcisi: {x: 90, y: 0, z: 0}
+  atmaAcisi: {x: 20, y: 0, z: -45}
+  vurusSesi: {fileID: 8300000, guid: 3cba72e137575d1429d034e5b201ec55, type: 3}
+  tozEfektiPrefab: {fileID: 4827770507229295053, guid: 2216e6e9ddb6d6840b0f4acdee3e6a57, type: 3}
 --- !u!1001 &7852466512112865420
 PrefabInstance:
   m_ObjectHideFlags: 0

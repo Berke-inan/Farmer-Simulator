@@ -93,4 +93,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88b490feeabf3954fa501c5321f9470a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrakEylemi
-  yaricap: 2.5
+  harcananEnerji: 1.5
+  maxVurusMesafesi: 4
+  toplamAnimasyonSuresi: 0.5
+  hazirlikAcisi: {x: 0, y: 30, z: 0}
+  vurusAcisi: {x: 60, y: 75, z: 0}
+  hareketSiddeti: 0.2
+  kesmeSesi: {fileID: 8300000, guid: 7b075cdcd9b20c24db8bc525872960e7, type: 3}

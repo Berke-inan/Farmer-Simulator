@@ -71,22 +71,44 @@ public class RadioSystem : NetworkBehaviour, ISecondaryInteractable
             NextSong();
         }
 
-        // SES AYARI
-        if (Mouse.current != null)
-        {
-            float scroll = Mouse.current.scroll.ReadValue().y;
+        // Oyuncu radyoya bakýyor mu?
+        bool lookingAtRadio = false;
 
-            if (scroll != 0)
+        Camera cam = Camera.main;
+
+        if (cam != null)
+        {
+            Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, 5f))
             {
-                HandleVolume(scroll);
+                if (hit.collider.GetComponentInParent<RadioSystem>() == this)
+                {
+                    lookingAtRadio = true;
+                }
             }
         }
 
-        // R TUÞU ÝLE ÞARKI DEÐÝÞTÝR
-        if (Keyboard.current != null &&
-            Keyboard.current.rKey.wasPressedThisFrame)
+        // Sadece radyoya bakarken çalýþsýn
+        if (lookingAtRadio)
         {
-            RequestNextSongServerRpc();
+            // SES AYARI
+            if (Mouse.current != null)
+            {
+                float scroll = Mouse.current.scroll.ReadValue().y;
+
+                if (scroll != 0)
+                {
+                    HandleVolume(scroll);
+                }
+            }
+
+            // R TUÞU ÝLE ÞARKI DEÐÝÞTÝR
+            if (Keyboard.current != null &&
+                Keyboard.current.rKey.wasPressedThisFrame)
+            {
+                RequestNextSongServerRpc();
+            }
         }
     }
 
