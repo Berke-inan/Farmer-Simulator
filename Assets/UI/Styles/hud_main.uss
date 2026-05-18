@@ -1,0 +1,79 @@
+/* Ekranı Kaplayan Şeffaf Ana Konteyner */
+.hud-container {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    padding: 0;
+    pointer-events: none; /* Altındaki oyuna tıklamayı engellemez */
+}
+
+/* Alt Şerit Konumlandırması: Tam Orta-Alt */
+.hud-footer {
+    position: absolute;
+    bottom: 40px; /* Minecraft'taki gibi ekranın biraz üzerinde */
+    left: 0;
+    right: 0;
+    justify-content: center; /* Hotbar'ı yatayda ortalar */
+    align-items: center;
+    width: 100%;
+}
+
+/* 10 Slotun Yan Yana Dizildiği Minecraft-Stili Kutu */
+.hotbar-container {
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0.7); /* Dumanlı Minecraft-stili arka plan */
+    padding: 4px;
+    border-radius: 4px; /* Hafif modern yuvarlama */
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.15); /* Pürüzsüz siber çerçeve */
+}
+
+/* Tek Bir Slot Tasarımı: Modern Minecraft-Inset Border */
+.hotbar-slot {
+    width: 60px; /* Modern HUD için biraz daha büyük ve net */
+    height: 60px;
+    background-color: rgba(0, 0, 0, 0.5); /* Klasik Minecraft boş slot rengi */
+    margin: 0 3px;
+    border-radius: 2px;
+    /* Minecraft-Inset Border efekti (Üst ve Sol koyu, Alt ve Sağ açık) */
+    border-top-width: 3px;
+    border-left-width: 3px;
+    border-bottom-width: 3px;
+    border-right-width: 3px;
+    border-top-color: rgba(255, 255, 255, 0.1);
+    border-left-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: rgba(0, 0, 0, 0.3);
+    border-right-color: rgba(0, 0, 0, 0.3);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Aktif Seçili Slotun Parlama Efekti (Neon Mavi Minecraft Çerçevesi) */
+.hotbar-slot-active {
+    border-color: #00e5ff;
+    border-top-color: #00e5ff;
+    border-left-color: #00e5ff;
+    border-bottom-color: #00e5ff;
+    border-right-color: #00e5ff;
+    background-color: rgba(0, 229, 255, 0.1);
+    scale: 1.1; /* Aktif olduğunu belli eden modern büyüme */
+}
+
+/* Slot İçindeki Eşya İkonu */
+.slot-icon {
+    width: 48px;
+    height: 48px;
+    max-width: 48px;
+    max-height: 48px;
+}
+
+/* Slot Sağ Altındaki Adet Yazısı */
+.slot-amount {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 14px;
+    color: #ffffff;
+    -unity-font-style: bold;
+}

@@ -1,5 +1,5 @@
-using Unity.Netcode;
 using UnityEngine;
+using Unity.Netcode;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
@@ -23,7 +23,7 @@ public class PlayerMovement : NetworkBehaviour
     private Vector2 moveInput;
     private bool isRunning;
 
-    [Header("Uyku Sistemi (YENİ)")]
+    [Header("Uyku Sistemi")]
     private bool isSleeping = false;
     private Bed currentBed;
 
@@ -39,15 +39,11 @@ public class PlayerMovement : NetworkBehaviour
         if (IsOwner)
         {
             controls = new InputSystem_Actions();
-
             controls.Player.Jump.started += ctx => Jump();
             controls.Player.Sprint.started += ctx => isRunning = true;
             controls.Player.Sprint.canceled += ctx => isRunning = false;
 
-            if (enabled)
-            {
-                controls.Enable();
-            }
+            if (enabled) controls.Enable();
         }
     }
 
@@ -65,11 +61,7 @@ public class PlayerMovement : NetworkBehaviour
     private void OnEnable()
     {
         jumpCooldownTimer = jumpCooldownDuration;
-
-        if (controls != null)
-        {
-            controls.Enable();
-        }
+        if (controls != null) controls.Enable();
     }
 
     private void OnDisable()
@@ -77,67 +69,46 @@ public class PlayerMovement : NetworkBehaviour
         velocity = Vector3.zero;
         moveInput = Vector2.zero;
         isRunning = false;
-
-        if (controls != null)
-        {
-            controls.Disable();
-        }
+        if (controls != null) controls.Disable();
     }
 
     private void Update()
     {
         if (!IsOwner) return;
 
-        // --- YENİ: UYKU DURUMU KONTROLÜ ---
+        // Menü AÇIKSA veya Chat AÇIKSA hareketi/kamerayı dondur
+        if (FarmerSimulator.UI.MainMenuController.IsMenuOpen || FarmerSimulator.UI.ChatController.IsChatOpen) return;
+
         if (isSleeping)
         {
-            // Uyuyorken sadece ESC tuşunu veya sabah olmasını bekle
             if (Keyboard.current.escapeKey.wasPressedThisFrame || !DayNightCycleManager.Instance.IsNight())
             {
                 WakeUp();
             }
-
-            // Uyurken hareket kodlarının çalışmaması için Update'in geri kalanını iptal et
             return;
         }
 
-        if (jumpCooldownTimer > 0)
-        {
-            jumpCooldownTimer -= Time.deltaTime;
-        }
+        if (jumpCooldownTimer > 0) jumpCooldownTimer -= Time.deltaTime;
 
         if (controls != null)
         {
             moveInput = controls.Player.Move.ReadValue<Vector2>();
         }
 
-        // 1. Yerçekimi ve Zemin Kontrolü
-        if (controller.isGrounded && velocity.y < 0)
-        {
-            velocity.y = -2f;
-        }
+        if (controller.isGrounded && velocity.y < 0) velocity.y = -2f;
         velocity.y += gravity * Time.deltaTime;
 
-        // 2. Enerjiye Bağlı Koşma Kontrolü
         bool canRun = isRunning && moveInput.y > 0;
+        if (playerEnergy != null && !playerEnergy.KosabilirMi()) canRun = false;
 
-        if (playerEnergy != null && !playerEnergy.KosabilirMi())
-        {
-            canRun = false;
-        }
-
-        // 3. Yatay Hareket Hesaplaması
         float currentSpeed = canRun ? runSpeed : walkSpeed;
         Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
 
-        // 4. Vektörleri Birleştirme
         Vector3 finalMovement = move * currentSpeed;
         finalMovement.y = velocity.y;
 
-        // 5. TEK BİR Move Çağrısı
         controller.Move(finalMovement * Time.deltaTime);
 
-        // 6. Animasyonlar
         if (animator != null)
         {
             float multiplier = canRun ? 2f : 1f;
@@ -148,40 +119,27 @@ public class PlayerMovement : NetworkBehaviour
         if (controller.isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
-
-            if (animator != null)
-                animator.SetBool("isJumping", false);
+            if (animator != null) animator.SetBool("isJumping", false);
         }
     }
 
     private void Jump()
     {
-        // Script veya obje devre dışıysa VEYA oyuncu uyuyorsa zıplamayı reddet
         if (!enabled || isSleeping) return;
-
-        if (playerEnergy != null && !playerEnergy.KosabilirMi())
-        {
-            return;
-        }
+        if (playerEnergy != null && !playerEnergy.KosabilirMi()) return;
 
         if (controller.isGrounded && jumpCooldownTimer <= 0f)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-
-            if (animator != null)
-                animator.SetBool("isJumping", true);
+            if (animator != null) animator.SetBool("isJumping", true);
         }
     }
 
-    // --- YENİ: UYKU FONKSİYONLARI ---
     public void StartSleeping(Bed bed)
     {
         if (isSleeping) return;
-
         isSleeping = true;
         currentBed = bed;
-
-        // Uykuya geçerken önceki hareketleri sıfırla ki karakter yatakta kaymasın
         moveInput = Vector2.zero;
         velocity = Vector3.zero;
         isRunning = false;
@@ -192,23 +150,16 @@ public class PlayerMovement : NetworkBehaviour
             animator.SetFloat("Vertical", 0f);
             animator.SetBool("isJumping", false);
         }
-
-        Debug.Log("Uykuya dalındı. Çıkmak için ESC'ye bas.");
     }
 
     public void WakeUp()
     {
         if (!isSleeping) return;
-
         isSleeping = false;
-
-        // Yatağı diğer oyuncuların kullanımına aç
         if (currentBed != null)
         {
             currentBed.SetBedOccupiedRpc(false);
             currentBed = null;
         }
-
-        Debug.Log("Uyandın, hareket edebilirsin.");
     }
 }

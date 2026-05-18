@@ -17,8 +17,9 @@ MonoBehaviour:
   itemType: 1
   maxStack: 1
   price: 15
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 588c56a7ff10c8b49b0db8fe41af46d3, type: 3}
   heldModelPrefab: {fileID: 5305824883323697836, guid: 938abb104a9957d43a5ab480e607e7d4, type: 3}
   groundPrefab: {fileID: 5305824883323697836, guid: 6cdf9221b7601574389c8d948bf16d4b, type: 3}
   holdPositionOffset: {x: 0.7, y: -0.9, z: 0.67}
   holdRotationOffset: {x: 60, y: 180, z: 180}
+  ekinPrefab: {fileID: 0}

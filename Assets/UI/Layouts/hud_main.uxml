@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Style src="/Assets/UI/Styles/hud_main.uss" />
+    
+    <ui:VisualElement name="HUDContainer" class="hud-container">
+        
+        <ui:VisualElement name="Footer" class="hud-footer">
+            
+            <ui:VisualElement name="HotbarContainer" class="hotbar-container" />
+            
+        </ui:VisualElement>
+        
+    </ui:VisualElement>
+</ui:UXML>
