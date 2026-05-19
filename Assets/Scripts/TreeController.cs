@@ -55,7 +55,26 @@ public class TreeController : NetworkBehaviour, IInteractable
 
     private void Update()
     {
-        if (!IsServer || mevcutDurum.Value == TreeState.Kuru || !ilkSuVerildiMi) return;
+        // Kuruysa veya Server deðilse hiç iþlem yapma
+        if (!IsServer || mevcutDurum.Value == TreeState.Kuru) return;
+
+        // =========================================================
+        // YENÝ EKLENEN KISIM: Ekinler gibi topraðý kontrol et!
+        // =========================================================
+        if (Time.frameCount % 30 == 0) // Her 30 karede bir (Performans dostu)
+        {
+            if (TerrainLayerManager.Instance != null && TerrainLayerManager.Instance.IsSoilWet(transform.position))
+            {
+                // Toprak ýslaksa, otomatik olarak suyu içmiþ say
+                ilkSuVerildiMi = true;
+                susuzKalanSure = 0f;
+            }
+        }
+
+        // Eðer hala ilk suyunu almadýysa (toprak kuruysa ve kovayla sulanmadýysa), büyümeyi durdur
+        if (!ilkSuVerildiMi) return;
+        // =========================================================
+
 
         // 1. SUSUZLUK KRONOMETRESÝ
         susuzKalanSure += Time.deltaTime;
@@ -64,7 +83,7 @@ public class TreeController : NetworkBehaviour, IInteractable
         float mevcutKurumaSiniri = agacVerisi.kurumaSiniri;
         if (ilaclandiMi.Value)
         {
-            mevcutKurumaSiniri *= ilacDirenciCarpani; // Sýnýrý belirlediðin katýyla çarp
+            mevcutKurumaSiniri *= ilacDirenciCarpani;
         }
 
         if (susuzKalanSure >= mevcutKurumaSiniri)
