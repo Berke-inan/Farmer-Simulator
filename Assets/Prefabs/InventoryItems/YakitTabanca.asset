@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
+  m_Name: YakitTabanca
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemID: 20
+  itemName: YakitTabanca
+  itemType: 1
+  maxStack: 1
+  price: 0
+  icon: {fileID: 0}
+  heldModelPrefab: {fileID: 3653346383200781759, guid: 26f300e928266c640a369092054bf8ce, type: 3}
+  groundPrefab: {fileID: 3653346383200781759, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}
+  ekinPrefab: {fileID: 0}
