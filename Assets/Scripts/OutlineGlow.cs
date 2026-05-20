@@ -10,12 +10,11 @@ public class OutlineGlow : MonoBehaviour
     private Dictionary<MeshRenderer, Material[]> originalMaterials = new Dictionary<MeshRenderer, Material[]>();
     private bool isGlowing = false;
 
-    private void Start()
+    // Start yerine Awake kullanýyoruz! Obje yaratýldýðý an listeleri doldurur.
+    private void Awake()
     {
-        // SÝHÝRLÝ SATIR: Kodu attýðýn ana objenin içindeki (Child) tüm Mesh'leri otomatik bulur
         renderers = GetComponentsInChildren<MeshRenderer>(true);
 
-        // Baþlangýçtaki orijinal dokularý hafýzaya al
         foreach (var renderer in renderers)
         {
             if (renderer != null)
@@ -27,7 +26,8 @@ public class OutlineGlow : MonoBehaviour
 
     public void EnableGlow()
     {
-        if (isGlowing || outlineMaterial == null) return;
+        // renderers henüz dolmadýysa patlamamasý için ekstra güvenlik kontrolü
+        if (isGlowing || outlineMaterial == null || renderers == null) return;
         isGlowing = true;
 
         foreach (var renderer in renderers)
@@ -45,7 +45,7 @@ public class OutlineGlow : MonoBehaviour
 
     public void DisableGlow()
     {
-        if (!isGlowing) return;
+        if (!isGlowing || renderers == null) return;
         isGlowing = false;
 
         foreach (var renderer in renderers)

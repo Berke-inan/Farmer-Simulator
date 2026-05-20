@@ -101,5 +101,5 @@ MonoBehaviour:
   agacPrefab: {fileID: 1301445396182574707, guid: 1d235acc29055b24b94c3df2371e8a88, type: 3}
   minimumEkimMesafesi: 1
   ekimMenzili: 4
-  ekmeSesi: {fileID: 8300000, guid: 0b68b8d96e3c6454481be89cae2f0eb9, type: 3}
+  ekmeSesi: {fileID: 0}
   tozEfektiPrefab: {fileID: 4827770507229295053, guid: 2216e6e9ddb6d6840b0f4acdee3e6a57, type: 3}

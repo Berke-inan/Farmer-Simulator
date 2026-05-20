@@ -13,19 +13,8 @@ public class FideEsyasi : MonoBehaviour, IUseableTool
     public AudioClip ekmeSesi;
     public GameObject tozEfektiPrefab;
 
-    private AudioSource audioSource;
     private float sonEkmeZamani = 0f;
     private float ekmeBeklemeSuresi = 0.5f;
-
-    private void Awake()
-    {
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.spatialBlend = 1f;
-        }
-    }
 
     public void EylemYap(RaycastHit hit, PlayerInventory inventory)
     {
@@ -65,10 +54,21 @@ public class FideEsyasi : MonoBehaviour, IUseableTool
         sonEkmeZamani = Time.time;
 
         // --- GÖRSEL VE SES EFEKTLERÝ ---
-        if (ekmeSesi != null && audioSource != null)
+        // Ses çalmasý için baðýmsýz, geçici bir obje oluþturuyoruz.
+        // Bu sayede eldeki fide silinse bile ses kesilmez.
+        if (ekmeSesi != null)
         {
-            audioSource.pitch = Random.Range(0.9f, 1.1f);
-            audioSource.PlayOneShot(ekmeSesi);
+            GameObject sesObjesi = new GameObject("EkmeSesi_Gecici");
+            sesObjesi.transform.position = pozisyon;
+
+            AudioSource geciciKaynak = sesObjesi.AddComponent<AudioSource>();
+            geciciKaynak.spatialBlend = 1f;
+            geciciKaynak.pitch = Random.Range(0.9f, 1.1f);
+            geciciKaynak.clip = ekmeSesi;
+
+            geciciKaynak.Play();
+
+            Destroy(sesObjesi, ekmeSesi.length);
         }
 
         if (tozEfektiPrefab != null)
@@ -78,7 +78,7 @@ public class FideEsyasi : MonoBehaviour, IUseableTool
             Destroy(toz, 2f);
         }
 
-        // --- 1. ADIM: AÐACI DÝK (Garantili Çalýþan Yöntem) ---
+        // --- 1. ADIM: AÐACI DÝK ---
         if (NetworkManager.Singleton.IsServer)
         {
             GameObject yeniAgac = Instantiate(agacPrefab, pozisyon, Quaternion.identity);
@@ -89,8 +89,8 @@ public class FideEsyasi : MonoBehaviour, IUseableTool
             inventory.DikmeIstegiServerRpc(pozisyon, inventory.activeHotbarIndex.Value);
         }
 
-        // --- 2. ADIM: ENVANTERDEN TÜKET (Hayalet Slotu Çözen Kýsým) ---
-        // Zamanlama çakýþmasý olmamasý için tüketim iþlemini aðaç yaratýldýktan hemen sonra yapýyoruz
+        // --- 2. ADIM: ENVANTERDEN TÜKET ---
+        // Fideyi envanterden düþürme iþlemi
         inventory.EldeTuketimYapServerRpc();
     }
 
