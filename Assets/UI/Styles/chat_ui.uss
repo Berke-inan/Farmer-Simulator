@@ -1,0 +1,70 @@
+/* Ana Konteyner - Sol Alt Köşe ve Kompakt Boyut */
+.chat-container {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 340px;
+    height: 160px;
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 6px;
+    padding: 6px;
+    transition-property: background-color;
+    transition-duration: 0.2s;
+}
+
+/* Yazı Yazma Moduna Geçince Arka Planı Karartır */
+.chat-container-focused {
+    background-color: rgba(0, 0, 0, 0.75);
+    border-width: 1px;
+    border-color: #4caf50;
+}
+
+/* Mesaj Geçmişi Alanı */
+.chat-history {
+    flex-grow: 1;
+    margin-bottom: 4px;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.4s;
+}
+
+.chat-history-visible {
+    opacity: 1;
+}
+
+/* Giriş Alanı Düzenlemesi - Arka planı yazı görünsün diye hafif gri/beyaz yaptık */
+.chat-input {
+    background-color: rgba(240, 240, 240, 0.9);
+    border-radius: 4px;
+    padding: 4px;
+    display: none;
+}
+
+/* İSTEĞİN: Metin kutusunun içindeki yazıyı tam siyah yapar */
+.chat-input .unity-text-field__input {
+    color: #000000;
+}
+
+.chat-input-visible {
+    display: flex;
+}
+
+/* Standart Oyuncu Mesajı Yazı Tipi */
+.chat-text {
+    font-size: 12px;
+    color: #ffffff;
+    margin-bottom: 2px;
+    white-space: normal;
+    /* İSTEĞİN: Unity 6 yerel yazı seçme ve Ctrl+C kopyalama özelliği aktif edildi */
+    -unity-user-select: text; 
+}
+
+.chat-style-system {
+    color: #38bdf8;
+    -unity-font-style: bold;
+}
+
+.chat-style-warning {
+    color: #f87171;
+    -unity-font-style: bold;
+}

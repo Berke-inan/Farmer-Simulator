@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    
+    <ui:Style src="/Assets/UI/Styles/chat_ui.uss" />
+    
+    <ui:VisualElement name="ChatContainer" class="chat-container">
+        
+        <ui:ScrollView name="ChatHistory" class="chat-history" no-vertical-scroll-indicator="false" />
+        
+        <ui:TextField name="ChatInput" class="chat-input" placeholder-text="Mesaj..." max-length="128" />
+        
+    </ui:VisualElement>
+</ui:UXML>

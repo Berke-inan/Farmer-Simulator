@@ -6,11 +6,10 @@ using Unity.Cinemachine;
 public class PlayerCameraController : NetworkBehaviour
 {
     public float mouseSensitivity = 15f;
-
     public Transform cameraRoot;
 
     [Header("Oyuncu Sanal Kamerası")]
-    public CinemachineCamera playerCinemachineCam; // Gerçek Camera değil, Cinemachine kamerası
+    public CinemachineCamera playerCinemachineCam;
 
     private InputSystem_Actions inputActions;
     private Vector2 lookInput;
@@ -23,20 +22,18 @@ public class PlayerCameraController : NetworkBehaviour
             inputActions = new InputSystem_Actions();
             inputActions.Player.Enable();
 
-            // BİZ DOĞDUK: Kendi sanal kameramızı açıp önceliğini 10 yapıyoruz.
-            // Bu sayede Priority'si 5 olan Lobby kamerasını anında ezip görüntüyü devralıyoruz!
             if (playerCinemachineCam != null)
             {
                 playerCinemachineCam.gameObject.SetActive(true);
                 playerCinemachineCam.Priority = 10;
             }
 
+            // Oyun ilk başladığında imleci kilitler
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
         else
         {
-            // BAŞKA OYUNCU DOĞDU: Bizim ekranımızda onun kamerasının yeri yok, tamamen kapatıyoruz.
             if (playerCinemachineCam != null)
             {
                 playerCinemachineCam.Priority = 0;
@@ -56,6 +53,9 @@ public class PlayerCameraController : NetworkBehaviour
     void LateUpdate()
     {
         if (!IsOwner) return;
+
+        // Menü AÇIKSA veya Chat AÇIKSA hareketi/kamerayı dondur
+        if (FarmerSimulator.UI.MainMenuController.IsMenuOpen || FarmerSimulator.UI.ChatController.IsChatOpen) return;
 
         lookInput = inputActions.Player.Look.ReadValue<Vector2>();
 
