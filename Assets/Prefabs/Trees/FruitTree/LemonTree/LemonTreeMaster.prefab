@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4163642592514746260}
   - component: {fileID: 5869063705416162297}
   - component: {fileID: 6165704473664609580}
+  - component: {fileID: 7794426282481718544}
   m_Layer: 0
   m_Name: LemonTreeMaster
   m_TagString: Untagged
@@ -82,8 +83,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.4664335, y: 5.43157, z: 1.4323497}
-  m_Center: {x: -0.029873371, y: 2.2157855, z: 0.020564795}
+  m_Size: {x: 1.1833453, y: 5.43157, z: 1.2506595}
+  m_Center: {x: -0.073687315, y: 2.2157855, z: 0.066758394}
 --- !u!114 &6165704473664609580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,6 +119,23 @@ MonoBehaviour:
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
   ilacDirenciCarpani: 5
+--- !u!114 &7794426282481718544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1301445396182574707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98f209a9aa0aafd47b4a142a7ba1dbf3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KesilebilirNesne
+  ShowTopMostFoldoutHeaderGroup: 1
+  dekorAgacVurusSayisi: 3
+  dekorKutukPrefab: {fileID: 0}
+  meyveKutukPrefab: {fileID: 4451490093978725870, guid: 636bb1c6163fa8d4fa15bbba7f0e1c86, type: 3}
+  dusenKutukSayisi: 3
 --- !u!1001 &644181436320191142
 PrefabInstance:
   m_ObjectHideFlags: 0

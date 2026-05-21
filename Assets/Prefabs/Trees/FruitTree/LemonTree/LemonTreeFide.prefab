@@ -22,15 +22,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -9.0971
+      value: -3.24628
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.9401
+      value: 1.78
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.6067996
+      value: 33.356297
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
       propertyPath: m_LocalRotation.w
@@ -84,10 +84,22 @@ PrefabInstance:
       addedObject: {fileID: 1921611583810732642}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 5029592903166153213}
+      addedObject: {fileID: -2067101397541045931}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4255934866589141156}
+      addedObject: {fileID: -3194104313243520206}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -6945051450777632085}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3492227079867978376}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5646104123996336817}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 254483934313702136}
   m_SourcePrefab: {fileID: 100100000, guid: 9bed6165743651e43adcc3e6d1b27cee, type: 3}
 --- !u!1 &8162800113062848151 stripped
 GameObject:
@@ -127,8 +139,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2526735439
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 232906480
+  InScenePlacedSourceGlobalObjectIdHash: 206447769
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -167,7 +179,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &5029592903166153213
+--- !u!114 &-2067101397541045931
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -176,26 +188,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 8162800113062848151}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d41fa61c8ca5f348b4a8319794d4241, type: 3}
+  m_Script: {fileID: 11500000, guid: 612f05db04357c24385249c73c6317fe, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PickupableTool
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableItem
   ShowTopMostFoldoutHeaderGroup: 1
-  aletTipi: 8
-  offset: {x: 0.5, y: -0.4, z: 1}
-  followSpeed: 10
-  isStoreable: 1
-  isEquipped:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  isStored:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
-  targetCamera: {fileID: 0}
---- !u!114 &4255934866589141156
+  itemID: 16
+  amount: 1
+--- !u!114 &-3194104313243520206
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -204,10 +203,185 @@ MonoBehaviour:
   m_GameObject: {fileID: 8162800113062848151}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0233356fc8ff0c6468df25a41a659949, type: 3}
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FideEsyasi
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
   ShowTopMostFoldoutHeaderGroup: 1
-  agacPrefab: {fileID: 1301445396182574707, guid: 1d235acc29055b24b94c3df2371e8a88, type: 3}
-  minimumEkimMesafesi: 1
-  ekimMenzili: 4
+  NetworkTransformExpanded: 0
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
+  AuthorityMode: 0
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0
+--- !u!114 &-6945051450777632085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8162800113062848151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkRigidbody
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkRigidbodyBaseExpanded: 0
+  UseRigidBodyForMotion: 0
+  AutoUpdateKinematicState: 1
+  AutoSetKinematicOnDespawn: 1
+--- !u!114 &3492227079867978376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8162800113062848151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db2339895f30054996e390caae573fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineGlow
+  outlineMaterial: {fileID: 2100000, guid: 61f03632b09ed084fb84a868a906cdf5, type: 2}
+--- !u!82 &5646104123996336817
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8162800113062848151}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &254483934313702136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8162800113062848151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c22780ec85d70884685eb1b3fd55fcee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EsyaDususSesi
+  dusmeSesleri:
+  - {fileID: 8300000, guid: 4cc2b52146fc9f54c95f7ff65ff01c88, type: 3}
+  maxVolume: 1
+  minimumCarpmaHizi: 1.5
+  maksimumCarpmaHizi: 10
+  sesBeklemeSuresi: 0.15

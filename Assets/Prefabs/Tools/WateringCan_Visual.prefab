@@ -4956,7 +4956,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SulamaEylemi
   fircaBoyutu: 3
-  sulamaMesafesi: 4
+  sulamaMesafesi: 6
   sulamaAraligi: 0.5
   harcananEnerji: 1
   egilmeAcisi: 20

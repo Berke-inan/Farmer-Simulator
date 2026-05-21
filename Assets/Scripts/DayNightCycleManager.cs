@@ -29,22 +29,22 @@ public class DayNightCycleManager : NetworkBehaviour
 
     [Header("Ortam Işığı (Yerlerin Kararması İçin)")]
     public AnimationCurve ambientIntensityCurve = new AnimationCurve(
-        new Keyframe(0f, 0.02f),
-        new Keyframe(6f, 0.05f),
+        new Keyframe(0f, 0.15f), // GECE AYARI: 0.02'den 0.15'e çıkarıldı
+        new Keyframe(6f, 0.2f),  // SABAHA KARŞI: 0.05'ten 0.2'ye çıkarıldı
         new Keyframe(7.5f, 1.0f),
         new Keyframe(17f, 1.0f),
-        new Keyframe(18.5f, 0.05f),
-        new Keyframe(24f, 0.02f)
+        new Keyframe(18.5f, 0.2f), // AKŞAM ÜSTÜ: 0.05'ten 0.2'ye çıkarıldı
+        new Keyframe(24f, 0.15f) // GECE AYARI: 0.02'den 0.15'e çıkarıldı
     );
 
     [Header("Yansıma Şiddeti (Parlama Sorunu Çözümü)")]
     public AnimationCurve reflectionIntensityCurve = new AnimationCurve(
-        new Keyframe(0f, 0.01f),
-        new Keyframe(6f, 0.01f),
+        new Keyframe(0f, 0.05f), // GECE YANSIMASI: 0.01'den 0.05'e çıkarıldı
+        new Keyframe(6f, 0.05f), // SABAHA KARŞI YANSIMA: 0.01'den 0.05'e çıkarıldı
         new Keyframe(8f, 1.0f),
         new Keyframe(16.5f, 1.0f),
-        new Keyframe(18.5f, 0.01f),
-        new Keyframe(24f, 0.01f)
+        new Keyframe(18.5f, 0.05f), // AKŞAM YANSIMASI: 0.01'den 0.05'e çıkarıldı
+        new Keyframe(24f, 0.05f) // GECE YANSIMASI: 0.01'den 0.05'e çıkarıldı
     );
 
     private HashSet<ulong> sleepingPlayers = new HashSet<ulong>();
@@ -100,7 +100,8 @@ public class DayNightCycleManager : NetworkBehaviour
         {
             moonLight.transform.rotation = Quaternion.Euler(sunAngle + 180f, 170f, 0f);
             float moonHeight = Mathf.Clamp01(-moonLight.transform.forward.y);
-            moonLight.intensity = moonHeight * 0.15f;
+            // AY IŞIĞI ŞİDDETİ: 0.15f'den 0.35f'e çıkarıldı (Gece aydınlatmasını sağlar)
+            moonLight.intensity = moonHeight * 0.35f;
         }
 
         RenderSettings.ambientIntensity = ambientIntensityCurve.Evaluate(t);
