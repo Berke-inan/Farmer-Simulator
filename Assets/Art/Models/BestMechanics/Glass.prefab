@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1741089997222398660}
-  - component: {fileID: 1617321211931229077}
   - component: {fileID: 1180246251036626964}
   - component: {fileID: 6153695997626718477}
   - component: {fileID: 7074268057083061232}
@@ -36,28 +35,6 @@ Transform:
   - {fileID: 9205314713160715198}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &1617321211931229077
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 447212175007391407}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b85bf00ea31137c40a9b66a43ee2f370, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!65 &1180246251036626964
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -117,6 +94,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BreakableTarget
   ShowTopMostFoldoutHeaderGroup: 1
+  patlamaGucu: 1000
+  patlamaYaricapi: 2
+  breakSound: {fileID: 8300000, guid: 2f9b5568637e8f548ba5f6b7b2821335, type: 3}
 --- !u!1001 &344256899536872304
 PrefabInstance:
   m_ObjectHideFlags: 0
