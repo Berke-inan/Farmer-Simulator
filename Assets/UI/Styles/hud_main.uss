@@ -1,79 +1,229 @@
-/* Ekranı Kaplayan Şeffaf Ana Konteyner */
+/* === ANA KONTEYNER === */
 .hud-container {
     flex-grow: 1;
     width: 100%;
     height: 100%;
     position: absolute;
     padding: 0;
-    pointer-events: none; /* Altındaki oyuna tıklamayı engellemez */
 }
 
-/* Alt Şerit Konumlandırması: Tam Orta-Alt */
-.hud-footer {
+/* === ÜST ŞERİT === */
+.hud-header {
     position: absolute;
-    bottom: 40px; /* Minecraft'taki gibi ekranın biraz üzerinde */
+    top: 20px;
+    left: 28px;
+    right: 28px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Orta gün/sezon rozeti */
+.hud-day-badge {
+    position: absolute;
+    top: 20px;
     left: 0;
     right: 0;
-    justify-content: center; /* Hotbar'ı yatayda ortalar */
     align-items: center;
-    width: 100%;
+    justify-content: center;
 }
 
-/* 10 Slotun Yan Yana Dizildiği Minecraft-Stili Kutu */
+.hud-day-badge-inner {
+    background-color: rgba(0, 0, 0, 0.45);
+    border-radius: 20px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.07);
+    padding: 4px 14px;
+}
+
+.hud-day-text {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+/* === PILL (SAAT & PARA ORTAK) === */
+.hud-pill {
+    background-color: rgba(0, 0, 0, 0.55);
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.08);
+    padding: 7px 14px;
+}
+
+/* Saat pill */
+.hud-pill-time {
+    border-color: rgba(100, 220, 255, 0.2);
+}
+
+.hud-pill-label {
+    font-size: 10px;
+    color: rgba(126, 232, 250, 0.5);
+    -unity-font-style: bold;
+    margin-bottom: 1px;
+}
+
+.hud-time-text {
+    font-size: 18px;
+    color: #7ee8fa;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+/* Para pill */
+.hud-pill-money {
+    border-color: rgba(255, 210, 80, 0.2);
+    align-items: flex-end;
+}
+
+.hud-pill-label-money {
+    font-size: 10px;
+    color: rgba(255, 208, 96, 0.5);
+    -unity-font-style: bold;
+    margin-bottom: 1px;
+    -unity-text-align: upper-right;
+}
+
+.hud-money-text {
+    font-size: 18px;
+    color: #ffd060;
+    -unity-font-style: bold;
+    -unity-text-align: upper-right;
+}
+
+/* === ALT ŞERİT === */
+.hud-footer {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    right: 0;
+    justify-content: center;
+    align-items: flex-end;
+    flex-direction: row;
+}
+
+/* === HOTBAR KONTEYNER === */
 .hotbar-container {
     flex-direction: row;
-    background-color: rgba(0, 0, 0, 0.7); /* Dumanlı Minecraft-stili arka plan */
-    padding: 4px;
-    border-radius: 4px; /* Hafif modern yuvarlama */
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 6px;
+    border-radius: 12px;
     border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.15); /* Pürüzsüz siber çerçeve */
+    border-color: rgba(255, 255, 255, 0.07);
 }
 
-/* Tek Bir Slot Tasarımı: Modern Minecraft-Inset Border */
+/* Slot ayırıcı (3'lü gruplama için C# ile eklenecek) */
+.hotbar-divider {
+    width: 1px;
+    height: 36px;
+    background-color: rgba(255, 255, 255, 0.06);
+    margin: 0 2px;
+    align-self: center;
+}
+
+/* === TEK SLOT === */
 .hotbar-slot {
-    width: 60px; /* Modern HUD için biraz daha büyük ve net */
-    height: 60px;
-    background-color: rgba(0, 0, 0, 0.5); /* Klasik Minecraft boş slot rengi */
-    margin: 0 3px;
-    border-radius: 2px;
-    /* Minecraft-Inset Border efekti (Üst ve Sol koyu, Alt ve Sağ açık) */
-    border-top-width: 3px;
-    border-left-width: 3px;
-    border-bottom-width: 3px;
-    border-right-width: 3px;
-    border-top-color: rgba(255, 255, 255, 0.1);
-    border-left-color: rgba(255, 255, 255, 0.1);
-    border-bottom-color: rgba(0, 0, 0, 0.3);
-    border-right-color: rgba(0, 0, 0, 0.3);
+    width: 52px;
+    height: 52px;
+    background-color: rgba(255, 255, 255, 0.04);
+    margin: 0 2px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.09);
     justify-content: center;
     align-items: center;
 }
 
-/* Aktif Seçili Slotun Parlama Efekti (Neon Mavi Minecraft Çerçevesi) */
+/* Slot üst-sol numara */
+.slot-number {
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.25);
+    -unity-font-style: bold;
+}
+
+/* Aktif slot */
 .hotbar-slot-active {
     border-color: #00e5ff;
-    border-top-color: #00e5ff;
-    border-left-color: #00e5ff;
-    border-bottom-color: #00e5ff;
-    border-right-color: #00e5ff;
     background-color: rgba(0, 229, 255, 0.1);
-    scale: 1.1; /* Aktif olduğunu belli eden modern büyüme */
 }
 
-/* Slot İçindeki Eşya İkonu */
+/* İkon */
 .slot-icon {
-    width: 48px;
-    height: 48px;
-    max-width: 48px;
-    max-height: 48px;
+    width: 30px;
+    height: 30px;
+    max-width: 30px;
+    max-height: 30px;
 }
 
-/* Slot Sağ Altındaki Adet Yazısı */
+/* Adet yazısı */
 .slot-amount {
     position: absolute;
-    bottom: 2px;
+    bottom: 3px;
     right: 4px;
-    font-size: 14px;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    -unity-font-style: bold;
+}
+
+/* === ENERJİ WIDGET TASARIMI === */
+
+.energy-widget {
+    margin-left: 12px;
+    width: 80px; 
+    height: 80px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* GÜNCELLEME: energy-base-ring stili silindi */
+
+/* Çizim alanı */
+.energy-current-circle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* Merkez Metin Konteyneri */
+.energy-text-container {
+    position: absolute;
+    /* GÜNCELLEME: Tam merkeze hizalamak için boşlukları sıfırladık */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Güncel Enerji (Büyük) */
+.energy-text-label {
+    font-size: 20px;
     color: #ffffff;
     -unity-font-style: bold;
+    /* GÜNCELLEME: Taşmayı önlemek için negatif margin kaldırıldı */
+    margin-bottom: 0; 
+}
+
+/* Maksimum Enerji (Küçük) */
+.energy-max-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    -unity-font-style: bold;
+    /* GÜNCELLEME: Taşmayı önlemek için margin sıfırlandı */
+    margin-bottom: 0; 
+}
+
+/* ENERJİ Yazısı */
+.energy-sub-label {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.3);
+    -unity-font-style: bold;
+    letter-spacing: 0.5px;
+    /* GÜNCELLEME: Metinler arası dikey boşluk için azıcık boşluk eklendi */
+    margin-top: 2px; 
 }

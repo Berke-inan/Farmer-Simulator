@@ -1,14 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
+         editor-extension-mode="False">
+
     <ui:Style src="/Assets/UI/Styles/hud_main.uss" />
-    
-    <ui:VisualElement name="HUDContainer" class="hud-container">
-        
-        <ui:VisualElement name="Footer" class="hud-footer">
-            
-            <ui:VisualElement name="HotbarContainer" class="hotbar-container" />
-            
+
+    <ui:VisualElement name="HUDContainer" class="hud-container" picking-mode="Ignore">
+
+        <ui:VisualElement name="Header" class="hud-header">
+
+            <ui:VisualElement class="hud-pill hud-pill-time">
+                <ui:Label class="hud-pill-label" text="SAAT" />
+                <ui:Label name="TimeText" class="hud-time-text" text="06:00" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="hud-pill hud-pill-money">
+                <ui:Label class="hud-pill-label-money" text="PARA" />
+                <ui:Label name="MoneyText" class="hud-money-text" text="$ 0" />
+            </ui:VisualElement>
         </ui:VisualElement>
-        
+
+        <ui:VisualElement name="DayBadge" class="hud-day-badge" picking-mode="Ignore">
+            <ui:VisualElement class="hud-day-badge-inner">
+                <ui:Label name="DayText" class="hud-day-text" text="GÜN 1 — İLKBAHAR" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="Footer" class="hud-footer">
+
+            <ui:VisualElement name="HotbarContainer" class="hotbar-container" />
+
+            <ui:VisualElement name="EnergyWidget" class="energy-widget">
+                <ui:VisualElement name="CurrentEnergyCircle" class="energy-current-circle" />
+                
+                <ui:VisualElement class="energy-text-container">
+                    <ui:Label name="EnergyTextLabel" class="energy-text-label" text="100" />
+                    <ui:Label name="EnergyMaxLabel" class="energy-max-label" text="/ 100" />
+                    <ui:Label class="energy-sub-label" text="ENERJİ" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
     </ui:VisualElement>
 </ui:UXML>
