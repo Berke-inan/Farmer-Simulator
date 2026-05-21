@@ -26,12 +26,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2040936887002122786}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.113, y: -0.0667, z: 0.3148}
-  m_LocalScale: {x: 0.17808852, y: 0.17808852, z: 0.17808852}
+  m_LocalRotation: {x: 0.4456864, y: -0.5292976, z: -0.54245526, w: 0.47639275}
+  m_LocalPosition: {x: -1.007914, y: 0.018140182, z: 0.17387608}
+  m_LocalScale: {x: 0.34209803, y: 0.342098, z: 0.342098}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6285692675848197255}
+  m_Father: {fileID: 5782064027787166830}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!198 &2999618427237795805
 ParticleSystem:
@@ -48,7 +48,7 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 0
+  looping: 1
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -4958,7 +4958,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 145747761232261012}
-  - {fileID: 3599187505939935423}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8700366150511135638
@@ -5149,7 +5148,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2774220344278030320, guid: 9e74a44665cbd81439cbf268cba239dc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3599187505939935423}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: -5645937942226959685, guid: 9e74a44665cbd81439cbf268cba239dc, type: 3}
 --- !u!4 &5782064027787166830 stripped
