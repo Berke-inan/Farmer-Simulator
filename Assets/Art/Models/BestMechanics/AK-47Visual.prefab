@@ -4978,13 +4978,14 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   muzzleFlash: {fileID: 2999618427237795805}
-  shootSound: {fileID: 8300000, guid: 23027040379868249b166861050ee55f, type: 3}
+  shootSound: {fileID: 8300000, guid: 298f88eb6b1ed3444830211a3c2bf3c3, type: 3}
   audioSource: {fileID: -3052484214088937416}
   bulletHolePrefab: {fileID: 2820798135996408665, guid: 711ca15ed05cefc45870f43718aca828, type: 3}
   weaponVisualModel: {fileID: 5782064027787166830}
-  recoilDirection: {x: 0, y: 0.5, z: 1}
+  recoilDirection: {x: 0, y: 0.25, z: 0.75}
   kickbackDistance: 0.1
   recoilRecoverSpeed: 10
+  mermiItmeGucu: 500
 --- !u!82 &-3052484214088937416
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4998,7 +4999,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.542
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -5042,7 +5043,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

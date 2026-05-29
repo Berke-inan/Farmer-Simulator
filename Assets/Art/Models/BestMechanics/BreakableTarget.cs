@@ -6,7 +6,10 @@ public class BreakableTarget : NetworkBehaviour
     [Header("Fiziksel Parçalanma Ayarlarý")]
     public float patlamaGucu = 1000f;
     public float patlamaYaricapi = 3f;
-    public AudioClip breakSound;
+
+    [Header("Ses Ayarlarý")]
+    [Tooltip("Ayarlarýný yaptýðýn AudioSource bileþenini taþýyan ALT OBJEYÝ buraya sürükle")]
+    public AudioSource breakAudioSource;
 
     private bool isBroken = false;
 
@@ -28,27 +31,21 @@ public class BreakableTarget : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void ShatterClientRpc()
     {
-        // --- %100 ÇALIÞAN HAYALET SES SÝSTEMÝ ---
-        if (breakSound != null)
+        // --- YENÝ SES SÝSTEMÝ (INSPECTOR KONTROLLÜ) ---
+        if (breakAudioSource != null)
         {
-            GameObject sesObjesi = new GameObject("CamKirilmaSesi");
-            sesObjesi.transform.position = transform.position;
+            // 1. Ses objesini ana bardaktan tamamen koparýp baðýmsýz yapýyoruz (Bardak silinince ses kesilmesin)
+            breakAudioSource.transform.SetParent(null);
 
-            AudioSource geciciKaynak = sesObjesi.AddComponent<AudioSource>();
-            geciciKaynak.clip = breakSound;
+            // 2. Makinalý tüfekle tarandýðýnda seslerin üst üste binmemesi için ufak ton farklýlýðý
+            breakAudioSource.pitch = Random.Range(0.85f, 1.15f);
 
-            // spatialBlend: 0 olursa her yerden ayný þiddette duyulur (2D), 1 olursa uzaklaþtýkça azalýr (3D).
-            // 0.5f yaparak hem yönünü belli edip hem de sesin kaybolmamasýný saðlýyoruz!
-            geciciKaynak.spatialBlend = 0.5f;
-            geciciKaynak.volume = 1f;
+            // 3. Sesi çal
+            breakAudioSource.Play();
 
-            // Makinalý tüfekle art arda tarandýðýnda seslerin birbirine girmemesi için ufak ton farklýlýklarý
-            geciciKaynak.pitch = Random.Range(0.85f, 1.15f);
-
-            geciciKaynak.Play();
-
-            // Ses dosyasýnýn uzunluðu kadar bekleyip bu hayalet objeyi sahneden temizle
-            Destroy(sesObjesi, breakSound.length + 0.1f);
+            // 4. Klip uzunluðunu hesapla ve o süre dolduðunda bu baðýmsýz ses objesini de sahneden temizle
+            float klipSuresi = breakAudioSource.clip != null ? breakAudioSource.clip.length : 2f;
+            Destroy(breakAudioSource.gameObject, klipSuresi + 0.1f);
         }
 
         // --- DERÝN ARAMA VE PARÇALANMA ---

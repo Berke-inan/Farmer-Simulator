@@ -11,9 +11,13 @@ public class PlayerCameraController : NetworkBehaviour
     [Header("Oyuncu Sanal Kamerası")]
     public CinemachineCamera playerCinemachineCam;
 
+    [Header("Binek Durumu")]
+    public bool isRiding = false;
+
     private InputSystem_Actions inputActions;
     private Vector2 lookInput;
     private float xRotation = 0f;
+    private float yRotation = 0f;
 
     public override void OnNetworkSpawn()
     {
@@ -28,7 +32,6 @@ public class PlayerCameraController : NetworkBehaviour
                 playerCinemachineCam.Priority = 10;
             }
 
-            // Oyun ilk başladığında imleci kilitler
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
@@ -54,7 +57,6 @@ public class PlayerCameraController : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        // Menü AÇIKSA veya Chat AÇIKSA hareketi/kamerayı dondur
         if (FarmerSimulator.UI.MainMenuController.IsMenuOpen || FarmerSimulator.UI.ChatController.IsChatOpen) return;
 
         lookInput = inputActions.Player.Look.ReadValue<Vector2>();
@@ -62,10 +64,31 @@ public class PlayerCameraController : NetworkBehaviour
         float mouseX = lookInput.x * mouseSensitivity * Time.deltaTime;
         float mouseY = lookInput.y * mouseSensitivity * Time.deltaTime;
 
-        transform.Rotate(Vector3.up * mouseX);
-
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 75f);
-        cameraRoot.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+
+        if (isRiding)
+        {
+            // --- KESİN ÇÖZÜM BURASI ---
+            // Sadece farenin x eksenindeki hareketini yRotation'a ekliyoruz.
+            yRotation += mouseX;
+
+            // "localRotation" YERİNE "rotation" KULLANIYORUZ!
+            // Bu sayede kamera atın hareketlerinden tamamen bağımsızlaşır. 
+            // Sen nereye bakarsan crosshair oraya kilitlenir, at altından o yöne doğru kendi döner.
+            cameraRoot.rotation = Quaternion.Euler(xRotation, yRotation, 0f);
+        }
+        else
+        {
+            // --- YAYA MODU ---
+            transform.Rotate(Vector3.up * mouseX);
+
+            // Attan inip binerken kameranın aniden sıçramasını/yön değiştirmesini engellemek için,
+            // kameranın dünya üzerindeki Y açısını sürekli hafızaya (yRotation) kaydediyoruz.
+            yRotation = cameraRoot.eulerAngles.y;
+
+            // Yürürken bedene bağlı kalması için tekrar localRotation kullanıyoruz.
+            cameraRoot.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        }
     }
 }
