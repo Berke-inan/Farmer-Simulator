@@ -145,7 +145,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864111185607732302}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
@@ -179,6 +179,7 @@ MonoBehaviour:
   mouseSensitivity: 15
   cameraRoot: {fileID: 4370075213581412818}
   playerCinemachineCam: {fileID: 4831749522556745930}
+  isRiding: 0
 --- !u!114 &8538495779290203485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,7 +356,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   maksimumKapasite: 100
   normalEnerjiDusmeSuresi: 10
-  maxEnerjiDusmeSuresi: 30
+  maxEnerjiDusmeEsigi: 5
+  maxEnerjiDususMiktari: 1
   eylemYapmaSiniri: 5
   kosmaSiniri: 0
   gunlukSuIcmeLimiti: 4

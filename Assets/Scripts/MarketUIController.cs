@@ -10,7 +10,7 @@ public class MarketUIController : MonoBehaviour
 {
     public UIDocument uiDocument;
     private VisualElement root, buyPage, cartPage, sellPage;
-    private Button buyTab, cartTab, sellTab;
+    private Button buyTab, cartTab, sellTab, landTab;
     private ScrollView marketList, cartList, sellList;
     private Label cartTotal, sellTotal, balanceLabel, notifyLabel;
 
@@ -23,6 +23,9 @@ public class MarketUIController : MonoBehaviour
 
     private LaptopInteractable currentLaptop;
 
+    // YENİ: ESC çakışmasını önlemek için arayüzün açılma zamanını tutar
+    private float lastOpenedTime;
+
     private void Awake()
     {
         root = uiDocument.rootVisualElement;
@@ -30,12 +33,16 @@ public class MarketUIController : MonoBehaviour
         buyPage = root.Q<VisualElement>("BuyPage");
         cartPage = root.Q<VisualElement>("CartPage");
         sellPage = root.Q<VisualElement>("SellPage");
+
         buyTab = root.Q<Button>("BuyTabBtn");
         cartTab = root.Q<Button>("CartTabBtn");
         sellTab = root.Q<Button>("SellTabBtn");
+        landTab = root.Q<Button>("LandTabBtn");
+
         marketList = root.Q<ScrollView>("MarketList");
         cartList = root.Q<ScrollView>("CartList");
         sellList = root.Q<ScrollView>("SellList");
+
         cartTotal = root.Q<Label>("CartTotalLabel");
         sellTotal = root.Q<Label>("SellTotalLabel");
         balanceLabel = root.Q<Label>("BalanceLabel");
@@ -44,6 +51,8 @@ public class MarketUIController : MonoBehaviour
         buyTab.clicked += () => SwitchPage(0);
         cartTab.clicked += () => SwitchPage(1);
         sellTab.clicked += () => SwitchPage(2);
+
+        if (landTab != null) landTab.clicked += OnLandTabClicked;
 
         root.Q<Button>("CloseButton").clicked += () => currentLaptop?.ExitLaptop();
         root.Q<Button>("ConfirmBuyBtn").clicked += OnBuyConfirmed;
@@ -54,13 +63,16 @@ public class MarketUIController : MonoBehaviour
 
     private void Update()
     {
-        // Klavye bağlı mı kontrol et ve Yeni Input System ile ESC tuşunu dinle
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasReleasedThisFrame)
         {
-            // UI görünür durumdaysa kapat
             if (root != null && root.style.display == DisplayStyle.Flex)
             {
-                currentLaptop?.ExitLaptop();
+                // YENİ: Arayüz açıldıktan sonra en az 0.2 saniye geçtiyse ESC çalışsın.
+                // Bu sayede Arsa modundan çıkarken kullandığın ESC burayı anında kapatmaz.
+                if (Time.time - lastOpenedTime > 0.2f)
+                {
+                    currentLaptop?.ExitLaptop();
+                }
             }
         }
     }
@@ -71,11 +83,21 @@ public class MarketUIController : MonoBehaviour
         root.style.display = DisplayStyle.Flex;
         UpdateBalanceUI();
         SwitchPage(0);
+
+        // YENİ: Arayüzün açıldığı anı kaydediyoruz
+        lastOpenedTime = Time.time;
     }
 
     private void UpdateBalanceUI() => balanceLabel.text = $"{EconomyManager.Instance.currentMoney} TL";
 
-    // --- BİLDİRİM SİSTEMİ (ARTIK DAHA SESLİ) ---
+    private void OnLandTabClicked()
+    {
+        if (currentLaptop != null)
+        {
+            currentLaptop.ArsaSecimModunaGec();
+        }
+    }
+
     private void ShowNotify(string msg, Color borderColor)
     {
         if (notifyLabel == null) return;
@@ -83,7 +105,7 @@ public class MarketUIController : MonoBehaviour
         notifyLabel.text = msg;
         notifyLabel.style.borderLeftColor = borderColor;
         notifyLabel.style.display = DisplayStyle.Flex;
-        notifyLabel.style.opacity = 1; // Görünür kıl
+        notifyLabel.style.opacity = 1;
 
         StopCoroutine("HideNotify");
         StartCoroutine("HideNotify");
@@ -117,7 +139,6 @@ public class MarketUIController : MonoBehaviour
         if (index == 2) RefreshSellList();
     }
 
-    // --- MAĞAZA: SEPETE EKLEME ---
     private void RefreshMarketList()
     {
         marketList.Clear();
@@ -134,11 +155,11 @@ public class MarketUIController : MonoBehaviour
         }
     }
 
-    // --- SEPET: MİKTARLI LİSTELEME ---
     private void RefreshCartList()
     {
         cartList.Clear();
         int total = 0;
+
         foreach (var kvp in cartData)
         {
             var item = kvp.Value.data;
@@ -146,22 +167,38 @@ public class MarketUIController : MonoBehaviour
             total += item.price * qty;
 
             cartList.Add(CreateQtyCard(item.itemName, item.price, item.itemIcon, qty,
-                () => { // Eksi butonu
+                () => {
                     if (cartData[kvp.Key].qty > 1)
                         cartData[kvp.Key] = (item, cartData[kvp.Key].qty - 1);
                     else
                         cartData.Remove(kvp.Key);
                     RefreshCartList();
                 },
-                () => { // Artı butonu
+                () => {
                     cartData[kvp.Key] = (item, cartData[kvp.Key].qty + 1);
                     RefreshCartList();
                 }));
         }
+
+        if (ArsaSecici.Instance != null && ArsaSecici.Instance.sepettekiArsalar.Count > 0)
+        {
+            int arsaAdet = ArsaSecici.Instance.sepettekiArsalar.Count;
+            int arsaFiyat = ArsaSecici.Instance.arsaBirimFiyati;
+            total += arsaAdet * arsaFiyat;
+
+            cartList.Add(CreateQtyCard("Arazi Genişletme Tapusu", arsaFiyat, null, arsaAdet,
+                () => {
+                    ArsaSecici.Instance.UI_SonSecileniIptalEt();
+                    RefreshCartList();
+                },
+                () => {
+                    ShowNotify("Yeni arazi seçmek için haritaya dönün!", Color.yellow);
+                }, arsaAdet));
+        }
+
         cartTotal.text = $"Toplam: {total} TL";
     }
 
-    // --- SATIŞ: GRUPLU LİSTELEME ---
     private void RefreshSellList()
     {
         sellList.Clear();
@@ -185,17 +222,16 @@ public class MarketUIController : MonoBehaviour
             totalGain += sellQuantities[id] * physicalList[0].GetPrice();
 
             sellList.Add(CreateQtyCard(physicalList[0].itemData.itemName, physicalList[0].GetPrice(), physicalList[0].itemData.itemIcon, sellQuantities[id],
-                () => { // Eksi
+                () => {
                     if (sellQuantities[id] > 0) { sellQuantities[id]--; RefreshSellList(); }
                 },
-                () => { // Artı
+                () => {
                     if (sellQuantities[id] < physicalList.Count) { sellQuantities[id]++; RefreshSellList(); }
                 }, physicalList.Count));
         }
         sellTotal.text = $"Kazanç: {totalGain} TL";
     }
 
-    // --- KART OLUŞTURUCU (Miktar Seçicili) ---
     private VisualElement CreateQtyCard(string name, int price, Sprite icon, int currentQty, System.Action onMinus, System.Action onPlus, int? max = null)
     {
         VisualElement card = new VisualElement();
@@ -221,10 +257,8 @@ public class MarketUIController : MonoBehaviour
         selector.AddToClassList("qty-selector");
 
         Button mBtn = new Button(onMinus) { text = "-" };
-
         Label qLbl = new Label(max.HasValue ? $"{currentQty} / {max}" : $"x{currentQty}");
         qLbl.AddToClassList("qty-label");
-
         Button pBtn = new Button(onPlus) { text = "+" };
 
         selector.Add(mBtn);
@@ -271,17 +305,49 @@ public class MarketUIController : MonoBehaviour
 
     private void OnBuyConfirmed()
     {
-        if (cartData.Count == 0) { ShowNotify("Sepetiniz bomboş!", Color.red); return; }
+        bool arazilerVar = ArsaSecici.Instance != null && ArsaSecici.Instance.sepettekiArsalar.Count > 0;
+
+        if (cartData.Count == 0 && !arazilerVar)
+        {
+            ShowNotify("Sepetiniz bomboş!", Color.red);
+            return;
+        }
+
         int total = cartData.Values.Sum(x => x.data.price * x.qty);
-        if (EconomyManager.Instance.currentMoney < total) { ShowNotify("Bakiye yetersiz!", Color.red); return; }
+        if (arazilerVar)
+        {
+            total += ArsaSecici.Instance.sepettekiArsalar.Count * ArsaSecici.Instance.arsaBirimFiyati;
+        }
 
-        List<int> idsToSend = new List<int>();
-        foreach (var kvp in cartData)
-            for (int i = 0; i < kvp.Value.qty; i++) idsToSend.Add(kvp.Key);
+        if (EconomyManager.Instance.currentMoney < total)
+        {
+            ShowNotify("Bakiye yetersiz!", Color.red);
+            return;
+        }
 
-        DeliveryManager.Instance.PurchaseCartRpc(idsToSend.ToArray(), NetworkManager.Singleton.LocalClientId);
-        cartData.Clear();
-        ShowNotify("Ödeme başarılı! Kargo hazırlanıyor.", Color.green);
+        // --- YENİ: Parayı GÜNCELLİYORUZ (Düşüyoruz) ---
+        // EconomyManager içinde parayı düşmek için özel bir fonksiyonun (Örn: ParaHarca(total)) varsa
+        // alttaki satırı silip onu kullanabilirsin. Yoksa bu satır direkt parayı düşecektir.
+        EconomyManager.Instance.currentMoney -= total;
+
+        if (arazilerVar)
+        {
+            ArsaSecici.Instance.UI_SatinAlimiTamamla();
+        }
+
+        if (cartData.Count > 0)
+        {
+            List<int> idsToSend = new List<int>();
+            foreach (var kvp in cartData)
+                for (int i = 0; i < kvp.Value.qty; i++) idsToSend.Add(kvp.Key);
+
+            DeliveryManager.Instance.PurchaseCartRpc(idsToSend.ToArray(), NetworkManager.Singleton.LocalClientId);
+            cartData.Clear();
+        }
+
+        ShowNotify("Ödeme başarılı! İşlemler tamamlandı.", Color.green);
+
+        // Bakiyeyi yeni değere göre anında arayüzde yenile
         UpdateBalanceUI();
         RefreshCartList();
     }
@@ -298,6 +364,7 @@ public class MarketUIController : MonoBehaviour
         DeliveryManager.Instance.SellSelectedItemsRpc(idsToSell.ToArray());
         sellQuantities.Clear();
         ShowNotify("Satış tamamlandı!", Color.cyan);
+
         UpdateBalanceUI();
         RefreshSellList();
     }

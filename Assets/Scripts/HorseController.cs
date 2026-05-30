@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CapsuleCollider))]
 public class HorseController : NetworkBehaviour, IInteractable
 {
-    public enum AnimalState { Idle, Wander, Eat, Panic }
+    public enum AnimalState { Idle, Wander, Eat, Panic, Called }
 
     [Header("Durum (State)")]
     public AnimalState currentState = AnimalState.Idle;
@@ -25,13 +25,19 @@ public class HorseController : NetworkBehaviour, IInteractable
     public float panicDuration = 10f;
     public float panicEscapeRadius = 50f;
 
+    [Header("Islýk / Çaðýrma Ayarlarý")]
+    public float callSpeed = 15f;
+    public float callHearingRadius = 150f;
+    public AudioClip islikSesi;
+    private static float sonIslikZamani = 0f;
+
     [Header("Binicilik ve Direksiyon")]
     public Transform driverSeat;
     public float turnSweepingSpeed = 3.0f;
     public float mouseDeadzoneAngle = 15f;
 
     [Header("Çarpýþma / Radar Ayarý")]
-    public float horseHeadLength = 4.0f; // Burun mesafesini 2 metreye çýkardým
+    public float horseHeadLength = 4.0f;
 
     [Header("Zýplama ve Yerçekimi")]
     public float jumpForce = 6f;
@@ -49,6 +55,8 @@ public class HorseController : NetworkBehaviour, IInteractable
     private NetworkObject currentDriver;
     private InputSystem_Actions inputActions;
     public bool IsOccupied => currentDriver != null;
+
+    private Transform callerTarget;
 
     private readonly int speedHash = Animator.StringToHash("Speed");
     private readonly int turnHash = Animator.StringToHash("Turn");
@@ -77,6 +85,28 @@ public class HorseController : NetworkBehaviour, IInteractable
 
     private void Update()
     {
+        if (!isRidden && Keyboard.current != null && Keyboard.current.hKey.wasPressedThisFrame)
+        {
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient && NetworkManager.Singleton.LocalClient.PlayerObject != null)
+            {
+                Vector3 playerPos = NetworkManager.Singleton.LocalClient.PlayerObject.transform.position;
+
+                if (Time.time - sonIslikZamani > 1f)
+                {
+                    sonIslikZamani = Time.time;
+                    if (islikSesi != null)
+                    {
+                        AudioSource.PlayClipAtPoint(islikSesi, playerPos);
+                    }
+                }
+
+                if (Vector3.Distance(transform.position, playerPos) <= callHearingRadius)
+                {
+                    IslikCalServerRpc(NetworkManager.Singleton.LocalClientId);
+                }
+            }
+        }
+
         if (isRidden)
         {
             if (IsOwner && currentDriver != null) HandleRidingMovementLocal();
@@ -103,6 +133,19 @@ public class HorseController : NetworkBehaviour, IInteractable
         if (!IsOccupied) MountHorseServerRpc(interactor.NetworkObjectId);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void IslikCalServerRpc(ulong callerId)
+    {
+        if (isRidden) return;
+
+        if (NetworkManager.Singleton.ConnectedClients.TryGetValue(callerId, out NetworkClient client))
+        {
+            callerTarget = client.PlayerObject.transform;
+            currentState = AnimalState.Called;
+            animator.SetBool(eatHash, false);
+        }
+    }
+
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void MountHorseServerRpc(ulong playerId)
     {
@@ -112,6 +155,7 @@ public class HorseController : NetworkBehaviour, IInteractable
             GetComponent<NetworkObject>().ChangeOwnership(playerObj.OwnerClientId);
             playerObj.TrySetParent(transform);
             isRidden = true;
+            currentState = AnimalState.Idle;
             MountHorseClientRpc(playerId);
         }
     }
@@ -180,7 +224,6 @@ public class HorseController : NetworkBehaviour, IInteractable
         }
     }
 
-    // --- KRÝTÝK DEÐÝÞÝKLÝK: YEMEK YEME ANÝMASYONUNU BÝTÝRME ---
     private void TogglePlayerComponents(NetworkObject player, bool state)
     {
         if (player.TryGetComponent(out PlayerMovement movement)) movement.enabled = state;
@@ -193,11 +236,7 @@ public class HorseController : NetworkBehaviour, IInteractable
             rb.useGravity = state;
         }
 
-        // ATA BÝNDÝÐÝMÝZ AN YEMEÐÝ KES
-        if (!state)
-        {
-            animator.SetBool(eatHash, false);
-        }
+        if (!state) animator.SetBool(eatHash, false);
 
         Animator pAnimator = player.GetComponentInChildren<Animator>();
         if (pAnimator != null) pAnimator.SetBool("isDriving", !state);
@@ -209,9 +248,6 @@ public class HorseController : NetworkBehaviour, IInteractable
         }
     }
 
-    // ==========================================
-    // SÜRÜÞ SÝSTEMÝ
-    // ==========================================
     private void HandleRidingMovementLocal()
     {
         float verticalInput = inputActions.Player.GasBrake.ReadValue<float>();
@@ -311,16 +347,21 @@ public class HorseController : NetworkBehaviour, IInteractable
             smoothedNavDirection = transform.forward;
         }
 
-        // Radar Kontrolü
+        // --- GÜÇLENDÝRÝLMÝÞ BÝNÝCÝ RADARI ---
         Vector3 targetPosition = transform.position + (movementXZ * Time.deltaTime);
         bool hitWall = false;
         if (currentSpeed > 0.1f)
         {
-            if (agent.Raycast(transform.position + (transform.forward * horseHeadLength), out _))
+            if (agent.Raycast(transform.position + (transform.forward * horseHeadLength), out _)) hitWall = true;
+
+            // Fiziksel Radar: Göðüs hizasýndan fýrlatýp dik yüzeylere çarpýp çarpmadýðýna bakýyoruz
+            Vector3 gogusHizasi = transform.position + Vector3.up * 1.0f;
+            if (Physics.Raycast(gogusHizasi, transform.forward, out RaycastHit physHit, horseHeadLength))
             {
-                hitWall = true;
-                targetPosition = transform.position;
+                if (!physHit.collider.isTrigger && physHit.normal.y < 0.5f) hitWall = true;
             }
+
+            if (hitWall) targetPosition = transform.position;
         }
 
         Vector3 finalPosition = targetPosition;
@@ -375,6 +416,32 @@ public class HorseController : NetworkBehaviour, IInteractable
             case AnimalState.Panic:
                 if (stateTimer <= 0f) ChooseNextState();
                 break;
+
+            case AnimalState.Called:
+                if (callerTarget != null)
+                {
+                    agent.SetDestination(callerTarget.position);
+
+                    // 10 Metrede Çaký Gibi Durma Sistemi
+                    if (Vector3.Distance(transform.position, callerTarget.position) <= 10.0f)
+                    {
+                        agent.ResetPath();
+                        agent.velocity = Vector3.zero;
+                        currentSpeed = 0f;
+
+                        callerTarget = null;
+                        currentState = AnimalState.Idle;
+                        stateTimer = Random.Range(3f, 6f);
+                    }
+                }
+                else
+                {
+                    agent.ResetPath();
+                    currentSpeed = 0f;
+                    currentState = AnimalState.Idle;
+                    stateTimer = 2f;
+                }
+                break;
         }
     }
 
@@ -400,8 +467,10 @@ public class HorseController : NetworkBehaviour, IInteractable
     private void CalculateAdvancedMovement()
     {
         float targetSpeed = 0f;
+
         if (currentState == AnimalState.Wander) targetSpeed = walkSpeed;
         else if (currentState == AnimalState.Panic) targetSpeed = panicSpeed;
+        else if (currentState == AnimalState.Called) targetSpeed = callSpeed;
 
         float groundHeight = transform.position.y;
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit navHit, 2f, NavMesh.AllAreas)) groundHeight = navHit.position.y;
@@ -436,9 +505,18 @@ public class HorseController : NetworkBehaviour, IInteractable
                 float angleDiff = Vector3.SignedAngle(transform.forward, targetDir, Vector3.up);
                 turnRatio = Mathf.Clamp(angleDiff / 30f, -1f, 1f);
 
-                float turnSpeed = (currentState == AnimalState.Panic) ? 60f : 45f;
+                float turnSpeed = 45f;
+                if (currentState == AnimalState.Called) turnSpeed = 300f;
+                else if (currentState == AnimalState.Panic) turnSpeed = 120f;
+
                 Quaternion lookRot = Quaternion.LookRotation(targetDir);
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, lookRot, turnSpeed * Time.deltaTime);
+
+                if (Mathf.Abs(angleDiff) > 45f && currentState == AnimalState.Called)
+                {
+                    targetSpeed = 0f;
+                    currentSpeed = Mathf.Lerp(currentSpeed, 0f, Time.deltaTime * 8f);
+                }
             }
 
             movementXZ = transform.forward * currentSpeed;
@@ -449,10 +527,47 @@ public class HorseController : NetworkBehaviour, IInteractable
             UpdateAnimator(speedRatio, 0f, isGrounded, 1f, verticalVelocity);
         }
 
-        Vector3 finalPosition = transform.position + (movementXZ * Time.deltaTime);
+        // --- DEÐÝÞÝKLÝK BURADA: AKILLI ÇARPIÞMA SÝSTEMÝ (Anti-Hayalet At) ---
+        Vector3 targetPosition = transform.position + (movementXZ * Time.deltaTime);
+        bool hitWall = false;
+
+        if (currentSpeed > 0.1f)
+        {
+            // 1. NavMesh Radarý
+            if (agent.Raycast(transform.position + (transform.forward * horseHeadLength), out _)) hitWall = true;
+
+            // 2. Saf Fizik Radarý: Atýn göðsünden (Y=1.0) ileriye ýþýn atar.
+            // Çarptýðý þeyin yüzey eðimi (normal.y) 0.5'ten küçükse bu zemin (Terrain) deðil, %100 duvar veya çittir!
+            Vector3 gogusHizasi = transform.position + Vector3.up * 1.0f;
+            if (Physics.Raycast(gogusHizasi, transform.forward, out RaycastHit physHit, horseHeadLength))
+            {
+                if (!physHit.collider.isTrigger && physHit.normal.y < 0.5f) hitWall = true;
+            }
+
+            // Duvara tosladýysa
+            if (hitWall)
+            {
+                targetPosition = transform.position; // Ýleri gitmesini fiziksel olarak iptal et
+
+                if (currentState == AnimalState.Called)
+                {
+                    agent.ResetPath();
+                }
+                else if (currentState == AnimalState.Panic)
+                {
+                    // PANÝK HALÝ DÜZELTMESÝ: Çite toslarsa içinden geçmeye çalýþmak yerine arkasýný dönüp kaçsýn!
+                    Vector3 yeniKacisYonu = Quaternion.Euler(0, Random.Range(120, 240), 0) * transform.forward;
+                    SetRandomDestination(transform.position + (yeniKacisYonu * panicEscapeRadius), panicEscapeRadius / 2f);
+                }
+            }
+        }
+
+        Vector3 finalPosition = targetPosition;
         finalPosition.y = nextY;
         transform.position = finalPosition;
         agent.nextPosition = transform.position;
+
+        if (hitWall) { speedRatio = 0f; currentSpeed = 0f; }
     }
 
     private void UpdateAnimator(float speed, float turn, bool grounded, float animMultiplier, float vVel)
