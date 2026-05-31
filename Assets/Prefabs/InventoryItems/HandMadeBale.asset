@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
   m_Name: HandMadeBale
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemID: 8
+  itemID: 5
   itemName: Hand Made Bale
   itemType: 0
   maxStack: 64
@@ -22,3 +22,4 @@ MonoBehaviour:
   groundPrefab: {fileID: 2660502362499645756, guid: d1196eb92dd3af746a17da5246a506ea, type: 3}
   holdPositionOffset: {x: 1.1, y: -0.51, z: 1.11}
   holdRotationOffset: {x: 90, y: 180, z: 0}
+  ekinPrefab: {fileID: 0}

@@ -120,7 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2895274958
+  GlobalObjectIdHash: 3280670815
   InScenePlacedSourceGlobalObjectIdHash: 3280670815
   DeferredDespawnTick: 0
   Ownership: 1
@@ -302,7 +302,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableItem
   ShowTopMostFoldoutHeaderGroup: 1
-  itemID: 13
+  itemID: 10
   amount: 1
 --- !u!114 &8759781332525421148
 MonoBehaviour:

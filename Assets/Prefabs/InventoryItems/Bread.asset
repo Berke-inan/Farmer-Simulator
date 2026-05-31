@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
   m_Name: Bread
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemID: 10
+  itemID: 8
   itemName: Bread
   itemType: 3
   maxStack: 10
@@ -22,3 +22,4 @@ MonoBehaviour:
   groundPrefab: {fileID: 7798523875705588319, guid: 1ef9914f3cd1fd54d9f25dbb8de32bc8, type: 3}
   holdPositionOffset: {x: 0.25, y: -0.102, z: 0.18}
   holdRotationOffset: {x: 0, y: 90, z: 120.00001}
+  ekinPrefab: {fileID: 0}

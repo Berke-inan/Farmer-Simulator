@@ -26,15 +26,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: 9052b439b0ca2e048ab4ee38b4264b0e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 59.67
+      value: 60.022858
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: 9052b439b0ca2e048ab4ee38b4264b0e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.008587837
+      value: -0.008570704
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: 9052b439b0ca2e048ab4ee38b4264b0e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 59.65
+      value: 65.936035
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: 9052b439b0ca2e048ab4ee38b4264b0e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -84,6 +84,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8771091787928289351, guid: 9052b439b0ca2e048ab4ee38b4264b0e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2964516971020919616}
+    - targetCorrespondingSourceObject: {fileID: 8771091787928289351, guid: 9052b439b0ca2e048ab4ee38b4264b0e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8493407317565731498}
   m_SourcePrefab: {fileID: -4161369568681901532, guid: 9052b439b0ca2e048ab4ee38b4264b0e, type: 3}
 --- !u!1 &6502738699883944296 stripped
 GameObject:
@@ -123,7 +126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1008524327
+  GlobalObjectIdHash: 3835899854
   InScenePlacedSourceGlobalObjectIdHash: 3582893179
   DeferredDespawnTick: 0
   Ownership: 1
@@ -250,3 +253,19 @@ MonoBehaviour:
   - {fileID: 8300000, guid: a99b1d7350511ce49843d34a38a2c8f7, type: 3}
   minWaitTime: 10
   maxWaitTime: 40
+--- !u!114 &8493407317565731498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6502738699883944296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f22ab0635a0d0e24d85722c3c61fd958, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CowInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
+  bosKovaID: 11
+  doluKovaID: 12
+  sutUretimSuresi: 60

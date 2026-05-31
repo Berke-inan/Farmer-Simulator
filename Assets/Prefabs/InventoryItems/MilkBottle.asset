@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
   m_Name: MilkBottle
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemID: 7
+  itemID: 13
   itemName: MilkBottle
   itemType: 1
   maxStack: 1
   price: 20
   icon: {fileID: 0}
-  heldModelPrefab: {fileID: 4479313828174975210, guid: feab400bf67671b47b13baf5b7338e74, type: 3}
-  groundPrefab: {fileID: 1126554216142271857, guid: f5f456faf2e235f4db544c307b21edfc, type: 3}
+  heldModelPrefab: {fileID: 6098822275401093883, guid: 77ac951417f3e5c4db07f884a2a67db8, type: 3}
+  groundPrefab: {fileID: 1123563451567145190, guid: 46daf80fc96308d4f94c4fa0cf4aeb05, type: 3}
   holdPositionOffset: {x: 0, y: 0, z: 0}
   holdRotationOffset: {x: 0, y: 0, z: 0}
+  ekinPrefab: {fileID: 0}
