@@ -71,6 +71,16 @@ namespace FarmerSimulator.UI
 
         private void Update()
         {
+            // 1. Menü durumuna göre HUD'ı tamamen gizle veya göster
+            if (_uiDocument != null && _uiDocument.rootVisualElement != null)
+            {
+                _uiDocument.rootVisualElement.style.display = MainMenuController.IsMenuOpen ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+
+            // Menü açıksa arkada boşuna enerji/para hesaplaması yapmasın, performansı koruyalım
+            if (MainMenuController.IsMenuOpen) return;
+
+            // 2. Oyuncu bağlantısı kontrolü
             if (_boundInventory == null && NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null)
             {
                 var localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
@@ -80,6 +90,7 @@ namespace FarmerSimulator.UI
                 }
             }
 
+            // 3. Değerleri güncelle
             UpdateDynamicStats();
         }
 

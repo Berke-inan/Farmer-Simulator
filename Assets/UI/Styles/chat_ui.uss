@@ -1,28 +1,28 @@
-/* Ana Konteyner - Sol Alt Köşe ve Kompakt Boyut */
+/* Ana Konteyner - Sol Alt Köşe (HUD ile hizalı) */
 .chat-container {
     position: absolute;
     bottom: 20px;
-    left: 20px;
-    width: 340px;
-    height: 160px;
-    background-color: rgba(0, 0, 0, 0);
-    border-radius: 6px;
-    padding: 6px;
-    transition-property: background-color;
+    left: 50px; /* HUD'ın sol boşluğu ile hizalandı */
+    width: 380px;
+    height: 180px;
+    background-color: transparent;
+    border-left-width: 4px;
+    border-left-color: transparent;
+    padding: 10px 15px;
+    transition-property: background-color, border-left-color;
     transition-duration: 0.2s;
 }
 
-/* Yazı Yazma Moduna Geçince Arka Planı Karartır */
+/* Yazı Yazma Moduna Geçince Arayüz Parlar ve Çizgi Belirir */
 .chat-container-focused {
-    background-color: rgba(0, 0, 0, 0.75);
-    border-width: 1px;
-    border-color: #4caf50;
+    background-color: rgba(10, 11, 10, 0.95); /* Menülerin arka plan rengi */
+    border-left-color: #d97706; /* Ana tema Turuncu (Amber) vurgusu */
 }
 
 /* Mesaj Geçmişi Alanı */
 .chat-history {
     flex-grow: 1;
-    margin-bottom: 4px;
+    margin-bottom: 10px;
     opacity: 0;
     transition-property: opacity;
     transition-duration: 0.4s;
@@ -32,17 +32,26 @@
     opacity: 1;
 }
 
-/* Giriş Alanı Düzenlemesi - Arka planı yazı görünsün diye hafif gri/beyaz yaptık */
+/* Giriş Alanı Düzenlemesi - Brutalist Tasarım */
 .chat-input {
-    background-color: rgba(240, 240, 240, 0.9);
-    border-radius: 4px;
-    padding: 4px;
+    margin: 0;
     display: none;
 }
 
-/* İSTEĞİN: Metin kutusunun içindeki yazıyı tam siyah yapar */
+/* Kutu kalktı, sadece altı çizili şık bir giriş alanı geldi */
 .chat-input .unity-text-field__input {
-    color: #000000;
+    background-color: transparent;
+    border-width: 0 0 2px 0;
+    border-color: #353b34; /* Ana tema ayırıcı rengi */
+    color: #d97706; /* Yazarken turuncu görünür */
+    font-size: 14px;
+    -unity-font-style: bold;
+    padding: 6px 4px;
+    letter-spacing: 1px;
+}
+
+.chat-input .unity-text-field__input:focus {
+    border-color: #d97706;
 }
 
 .chat-input-visible {
@@ -51,20 +60,20 @@
 
 /* Standart Oyuncu Mesajı Yazı Tipi */
 .chat-text {
-    font-size: 12px;
-    color: #ffffff;
-    margin-bottom: 2px;
+    font-size: 13px;
+    color: #eaddcf; /* Ana tema Krem Rengi */
+    -unity-font-style: bold;
+    margin-bottom: 4px;
     white-space: normal;
-    /* İSTEĞİN: Unity 6 yerel yazı seçme ve Ctrl+C kopyalama özelliği aktif edildi */
-    -unity-user-select: text; 
+    letter-spacing: 1px;
 }
 
+/* Sistem Mesajları (Oda Kuruldu vb.) */
 .chat-style-system {
-    color: #38bdf8;
-    -unity-font-style: bold;
+    color: #9ca328; /* Ana tema Altın Sarısı */
 }
 
+/* Uyarı Mesajları */
 .chat-style-warning {
-    color: #f87171;
-    -unity-font-style: bold;
+    color: #ef4444; /* Klasik Kırmızı */
 }

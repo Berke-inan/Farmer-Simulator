@@ -39,7 +39,8 @@ namespace FarmerSimulator.UI
             _chatHistory = root.Q<ScrollView>("ChatHistory");
             _chatInput = root.Q<TextField>("ChatInput");
 
-            _chatInput.RegisterCallback<KeyDownEvent>(OnInputKeyDown);
+            // Çift Enter bug'ını çözen kısım aynen kaldı
+            _chatInput.RegisterCallback<KeyDownEvent>(OnInputKeyDown, TrickleDown.TrickleDown);
 
             _inputActions.Player.Chat.started += ctx => TryOpenChatFromKey();
             _inputActions.Player.Pause.started += ctx => HandlePauseOrCancelAction();
@@ -52,8 +53,6 @@ namespace FarmerSimulator.UI
 
         private void Update()
         {
-            // --- İMLEÇ KORUMA KALKANI ---
-            // İSTEĞİN: Chat açıkken başka yere tıklansa bile imlecin kilitlenmesini her kare engeller, geri tıklayabilirsin.
             if (IsChatOpen)
             {
                 if (UnityEngine.Cursor.lockState != CursorLockMode.None)
@@ -88,10 +87,6 @@ namespace FarmerSimulator.UI
             if (IsChatOpen)
             {
                 CloseChat();
-            }
-            else
-            {
-                Debug.Log("[Pause Sistem] Chat kapalıyken ESC'ye basıldı. Oyun Durdurma Menüsü tetiklenecek.");
             }
         }
 
@@ -147,9 +142,7 @@ namespace FarmerSimulator.UI
                     SendChatMessageServerRpc(message);
                 }
 
-                // GÜNCELLEME: PreventDefault yerine yeni Unity 6 standardı olan StopPropagation eklendi
                 evt.StopPropagation();
-
                 CloseChat();
             }
         }
@@ -158,7 +151,7 @@ namespace FarmerSimulator.UI
         {
             if (_chatHistory == null) return;
 
-            // ÇÖZÜM: TextField yerine artık direkt seçilebilir yerel Label kullanıyoruz (Unity 6 standartı)
+            // Kopyalama iptal edildi, tekrar standart Label yapısına dönüldü
             Label newLabel = new Label(text);
             newLabel.AddToClassList("chat-text");
 
@@ -198,7 +191,6 @@ namespace FarmerSimulator.UI
 
         private void ScrollToBottom(GeometryChangedEvent evt)
         {
-            // Hatalı olan Object atama satırı tamamen silindi!
             _chatHistory.scrollOffset = new Vector2(0, _chatHistory.layout.height);
             _chatHistory.UnregisterCallback<GeometryChangedEvent>(ScrollToBottom);
         }
