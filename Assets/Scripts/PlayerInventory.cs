@@ -68,6 +68,16 @@ public class PlayerInventory : NetworkBehaviour
     {
         if (!NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(networkObjectId, out NetworkObject netObj)) return;
 
+        // --- YENİ: ÇALIŞAN FISKİYEYİ ALMA KORUMASI ---
+        if (netObj.TryGetComponent(out SprinkleController sprinkler))
+        {
+            if (sprinkler.calisiyorMu.Value)
+            {
+                Debug.Log("Çalışan fıskiyeyi yerden alamazsın! Önce vanayı kapatmalısın.");
+                return; // Fıskiye çalışıyorsa yerden alma işlemini İPTAL ET
+            }
+        }
+
         if (netObj.TryGetComponent(out InteractableItem groundItem))
         {
             int idToSend = groundItem.itemID;
@@ -201,7 +211,7 @@ public class PlayerInventory : NetworkBehaviour
         if (droppedObj.TryGetComponent(out InteractableItem groundItem))
             groundItem.itemID = itemID;
 
-     
+
 
         NetworkObject netObj = droppedObj.GetComponent<NetworkObject>();
         netObj.Spawn();
@@ -355,6 +365,31 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
+    // --- YENİ EKLENEN KISIM: Ekin Prefabına İhtiyaç Duymayan Yerleştirme ---
+    [Rpc(SendTo.Server)]
+    public void FiskiyeYerlestirServerRpc(Vector3 nokta, int slotIndex)
+    {
+        if (slots[slotIndex].IsEmpty || slots[slotIndex].itemData == null) return;
+        ItemData data = slots[slotIndex].itemData;
+
+        // DEĞİŞİKLİK: ekinPrefab yerine doğrudan groundPrefab kullanıyoruz!
+        if (data.groundPrefab != null)
+        {
+            GameObject yeniObje = Instantiate(data.groundPrefab, nokta, Quaternion.identity);
+            yeniObje.GetComponent<NetworkObject>().Spawn();
+
+            // SİHİRLİ DOKUNUŞ: Sol tıkla ekildiğinde fiziksel olarak yere düşmesini/yuvarlanmasını donduruyoruz.
+            // Böylece G tuşuyla atılan fıskiyeden ayrılıyor ve dimdik ayakta kalıyor!
+            if (yeniObje.TryGetComponent(out Rigidbody rb))
+            {
+                rb.isKinematic = true;
+            }
+
+            DecreaseItemAmountServerRpc(slotIndex, 1);
+        }
+    }
+    // -------------------------------------------------------------------
+
     [Rpc(SendTo.Server)]
     public void HasatEtServerRpc(ulong ekinNetID, Vector3 pos)
     {
@@ -398,6 +433,7 @@ public class PlayerInventory : NetworkBehaviour
             }
         }
     }
+
     [Rpc(SendTo.Server)]
     public void GubreleServerRpc(ulong cropNetId, float growthMultiplier, int yBonus, int slotIndex)
     {
@@ -452,6 +488,4 @@ public class PlayerInventory : NetworkBehaviour
             tData.SetDetailLayer(startX, startZ, i, details);
         }
     }
-
-
 }

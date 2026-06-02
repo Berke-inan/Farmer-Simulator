@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerInteractor : NetworkBehaviour
 {
-    public float interactionDistance = 5f;
+    public float interactionDistance = 2.5f;
     public Transform playerCamera;
 
     private InputSystem_Actions inputActions;
@@ -25,7 +25,6 @@ public class PlayerInteractor : NetworkBehaviour
         inputActions.Player.Attack.started += ctx => UseHeldItem();
         inputActions.Player.Holster.started += ctx => inventory.ToggleHolster();
 
-        // Hotbar Seçimleri
         inputActions.Player.Hotbar1.started += ctx => inventory.ChangeHotbarSlot(0);
         inputActions.Player.Hotbar2.started += ctx => inventory.ChangeHotbarSlot(1);
         inputActions.Player.Hotbar3.started += ctx => inventory.ChangeHotbarSlot(2);
@@ -41,6 +40,25 @@ public class PlayerInteractor : NetworkBehaviour
     private void Update()
     {
         if (!IsOwner || playerCamera == null) return;
+
+        float scrollY = Mouse.current.scroll.ReadValue().y;
+        if (scrollY != 0)
+        {
+            int currentIndex = inventory.activeHotbarIndex.Value;
+
+            if (scrollY > 0)
+            {
+                currentIndex--;
+                if (currentIndex < 0) currentIndex = 9;
+            }
+            else
+            {
+                currentIndex++;
+                if (currentIndex > 9) currentIndex = 0;
+            }
+
+            inventory.ChangeHotbarSlot(currentIndex);
+        }
 
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
 
