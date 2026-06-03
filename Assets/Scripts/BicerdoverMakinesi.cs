@@ -4,31 +4,29 @@ using Unity.Netcode;
 public class BicerdoverMakinesi : NetworkBehaviour
 {
     private AttachableEquipment anaGovde;
+    private BreakDisableBehavior bozulmaKontrolu;
 
     private void Awake()
     {
         anaGovde = GetComponentInParent<AttachableEquipment>();
+        bozulmaKontrolu = GetComponent<BreakDisableBehavior>();
         if (anaGovde == null) Debug.LogError("DÝKKAT: BicerdoverMakinesi kodu, AttachableEquipment ile ayný veya alt objede olmalý!");
     }
 
-    // ÝÞTE SENÝN EKLEDÝÐÝN O "IS TRIGGER" ÝÞARETLÝ BOX COLLIDER BURAYI TETÝKLER!
     private void OnTriggerStay(Collider other)
     {
-        // Sadece server'da çalýþsýn ve makine 'V' ile çalýþtýrýlmýþsa iþlem yapsýn
+        if (bozulmaKontrolu != null && bozulmaKontrolu.isBroken.Value) return;
         if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value) return;
 
-        // Yeþil sensörün içine giren obje bir ekin mi?
         if (other.TryGetComponent(out ModularCrop ekin))
         {
-            // Ekin büyümüþ veya çürümüþ mü?
             if (ekin.IsGrown || ekin.IsRotted)
             {
                 if (ekin.TryGetComponent(out NetworkObject netObj))
                 {
-                    // Çifte kesimi önlemek için objenin hala aðda var olduðundan emin ol
                     if (netObj.IsSpawned)
                     {
-                        bool urunVerecekMi = ekin.IsGrown; // Saðlýklýysa ürün verir
+                        bool urunVerecekMi = ekin.IsGrown;
                         HasatEtServerRpc(netObj.NetworkObjectId, ekin.transform.position, urunVerecekMi);
                     }
                 }
@@ -41,7 +39,6 @@ public class BicerdoverMakinesi : NetworkBehaviour
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(ekinObjId, out NetworkObject obj))
         {
-            // 1. Ürün Saçma
             if (urunVer)
             {
                 TohumVerisi v = TerrainLayerManager.Instance.tohumListesi.Find(x => obj.name.Contains(x.tohumAdi));
@@ -56,16 +53,14 @@ public class BicerdoverMakinesi : NetworkBehaviour
                 }
             }
 
-            // 2. Tarlayý Kurutma
             bool wasWet = TerrainLayerManager.Instance.IsSoilWet(ekinPozisyonu);
 
-            // 3. Ekini Yok Et
             obj.Despawn();
             Destroy(obj.gameObject);
 
             if (wasWet)
             {
-                TerrainLayerManager.Instance.PaintSoilServerRpc(ekinPozisyonu, TerrainLayerManager.Instance.tilledLayerIndex,3);
+                TerrainLayerManager.Instance.PaintSoilServerRpc(ekinPozisyonu, TerrainLayerManager.Instance.tilledLayerIndex, 3);
             }
         }
     }

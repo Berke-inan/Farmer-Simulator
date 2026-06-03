@@ -43,6 +43,9 @@ public class TractorController : NetworkBehaviour, IInteractable
 
     private TractorFuelSystem fuelSystem;
 
+    // --- YENİ EKLENEN: ARAÇ DURUM YÖNETİCİSİ (Motor ve Lastik Kontrolü) ---
+    private VehicleStatus vehicleStatus;
+
     public bool IsOccupied => currentDriver != null;
 
     private void Awake()
@@ -52,6 +55,9 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (centerOfMass != null) rb.centerOfMass = centerOfMass.localPosition;
 
         fuelSystem = GetComponent<TractorFuelSystem>();
+
+        // Hiyerarşiye eklediğimiz VehicleStatus kodunu otomatik bulur
+        vehicleStatus = GetComponent<VehicleStatus>();
     }
 
     public void Interact(NetworkObject interactor)
@@ -149,11 +155,8 @@ public class TractorController : NetworkBehaviour, IInteractable
 
         if (player.IsOwner)
         {
-            // YENİ EKLENEN KISIM: Traktöre binerken eşyayı sakla, inerken geri getir
             if (player.TryGetComponent(out PlayerInventory inventory))
             {
-                // state = false demek traktöre biniyor demektir.
-                // Bu durumda SetHolstered(true) ile eşyayı saklıyoruz.
                 inventory.SetHolstered(!state);
             }
 
@@ -167,8 +170,6 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (IsOwner)
         {
-            // --- YENİ EKLENEN: MOTOR ÇALIŞTIRMA (T TUŞU) ---
-            // Sadece aracı süren kişi T tuşuna basabilir
             if (IsOccupied &&
                 currentDriver != null &&
                 currentDriver.IsOwner &&
@@ -178,7 +179,6 @@ public class TractorController : NetworkBehaviour, IInteractable
                 if (fuelSystem != null)
                     fuelSystem.ToggleEngineServerRpc();
             }
-            // ----------------------------------------------
 
             if (wcFL != null && visualFL != null) UpdateSingleWheel(wcFL, visualFL);
             if (wcFR != null && visualFR != null) UpdateSingleWheel(wcFR, visualFR);
@@ -235,21 +235,24 @@ public class TractorController : NetworkBehaviour, IInteractable
             return;
         }
 
-        // --- YENİ EKLENEN: MOTOR KAPALIYSA ENGELLEME ---
-        // Eğer motor kapalıysa arabanın frenlerine sonuna kadar bas ve gidememesini sağla
-        if (fuelSystem != null && !fuelSystem.isEngineRunning.Value)
+        // --- DEĞİŞTİRİLEN KISIM: MOTOR VE LASTİK KONTROLÜ BİRLEŞTİRİLDİ ---
+        // Motor kapalıysa VEYA parçalardan (lastik, motor) herhangi biri patlamışsa
+        bool isEngineOff = fuelSystem != null && !fuelSystem.isEngineRunning.Value;
+        bool isBroken = vehicleStatus != null && !vehicleStatus.SurusIcinUygunMu();
+
+        if (isEngineOff || isBroken)
         {
             CurrentGasInput = 0f;
-            smoothedSteeringInput = 0f; // Direksiyon da kitlensin
+            smoothedSteeringInput = 0f;
 
             if (wcFL != null)
             {
                 wcFL.motorTorque = wcFR.motorTorque = wcBL.motorTorque = wcBR.motorTorque = 0f;
-                wcFL.brakeTorque = wcFR.brakeTorque = wcBL.brakeTorque = wcBR.brakeTorque = brakeForce; // Freni çek
+                wcFL.brakeTorque = wcFR.brakeTorque = wcBL.brakeTorque = wcBR.brakeTorque = brakeForce;
             }
-            return; // Buradan aşağıya inme (WASD çalışmaz)
+            return;
         }
-        // -----------------------------------------------
+        // -----------------------------------------------------------------
 
         CurrentGasInput = inputActions.Player.GasBrake.ReadValue<float>();
 

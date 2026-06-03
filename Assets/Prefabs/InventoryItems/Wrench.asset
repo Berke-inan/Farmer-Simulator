@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
+  m_Name: Wrench
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemID: 22
+  itemName: Wrench
+  itemType: 1
+  maxStack: 64
+  price: 0
+  icon: {fileID: 0}
+  heldModelPrefab: {fileID: 2918899054072305633, guid: 1e63a177210eff24c9d8a882f65037c7, type: 3}
+  groundPrefab: {fileID: 4165257365701531625, guid: 1465e6d0e8f5d1a49b746335fb250690, type: 3}
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}
+  ekinPrefab: {fileID: 0}

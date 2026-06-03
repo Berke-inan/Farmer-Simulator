@@ -4,6 +4,7 @@ using Unity.Netcode;
 public class BalyaMakinesi : NetworkBehaviour
 {
     private AttachableEquipment anaGovde;
+    private BreakDisableBehavior bozulmaKontrolu;
 
     [Header("Balya Üretim Ayarlarý")]
     public int gerekenMiktar = 10;
@@ -18,6 +19,7 @@ public class BalyaMakinesi : NetworkBehaviour
     private void Awake()
     {
         anaGovde = GetComponentInParent<AttachableEquipment>();
+        bozulmaKontrolu = GetComponent<BreakDisableBehavior>();
         if (anaGovde == null)
         {
             Debug.LogError("DÝKKAT: BalyaMakinesi üzerinde AttachableEquipment kodu bulunamadý!");
@@ -26,28 +28,24 @@ public class BalyaMakinesi : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (bozulmaKontrolu != null && bozulmaKontrolu.isBroken.Value) return;
         if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value) return;
 
         if (other.TryGetComponent(out BalyalanabilirObje yerdekiObje))
         {
             if (yerdekiObje.NetworkObject.IsSpawned)
             {
-                //Makine tamamen boþsa, yuttuðu ilk objenin genetiðini hafýzaya al
                 if (yutulanMiktar.Value == 0)
                 {
                     iceridekiMalzemeTipi = yerdekiObje.objeTipi;
                     uretilecekBalyaPrefab = yerdekiObje.balyaPrefab;
                 }
-                //Makine doluysa ama yerdeki obje FARKLI bir tipse yutma!
                 else if (iceridekiMalzemeTipi != yerdekiObje.objeTipi)
                 {
-                    return; // Ýþlemi iptal et, üzerinden geçip gitsin
+                    return;
                 }
 
-                //Tip uyuyorsa (veya makine boþsa) objeyi aðdan sil
                 yerdekiObje.NetworkObject.Despawn();
-
-                //Mideyi büyüt ve kapasite dolduysa balya fýrlat
                 MakineMidesiniDoldurServerRpc();
             }
         }
@@ -58,13 +56,11 @@ public class BalyaMakinesi : NetworkBehaviour
     {
         yutulanMiktar.Value++;
 
-        // Kapasite doldu mu?
         if (yutulanMiktar.Value >= gerekenMiktar)
         {
             yutulanMiktar.Value = 0;
             BalyaUret();
 
-            // Balya çýkýnca makineyi sýfýrla ki sýradaki iþlemde farklý bir ürün yutabilsin
             iceridekiMalzemeTipi = "";
             uretilecekBalyaPrefab = null;
         }
@@ -74,7 +70,6 @@ public class BalyaMakinesi : NetworkBehaviour
     {
         if (uretilecekBalyaPrefab != null && balyaCikisNoktasi != null)
         {
-            // Dinamik olarak hafýzadaki prefabi yarat
             GameObject yeniBalya = Instantiate(uretilecekBalyaPrefab, balyaCikisNoktasi.position, balyaCikisNoktasi.rotation);
             yeniBalya.GetComponent<NetworkObject>().Spawn();
 

@@ -4,6 +4,7 @@ using Unity.Netcode;
 public class EkimMakinesi : NetworkBehaviour, IInteractable
 {
     private AttachableEquipment anaGovde;
+    private BreakDisableBehavior bozulmaKontrolu;
 
     [Header("Makine Kapasitesi")]
     public int maxKapasite = 50;
@@ -17,11 +18,15 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
     public float islemAraligi = 0.15f;
     private float islemSayaci = 0f;
 
-    private void Awake() => anaGovde = GetComponentInParent<AttachableEquipment>();
+    private void Awake()
+    {
+        anaGovde = GetComponentInParent<AttachableEquipment>();
+        bozulmaKontrolu = GetComponent<BreakDisableBehavior>();
+    }
 
     private void OnTriggerStay(Collider other)
     {
-        // Sunucu tarafýnda çalýþma ve makine aktiflik kontrolleri
+        if (bozulmaKontrolu != null && bozulmaKontrolu.isBroken.Value) return;
         if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value || mevcutTohum.Value <= 0 || aktifEkinPrefab == null) return;
 
         islemSayaci += Time.deltaTime;
@@ -71,14 +76,11 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
     public void Interact(NetworkObject interactor)
     {
-        // Yeni sistem: Sadece PlayerInventory üzerinden kontrol saðlýyoruz
         if (interactor.TryGetComponent(out PlayerInventory inventory))
         {
             int aktifSlotIndex = inventory.activeHotbarIndex.Value;
             InventorySlot slot = inventory.slots[aktifSlotIndex];
 
-            // Eþya tohum mu ve envanterde yer var mý kontrolü
-            // Not: ItemData içinde bir 'isSeed' bool'u veya benzeri bir kontrol olduðunu varsayýyoruz
             if (!slot.IsEmpty && slot.itemData != null)
             {
                 if (mevcutTohum.Value < maxKapasite)
@@ -101,11 +103,10 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
                 ItemData data = slot.itemData;
 
-                // Makine boþsa ilk tohumun verilerini al, doluysa tohum türü uyuþuyor mu bak
                 if (mevcutTohum.Value == 0)
                 {
                     aktifTohumID = data.itemID;
-                    aktifEkinPrefab = data.groundPrefab; // ItemData'daki ekilecek prefab
+                    aktifEkinPrefab = data.groundPrefab;
                 }
                 else if (aktifTohumID != data.itemID) return;
 
@@ -115,7 +116,6 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
                 if (eklenecekMiktar > 0)
                 {
                     mevcutTohum.Value += eklenecekMiktar;
-                    // PlayerInventory'de yazdýðýmýz yeni miktar düþürme metodunu çaðýrýyoruz
                     envanter.DecreaseItemAmountServerRpc(slotIndex, eklenecekMiktar);
                 }
             }

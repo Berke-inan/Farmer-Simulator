@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 162432077986324154}
   - component: {fileID: 7826296093591086916}
+  - component: {fileID: 2577863842262869593}
   m_Layer: 0
   m_Name: Shovel_Visual
   m_TagString: Untagged
@@ -54,6 +55,21 @@ MonoBehaviour:
   atmaAcisi: {x: 20, y: 0, z: -45}
   vurusSesi: {fileID: 8300000, guid: 3cba72e137575d1429d034e5b201ec55, type: 3}
   tozEfektiPrefab: {fileID: 4827770507229295053, guid: 2216e6e9ddb6d6840b0f4acdee3e6a57, type: 3}
+--- !u!114 &2577863842262869593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5305824883323697836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56fe6bbc7e84a0b4f9e067b1146373cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalToolDurability
+  maxHealth: 100
+  currentHealth: 0
+  kirilmaSesi: {fileID: 8300000, guid: 23a348c462567a345afde910d9b79554, type: 3}
 --- !u!1001 &7852466512112865420
 PrefabInstance:
   m_ObjectHideFlags: 0
