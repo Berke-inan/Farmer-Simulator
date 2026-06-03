@@ -10,8 +10,23 @@ public class IlaclamaMakinesi : MonoBehaviour
     public ParticleSystem puskurtmeEfektiSol;
     public ParticleSystem puskurtmeEfektiSag;
 
+    private BreakDisableBehavior bozulmaKontrolu;
+
+    private void Awake()
+    {
+        bozulmaKontrolu = GetComponent<BreakDisableBehavior>();
+    }
+
     private void Update()
     {
+        // --- BOZULMA KONTROLÜ (EFEKTLERÝ DURDURMA) ---
+        if (bozulmaKontrolu != null && bozulmaKontrolu.isBroken.Value)
+        {
+            ToggleEffect(puskurtmeEfektiSol, false);
+            ToggleEffect(puskurtmeEfektiSag, false);
+            return;
+        }
+
         if (anaGovde == null) return;
 
         bool calisiyorMu = anaGovde.isWorking.Value;
@@ -30,6 +45,9 @@ public class IlaclamaMakinesi : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        // --- BOZULMA KONTROLÜ (ÝÞLEVÝ DURDURMA) ---
+        if (bozulmaKontrolu != null && bozulmaKontrolu.isBroken.Value) return;
+
         // 1. Önce NetworkManager'ýn varlýðýný ve Server olup olmadýðýný kontrol et
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
 

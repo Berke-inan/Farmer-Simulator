@@ -28,14 +28,14 @@ public class PlayerInventory : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         activeHotbarIndex.OnValueChanged += HandleHotbarChanged;
-        isHolstered.OnValueChanged += HandleHolsterChanged; // YENİ EKLENDİ
+        isHolstered.OnValueChanged += HandleHolsterChanged;
         UpdateHeldItemVisuals(activeHotbarIndex.Value);
     }
 
     public override void OnNetworkDespawn()
     {
         activeHotbarIndex.OnValueChanged -= HandleHotbarChanged;
-        isHolstered.OnValueChanged -= HandleHolsterChanged; // YENİ EKLENDİ
+        isHolstered.OnValueChanged -= HandleHolsterChanged;
     }
 
     private void HandleHotbarChanged(int previousIndex, int newIndex)
@@ -48,7 +48,6 @@ public class PlayerInventory : NetworkBehaviour
         UpdateHeldItemVisuals(activeHotbarIndex.Value);
     }
 
-    // --- YENİ: Zıplatma İsteği ---
     [Rpc(SendTo.Server)]
     public void RequestBounceServerRpc(ulong networkObjectId)
     {
@@ -56,7 +55,6 @@ public class PlayerInventory : NetworkBehaviour
         {
             if (netObj.TryGetComponent(out Rigidbody rb))
             {
-                // Eşyayı havaya zıplatma fiziği
                 rb.AddForce(Vector3.up * 5f, ForceMode.Impulse);
                 rb.AddTorque(UnityEngine.Random.insideUnitSphere * 2f, ForceMode.Impulse);
             }
@@ -68,10 +66,21 @@ public class PlayerInventory : NetworkBehaviour
     {
         if (!NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(networkObjectId, out NetworkObject netObj)) return;
 
+        if (netObj.TryGetComponent(out SprinkleController sprinkler))
+        {
+            if (sprinkler.calisiyorMu.Value)
+            {
+                Debug.Log("Çalışan fıskiyeyi yerden alamazsın! Önce vanayı kapatmalısın.");
+                return;
+            }
+        }
+
         if (netObj.TryGetComponent(out InteractableItem groundItem))
         {
             int idToSend = groundItem.itemID;
             int amountToSend = groundItem.amount;
+            float canToSend = groundItem.kalanCan;
+
             netObj.Despawn();
 
             ClientRpcParams clientRpcParams = new ClientRpcParams
@@ -79,21 +88,19 @@ public class PlayerInventory : NetworkBehaviour
                 Send = new ClientRpcSendParams { TargetClientIds = new ulong[] { rpcParams.Receive.SenderClientId } }
             };
 
-            AddLocalItemClientRpc(idToSend, amountToSend, clientRpcParams);
+            AddLocalItemClientRpc(idToSend, amountToSend, canToSend, clientRpcParams);
         }
     }
 
     [ClientRpc]
-    private void AddLocalItemClientRpc(int itemID, int amount, ClientRpcParams clientRpcParams = default)
+    private void AddLocalItemClientRpc(int itemID, int amount, float kalanCan, ClientRpcParams clientRpcParams = default)
     {
         if (ItemRegistry.Instance == null || ItemRegistry.Instance.itemDatabase == null) return;
         ItemData fetchedData = ItemRegistry.Instance.itemDatabase.GetItemByID(itemID);
         if (fetchedData == null) return;
 
-        // --- DEĞİŞİKLİK: Sadece aktif slota bakıyoruz ---
         int i = activeHotbarIndex.Value;
 
-        // 1. Durum: Slot aynı eşya ile dolu mu ve stacklenebilir mi?
         if (!slots[i].IsEmpty && slots[i].itemData == fetchedData && slots[i].amount < fetchedData.maxStack)
         {
             int space = fetchedData.maxStack - slots[i].amount;
@@ -102,10 +109,9 @@ public class PlayerInventory : NetworkBehaviour
             OnSlotChanged?.Invoke(i, slots[i]);
             UpdateHeldItemVisuals(i);
         }
-        // 2. Durum: Slot boş mu?
         else if (slots[i].IsEmpty)
         {
-            slots[i].AddItem(fetchedData, amount);
+            slots[i].AddItem(fetchedData, amount, kalanCan);
             OnSlotChanged?.Invoke(i, slots[i]);
             UpdateHeldItemVisuals(i);
         }
@@ -114,13 +120,13 @@ public class PlayerInventory : NetworkBehaviour
     public void ToggleHolster()
     {
         if (!IsOwner) return;
-        isHolstered.Value = !isHolstered.Value; // Durumu tersine çevir
+        isHolstered.Value = !isHolstered.Value;
     }
 
     public void SetHolstered(bool state)
     {
         if (!IsOwner) return;
-        isHolstered.Value = state; // Durumu zorla ayarla (Traktör için)
+        isHolstered.Value = state;
     }
 
     public void ChangeHotbarSlot(int index)
@@ -130,7 +136,6 @@ public class PlayerInventory : NetworkBehaviour
         {
             activeHotbarIndex.Value = index;
 
-            // YENİ: 1-9 arası bir tuşa basılırsa eşya otomatik olarak geri gelsin
             if (isHolstered.Value)
             {
                 isHolstered.Value = false;
@@ -142,7 +147,6 @@ public class PlayerInventory : NetworkBehaviour
     {
         if (eldekiObje != null) Destroy(eldekiObje);
 
-        // YENİ: Eğer gizlenme modu açıksa, eskiyi sildikten sonra yenisini oluşturmadan çık
         if (isHolstered.Value) return;
 
         if (slotIndex < 0 || slotIndex >= slots.Length) return;
@@ -153,9 +157,13 @@ public class PlayerInventory : NetworkBehaviour
         eldekiObje = Instantiate(currentSlot.itemData.heldModelPrefab, handTransform);
         eldekiObje.transform.localPosition = currentSlot.itemData.holdPositionOffset;
         eldekiObje.transform.localEulerAngles = currentSlot.itemData.holdRotationOffset;
+
+        if (eldekiObje.TryGetComponent(out LocalToolDurability ltd))
+        {
+            ltd.currentHealth = currentSlot.kalanCan == -1f ? ltd.maxHealth : currentSlot.kalanCan;
+        }
     }
 
-    // --- YENİ: Slot Dolu mu Kontrolü (Local) ---
     public bool CanPickupToActiveSlot(int itemID)
     {
         InventorySlot activeSlot = slots[activeHotbarIndex.Value];
@@ -174,6 +182,8 @@ public class PlayerInventory : NetworkBehaviour
         if (activeSlot.IsEmpty) return;
 
         int idToDrop = activeSlot.itemData.itemID;
+        float canToDrop = activeSlot.kalanCan;
+
         activeSlot.amount--;
 
         if (activeSlot.amount <= 0)
@@ -184,11 +194,12 @@ public class PlayerInventory : NetworkBehaviour
 
         OnSlotChanged?.Invoke(activeHotbarIndex.Value, activeSlot);
         Transform camTransform = GetComponent<PlayerInteractor>().playerCamera;
-        DropItemServerRpc(idToDrop, handTransform.position, camTransform.forward);
+
+        DropItemServerRpc(idToDrop, canToDrop, handTransform.position, camTransform.forward);
     }
 
     [Rpc(SendTo.Server)]
-    private void DropItemServerRpc(int itemID, Vector3 dropPosition, Vector3 forwardDirection, RpcParams rpcParams = default)
+    private void DropItemServerRpc(int itemID, float kalanCan, Vector3 dropPosition, Vector3 forwardDirection, RpcParams rpcParams = default)
     {
         if (ItemRegistry.Instance == null || ItemRegistry.Instance.itemDatabase == null) return;
         ItemData data = ItemRegistry.Instance.itemDatabase.GetItemByID(itemID);
@@ -197,11 +208,11 @@ public class PlayerInventory : NetworkBehaviour
         Vector3 spawnPos = dropPosition + forwardDirection * 1.5f;
         GameObject droppedObj = Instantiate(data.groundPrefab, spawnPos, Quaternion.identity);
 
-        // 1. Yerden alabilmek için
         if (droppedObj.TryGetComponent(out InteractableItem groundItem))
+        {
             groundItem.itemID = itemID;
-
-     
+            groundItem.kalanCan = kalanCan;
+        }
 
         NetworkObject netObj = droppedObj.GetComponent<NetworkObject>();
         netObj.Spawn();
@@ -211,6 +222,70 @@ public class PlayerInventory : NetworkBehaviour
             rb.AddForce(forwardDirection * 2f + Vector3.up * 2f, ForceMode.Impulse);
         }
     }
+
+    [Rpc(SendTo.Server)]
+    public void UseHeldToolServerRpc(float damageAmount)
+    {
+        int index = activeHotbarIndex.Value;
+        if (slots[index].IsEmpty) return;
+
+        if (slots[index].kalanCan == -1f)
+        {
+            if (slots[index].itemData.heldModelPrefab.TryGetComponent(out LocalToolDurability ltd))
+            {
+                slots[index].kalanCan = ltd.maxHealth;
+            }
+            else
+            {
+                slots[index].kalanCan = 100f;
+            }
+        }
+
+        slots[index].kalanCan -= damageAmount;
+
+        if (slots[index].kalanCan <= 0)
+        {
+            slots[index].ClearSlot();
+            ToolBrokenClientRpc(index);
+        }
+        else
+        {
+            UpdateSlotClientRpc(index, slots[index].kalanCan);
+        }
+    }
+
+    [ClientRpc]
+    private void ToolBrokenClientRpc(int slotIndex)
+    {
+        if (slotIndex == activeHotbarIndex.Value && eldekiObje != null)
+        {
+            if (eldekiObje.TryGetComponent(out LocalToolDurability ltd) && ltd.kirilmaSesi != null)
+            {
+                AudioSource.PlayClipAtPoint(ltd.kirilmaSesi, handTransform.position);
+            }
+        }
+
+        slots[slotIndex].ClearSlot();
+        UpdateHeldItemVisuals(slotIndex);
+        OnSlotChanged?.Invoke(slotIndex, slots[slotIndex]);
+    }
+
+    [ClientRpc]
+    private void UpdateSlotClientRpc(int slotIndex, float yeniCan)
+    {
+        slots[slotIndex].kalanCan = yeniCan;
+
+        if (slotIndex == activeHotbarIndex.Value && eldekiObje != null)
+        {
+            if (eldekiObje.TryGetComponent(out LocalToolDurability ltd))
+            {
+                ltd.currentHealth = yeniCan;
+            }
+        }
+
+        OnSlotChanged?.Invoke(slotIndex, slots[slotIndex]);
+    }
+
     [Header("Sepet Verileri")]
     public NetworkVariable<int> sepetDoluluk = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
@@ -328,7 +403,7 @@ public class PlayerInventory : NetworkBehaviour
             Send = new ClientRpcSendParams { TargetClientIds = new ulong[] { rpcParams.Receive.SenderClientId } }
         };
 
-        AddLocalItemClientRpc(itemID, amount, clientRpcParams);
+        AddLocalItemClientRpc(itemID, amount, -1f, clientRpcParams);
     }
 
     [Rpc(SendTo.Server)]
@@ -338,17 +413,35 @@ public class PlayerInventory : NetworkBehaviour
 
         ItemData data = slots[slotIndex].itemData;
 
-        // DEĞİŞİKLİK: Artık groundPrefab değil, ekinPrefab arıyoruz
         if (data.ekinPrefab != null)
         {
             GameObject yeniFide = Instantiate(data.ekinPrefab, nokta + (Vector3.up * 0.05f), Quaternion.identity);
             NetworkObject netObj = yeniFide.GetComponent<NetworkObject>();
             netObj.Spawn();
 
-            // Ekilen bitkiye tohumun ID'sini otomatik veriyoruz
             if (yeniFide.TryGetComponent(out ModularCrop crop))
             {
                 crop.tohumID.Value = data.itemID;
+            }
+
+            DecreaseItemAmountServerRpc(slotIndex, 1);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void FiskiyeYerlestirServerRpc(Vector3 nokta, int slotIndex)
+    {
+        if (slots[slotIndex].IsEmpty || slots[slotIndex].itemData == null) return;
+        ItemData data = slots[slotIndex].itemData;
+
+        if (data.groundPrefab != null)
+        {
+            GameObject yeniObje = Instantiate(data.groundPrefab, nokta, Quaternion.identity);
+            yeniObje.GetComponent<NetworkObject>().Spawn();
+
+            if (yeniObje.TryGetComponent(out Rigidbody rb))
+            {
+                rb.isKinematic = true;
             }
 
             DecreaseItemAmountServerRpc(slotIndex, 1);
@@ -362,7 +455,6 @@ public class PlayerInventory : NetworkBehaviour
         {
             if (obj.TryGetComponent(out ModularCrop ekin))
             {
-                // YENİ SİSTEM: İsme göre değil, direkt ID'ye göre çekiyoruz
                 TohumVerisi v = TerrainLayerManager.Instance.GetTohumVerisi(ekin.tohumID.Value);
 
                 if (v != null && v.dusecekTohumPrefab != null)
@@ -370,7 +462,6 @@ public class PlayerInventory : NetworkBehaviour
                     int toplamUrun = v.hasatMiktari + ekin.extraYield.Value;
                     for (int i = 0; i < toplamUrun; i++)
                     {
-                        // Eşyaları etrafa saçma efekti
                         Vector3 off = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), 1f, UnityEngine.Random.Range(-0.5f, 0.5f));
                         GameObject t = Instantiate(v.dusecekTohumPrefab, pos + off, Quaternion.identity);
                         t.GetComponent<NetworkObject>().Spawn();
@@ -379,7 +470,6 @@ public class PlayerInventory : NetworkBehaviour
 
                 bool wasWet = TerrainLayerManager.Instance.IsSoilWet(pos);
 
-                // Güvenli silme işlemi
                 if (obj.IsSceneObject == true)
                 {
                     obj.Despawn(false);
@@ -390,7 +480,6 @@ public class PlayerInventory : NetworkBehaviour
                     obj.Despawn(true);
                 }
 
-                // Toprak ıslaksa hasattan sonra tekrar ıslak görünüme çevir
                 if (wasWet)
                 {
                     TerrainLayerManager.Instance.PaintSoilServerRpc(pos, TerrainLayerManager.Instance.tilledLayerIndex, 3);
@@ -398,6 +487,7 @@ public class PlayerInventory : NetworkBehaviour
             }
         }
     }
+
     [Rpc(SendTo.Server)]
     public void GubreleServerRpc(ulong cropNetId, float growthMultiplier, int yBonus, int slotIndex)
     {
@@ -408,8 +498,6 @@ public class PlayerInventory : NetworkBehaviour
                 if (!targetCrop.isFertilized.Value)
                 {
                     targetCrop.ApplyFertilizer(growthMultiplier, yBonus);
-
-                    // Gübreyi envanterden düş
                     DecreaseItemAmountServerRpc(slotIndex, 1);
                 }
             }
@@ -452,6 +540,4 @@ public class PlayerInventory : NetworkBehaviour
             tData.SetDetailLayer(startX, startZ, i, details);
         }
     }
-
-
 }

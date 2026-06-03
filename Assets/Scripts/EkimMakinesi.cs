@@ -1,18 +1,14 @@
 using UnityEngine;
 using Unity.Netcode;
-using System.Collections.Generic; // List<> yapýsý için eklendi
 
 public class EkimMakinesi : NetworkBehaviour, IInteractable
 {
     private AttachableEquipment anaGovde;
+    private BreakDisableBehavior bozulmaKontrolu;
 
     [Header("Makine Kapasitesi")]
     public int maxKapasite = 50;
     public NetworkVariable<int> mevcutTohum = new NetworkVariable<int>(0);
-
-    // V tuþu ile açýlýp kapanma durumunu aðda senkronize tutan deðiþken
-    [Header("Çalýþma Durumu")]
-    public NetworkVariable<bool> makineAcik = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private int aktifTohumID = 0;
     private GameObject aktifEkinPrefab;
@@ -22,12 +18,16 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
     public float islemAraligi = 0.15f;
     private float islemSayaci = 0f;
 
-    private void Awake() => anaGovde = GetComponentInParent<AttachableEquipment>();
+    private void Awake()
+    {
+        anaGovde = GetComponentInParent<AttachableEquipment>();
+        bozulmaKontrolu = GetComponent<BreakDisableBehavior>();
+    }
 
     private void OnTriggerStay(Collider other)
     {
-        // GÜNCELLEME: makineAcik.Value kontrolü eklendi. V ile açýlmadýysa çalýþmaz.
-        if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value || !makineAcik.Value || mevcutTohum.Value <= 0 || aktifEkinPrefab == null) return;
+        if (bozulmaKontrolu != null && bozulmaKontrolu.isBroken.Value) return;
+        if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value || mevcutTohum.Value <= 0 || aktifEkinPrefab == null) return;
 
         islemSayaci += Time.deltaTime;
         if (islemSayaci < islemAraligi) return;
@@ -74,24 +74,6 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
         if (mevcutTohum.Value <= 0) { aktifEkinPrefab = null; aktifTohumID = 0; }
     }
 
-    // ==========================================
-    // DÝNAMÝK HUD TUÞ ÝPUÇLARI (IInteractable)
-    // ==========================================
-    public List<ActionPrompt> GetPrompts()
-    {
-        List<ActionPrompt> prompts = new List<ActionPrompt>();
-
-        // 1. Eylem: Tohum Yükleme durumu (E)
-        string tohumMetni = mevcutTohum.Value >= maxKapasite ? "KAPASÝTE DOLU" : "TOHUM YÜKLE";
-        prompts.Add(new ActionPrompt("E", tohumMetni));
-
-        // 2. Eylem: Açma/Kapama durumu (V)
-        string calismaMetni = makineAcik.Value ? "MAKÝNEYÝ KAPAT" : "MAKÝNEYÝ AÇ";
-        prompts.Add(new ActionPrompt("V", calismaMetni));
-
-        return prompts;
-    }
-
     public void Interact(NetworkObject interactor)
     {
         if (interactor.TryGetComponent(out PlayerInventory inventory))
@@ -107,14 +89,6 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
                 }
             }
         }
-    }
-
-    // V tuþuna basýldýðýnda dýþarýdan (Traktörden veya PlayerInteractor'dan) çaðrýlacak Rpc metodu
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void ToggleMachineServerRpc()
-    {
-        makineAcik.Value = !makineAcik.Value;
-        Debug.Log($"[Ekim Makinesi] Çalýþma durumu güncellendi: {makineAcik.Value}");
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]

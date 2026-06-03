@@ -75,6 +75,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
       insertIndex: -1
       addedObject: {fileID: 670205369603743659}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -9039291200406481637}
   m_SourcePrefab: {fileID: 100100000, guid: 45a6243f2db419d45a10945b57770dab, type: 3}
 --- !u!1 &7992183745427110616 stripped
 GameObject:
@@ -100,3 +103,18 @@ MonoBehaviour:
   vurusAcisi: {x: 60, y: 75, z: 0}
   hareketSiddeti: 0.2
   kesmeSesi: {fileID: 8300000, guid: 7b075cdcd9b20c24db8bc525872960e7, type: 3}
+--- !u!114 &-9039291200406481637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7992183745427110616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56fe6bbc7e84a0b4f9e067b1146373cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalToolDurability
+  maxHealth: 100
+  currentHealth: 0
+  kirilmaSesi: {fileID: 8300000, guid: 23a348c462567a345afde910d9b79554, type: 3}
