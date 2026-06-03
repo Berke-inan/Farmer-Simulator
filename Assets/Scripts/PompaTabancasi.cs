@@ -5,67 +5,133 @@ using UnityEngine.InputSystem;
 
 public class PompaTabancasi : NetworkBehaviour, IInteractable
 {
-    [Header("Ýstasyon Baðlantýlarý")]
+    [Header("Baðlantý")]
     public YakitIstasyonu bagliIstasyon;
-    public Transform istasyonYuvasi;
 
     [Header("Dolum Ayarlarý")]
     public float dolumMesafesi = 4f;
     public float traktorDolumHizi = 20f;
 
+    [Header("Yuva Ayarlarý")]
+    public Transform istasyonYuvasi;
+
     public NetworkVariable<ulong> tutanOyuncuId = new NetworkVariable<ulong>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    private PlayerInventory cachedInventory;
-    private Transform cachedPlayerCamera;
-    private Transform aktifElTransform;
-    private Rigidbody rb;
+    private PlayerInventory inventory;
     private float aktarimBirikimi = 0f;
+    private Transform aktifElTransform;
+    private Collider anaCollider;
+    private Rigidbody rb;
     private bool lokalTutanBenMiyim = false;
+    private bool sonrakiKareBirakabilir = false;
 
     private void Awake()
     {
+        anaCollider = GetComponent<Collider>();
         rb = GetComponent<Rigidbody>();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        tutanOyuncuId.OnValueChanged += OnTutanOyuncuChanged;
+        if (tutanOyuncuId.Value != 0)
+        {
+            OnTutanOyuncuChanged(0, tutanOyuncuId.Value);
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        tutanOyuncuId.OnValueChanged -= OnTutanOyuncuChanged;
+    }
+
+    private void OnTutanOyuncuChanged(ulong oldId, ulong newId)
+    {
+        if (newId != 0)
+        {
+            sonrakiKareBirakabilir = false;
+            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(newId, out NetworkObject playerObj))
+            {
+                inventory = playerObj.GetComponent<PlayerInventory>();
+                if (inventory != null)
+                {
+                    aktifElTransform = inventory.handTransform;
+                    if (playerObj.IsOwner)
+                    {
+                        lokalTutanBenMiyim = true;
+                        inventory.SetHolstered(true);
+                    }
+                }
+            }
+            if (rb != null) rb.isKinematic = true;
+            if (anaCollider != null) anaCollider.enabled = false;
+        }
+        else
+        {
+            if (inventory != null && inventory.IsOwner)
+            {
+                inventory.SetHolstered(false);
+            }
+
+            inventory = null;
+            aktifElTransform = null;
+            aktarimBirikimi = 0f;
+            lokalTutanBenMiyim = false;
+            sonrakiKareBirakabilir = false;
+            if (rb != null) rb.isKinematic = true;
+            if (anaCollider != null) anaCollider.enabled = true;
+        }
     }
 
     private void Update()
     {
         if (aktifElTransform != null)
         {
-            if (rb != null) rb.isKinematic = true;
-
             transform.position = aktifElTransform.position;
             transform.rotation = aktifElTransform.rotation;
+        }
+        else if (tutanOyuncuId.Value == 0 && istasyonYuvasi != null)
+        {
+            transform.position = istasyonYuvasi.position;
+            transform.rotation = istasyonYuvasi.rotation;
+        }
 
-            if (lokalTutanBenMiyim && cachedInventory != null && cachedPlayerCamera != null)
+        if (lokalTutanBenMiyim)
+        {
+            if (Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame)
             {
-                if (Keyboard.current != null && Keyboard.current.rKey.isPressed)
+                if (sonrakiKareBirakabilir)
                 {
-                    Ray ray = new Ray(cachedPlayerCamera.position, cachedPlayerCamera.forward);
-
-                    if (Physics.Raycast(ray, out RaycastHit hit, dolumMesafesi))
-                    {
-                        TractorFuelSystem traktor = hit.collider.GetComponentInParent<TractorFuelSystem>();
-                        if (traktor != null && traktor.currentFuel.Value < traktor.maxFuel)
-                        {
-                            aktarimBirikimi += traktorDolumHizi * Time.deltaTime;
-                            if (aktarimBirikimi >= 2.5f)
-                            {
-                                cachedInventory.YakitAktarServerRpc(traktor.NetworkObjectId, aktarimBirikimi, bagliIstasyon.NetworkObjectId);
-                                aktarimBirikimi = 0f;
-                            }
-                        }
-                    }
+                    PompayiBrakServerRpc();
+                    return;
                 }
             }
-        }
-        else if (tutanOyuncuId.Value == 0)
-        {
-            if (rb != null) rb.isKinematic = true;
 
-            if (istasyonYuvasi != null)
+            if (!sonrakiKareBirakabilir)
             {
-                transform.position = istasyonYuvasi.position;
-                transform.rotation = istasyonYuvasi.rotation;
+                sonrakiKareBirakabilir = true;
+            }
+        }
+
+        if (inventory == null || !inventory.IsOwner) return;
+
+        if (Keyboard.current != null && Keyboard.current.rKey.isPressed)
+        {
+            Transform cam = inventory.GetComponent<PlayerInteractor>().playerCamera;
+            Ray ray = new Ray(cam.position, cam.forward);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, dolumMesafesi))
+            {
+                TractorFuelSystem traktor = hit.collider.GetComponentInParent<TractorFuelSystem>();
+                if (traktor != null && traktor.currentFuel.Value < traktor.maxFuel)
+                {
+                    aktarimBirikimi += traktorDolumHizi * Time.deltaTime;
+                    if (aktarimBirikimi >= 2.5f)
+                    {
+                        inventory.YakitAktarServerRpc(traktor.NetworkObjectId, aktarimBirikimi, bagliIstasyon.NetworkObjectId);
+                        aktarimBirikimi = 0f;
+                    }
+                }
             }
         }
     }
@@ -76,77 +142,35 @@ public class PompaTabancasi : NetworkBehaviour, IInteractable
         {
             PompayiAlServerRpc(user.NetworkObjectId);
         }
-        else if (tutanOyuncuId.Value == user.NetworkObjectId)
-        {
-            PompayiBrakServerRpc();
-        }
     }
 
     [Rpc(SendTo.Server)]
     private void PompayiAlServerRpc(ulong playerId)
     {
         tutanOyuncuId.Value = playerId;
-        PompayiAlClientRpc(playerId);
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void PompayiAlClientRpc(ulong playerId)
-    {
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject playerObj))
-        {
-            PlayerInventory inventory = playerObj.GetComponent<PlayerInventory>();
-            PlayerInteractor interactor = playerObj.GetComponent<PlayerInteractor>();
-
-            if (inventory != null)
-            {
-                cachedInventory = inventory;
-                aktifElTransform = inventory.handTransform;
-
-                if (interactor != null)
-                {
-                    cachedPlayerCamera = interactor.playerCamera;
-                }
-
-                if (playerObj.IsOwner)
-                {
-                    lokalTutanBenMiyim = true;
-                    inventory.SetHolstered(true);
-                }
-            }
-        }
     }
 
     [Rpc(SendTo.Server)]
     private void PompayiBrakServerRpc()
     {
         tutanOyuncuId.Value = 0;
-        PompayiBrakClientRpc();
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void PompayiBrakClientRpc()
-    {
-        if (lokalTutanBenMiyim)
-        {
-            if (NetworkManager.Singleton.LocalClient.PlayerObject.TryGetComponent(out PlayerInventory inventory))
-            {
-                inventory.SetHolstered(false);
-            }
-        }
-
-        lokalTutanBenMiyim = false;
-        aktifElTransform = null;
-        cachedInventory = null;
-        cachedPlayerCamera = null;
-        aktarimBirikimi = 0f;
     }
 
     public List<ActionPrompt> GetPrompts()
     {
-        string eylemMetni = tutanOyuncuId.Value == 0 ? "Yakýt Pompasýný Al" : "Pompayý Yuvasýna Býrak";
-        return new List<ActionPrompt>
+        if (tutanOyuncuId.Value == 0)
         {
-            new ActionPrompt("E", eylemMetni)
-        };
+            return new List<ActionPrompt>
+            {
+                new ActionPrompt("E", "Yakýt Pompasýný Al")
+            };
+        }
+        else
+        {
+            return new List<ActionPrompt>
+            {
+                new ActionPrompt("G", "Pompayý Yuvasýna Býrak")
+            };
+        }
     }
 }
