@@ -1,7 +1,8 @@
+using GLTFast.Schema;
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Unity.Netcode;
-using System.Collections.Generic;
 
 namespace FarmerSimulator.UI
 {
@@ -15,25 +16,28 @@ namespace FarmerSimulator.UI
 
         private VisualElement _currentEnergyCircle;
         private Label _energyTextLabel;
-        private Label _energyMaxLabel; // Yeni
+        private Label _energyMaxLabel;
         private Label _lblMoney;
         private Label _lblTime;
         private Label _lblDay;
 
+        // Dinamik Tuş İpuçları Konteyneri
+        private VisualElement _promptContainer;
+
         // Çizim Motoru Verileri
         private float _currentEnergyVal = 100f;
         private float _maxEnergyVal = 100f;
-        private float _capacityVal = 100f; // Asla geçilemeyecek üst sınır
+        private float _capacityVal = 100f;
 
-        // Fotoğraftaki Renkler
-        private Color _colorBackground = new Color(0.1f, 0.15f, 0.1f); // Koyu arka plan halkası
-        private Color _colorNormal = new Color(0f, 1f, 0.4f); // Parlak yeşil (Güncel)
-        private Color _colorCritical = new Color(0.97f, 0.25f, 0.25f); // Kırmızı (Kritik güncel enerji)
-        private Color _colorLostMax = new Color(0.15f, 0.3f, 0.2f); // Kaybedilen maksimum enerji (Koyu yeşil/saydam)
-        private Color _colorCurrent; // O anki güncel renk
+        // Enerji Barı Renkleri
+        private Color _colorBackground = new Color(0.1f, 0.15f, 0.1f);
+        private Color _colorNormal = new Color(0f, 1f, 0.4f);
+        private Color _colorCritical = new Color(0.97f, 0.25f, 0.25f);
+        private Color _colorLostMax = new Color(0.15f, 0.3f, 0.2f);
+        private Color _colorCurrent;
 
         private List<VisualElement> _uiSlots = new List<VisualElement>();
-        private List<Image> _uiIcons = new List<Image>();
+        private List<UnityEngine.UIElements.Image> _uiIcons = new List<UnityEngine.UIElements.Image>();
         private List<Label> _uiAmounts = new List<Label>();
 
         private PlayerInventory _boundInventory;
@@ -61,6 +65,9 @@ namespace FarmerSimulator.UI
             _energyTextLabel = root.Q<Label>("EnergyTextLabel");
             _energyMaxLabel = root.Q<Label>("EnergyMaxLabel");
 
+            // Dinamik Yönerge Konteynerini Bağlama
+            _promptContainer = root.Q<VisualElement>("ActionPromptContainer");
+
             if (_currentEnergyCircle != null)
             {
                 _currentEnergyCircle.generateVisualContent += DrawRadialEnergyBar;
@@ -71,6 +78,16 @@ namespace FarmerSimulator.UI
 
         private void Update()
         {
+            // 1. Menü durumuna göre HUD'ı tamamen gizle veya göster
+            if (_uiDocument != null && _uiDocument.rootVisualElement != null)
+            {
+                _uiDocument.rootVisualElement.style.display = MainMenuController.IsMenuOpen ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+
+            // Menü açıksa arkada boşuna enerji/para hesaplaması yapmasın
+            if (MainMenuController.IsMenuOpen) return;
+
+            // 2. Oyuncu bağlantısı kontrolü
             if (_boundInventory == null && NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null)
             {
                 var localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
@@ -80,6 +97,7 @@ namespace FarmerSimulator.UI
                 }
             }
 
+            // 3. Değerleri güncelle
             UpdateDynamicStats();
         }
 
@@ -125,7 +143,7 @@ namespace FarmerSimulator.UI
                 numLabel.text = i < 9 ? (i + 1).ToString() : "0";
                 slot.Add(numLabel);
 
-                var icon = new Image();
+                var icon = new UnityEngine.UIElements.Image();
                 icon.AddToClassList("slot-icon");
                 slot.Add(icon);
 
@@ -188,9 +206,9 @@ namespace FarmerSimulator.UI
             // ENERJİ GÜNCELLEMESİ
             if (_boundEnergy != null && _currentEnergyCircle != null)
             {
-                _capacityVal = _boundEnergy.maksimumKapasite; // Örn: 100
-                _maxEnergyVal = _boundEnergy.maxEnerji.Value; // Örn: 75
-                _currentEnergyVal = _boundEnergy.guncelEnerji.Value; // Örn: 60
+                _capacityVal = _boundEnergy.maksimumKapasite;
+                _maxEnergyVal = _boundEnergy.maxEnerji.Value;
+                _currentEnergyVal = _boundEnergy.guncelEnerji.Value;
 
                 // Renk Belirleme
                 if (_currentEnergyVal <= _boundEnergy.eylemYapmaSiniri * 2f)
@@ -198,7 +216,7 @@ namespace FarmerSimulator.UI
                 else
                     _colorCurrent = _colorNormal;
 
-                // Metinleri Güncelleme (80 / 100)
+                // Metinleri Güncelleme
                 if (_energyTextLabel != null) _energyTextLabel.text = ((int)_currentEnergyVal).ToString();
                 if (_energyMaxLabel != null) _energyMaxLabel.text = $"/ {(int)_maxEnergyVal}";
 
@@ -214,13 +232,49 @@ namespace FarmerSimulator.UI
         }
 
         // ==========================================
-        // GÜNCELLEME: DAHA KALIN HALKALAR İLE ÇİZİM MOTORU
+        // DİNAMİK YÖNERGE (PROMPT) GÜNCELLEME SİSTEMİ
+        // ==========================================
+        public void UpdateActionPrompts(List<ActionPrompt> prompts)
+        {
+            if (_promptContainer == null) return;
+
+            // Her çağrıldığında eski tuşları temizle
+            _promptContainer.Clear();
+
+            if (prompts == null || prompts.Count == 0) return;
+
+            // Listedeki her bir tuş/eylem için dinamik olarak görsel oluştur
+            foreach (var prompt in prompts)
+            {
+                var row = new VisualElement();
+                row.AddToClassList("prompt-row");
+
+                var actionLabel = new Label(prompt.Action);
+                actionLabel.AddToClassList("prompt-action-text");
+
+                var keyBox = new VisualElement();
+                keyBox.AddToClassList("prompt-key-box");
+
+                var keyLabel = new Label(prompt.Key);
+                keyLabel.AddToClassList("prompt-key-text");
+
+                keyBox.Add(keyLabel);
+
+                // Önce Eylem yazısı, sağına turuncu Tuş kutusu eklensin
+                row.Add(actionLabel);
+                row.Add(keyBox);
+
+                _promptContainer.Add(row);
+            }
+        }
+
+        // ==========================================
+        // DAHA KALIN HALKALAR İLE ÇİZİM MOTORU
         // ==========================================
         private void DrawRadialEnergyBar(MeshGenerationContext ctx)
         {
             var painter = ctx.painter2D;
 
-            // İSTEĞİN: Halkaları kalınlaştırdım (8f -> 14f)
             float lineWidth = 14f;
 
             painter.lineWidth = lineWidth;
@@ -244,7 +298,7 @@ namespace FarmerSimulator.UI
             float currentEndAngle = startAngle + (360f * currentPct);
             float maxEndAngle = startAngle + (360f * maxPct);
 
-            // 1. KATMAN: Koyu Arka Plan Halkası (C# ile çiziliyor)
+            // 1. KATMAN: Koyu Arka Plan Halkası
             painter.strokeColor = _colorBackground;
             painter.BeginPath();
             painter.Arc(center, radius, 0f, 360f, ArcDirection.Clockwise);
@@ -281,6 +335,24 @@ namespace FarmerSimulator.UI
             {
                 _currentEnergyCircle.generateVisualContent -= DrawRadialEnergyBar;
             }
+        }
+
+        public void SetPlayerHUDVisible(bool state)
+        {
+            var displayState = state ? UnityEngine.UIElements.DisplayStyle.Flex : UnityEngine.UIElements.DisplayStyle.None;
+
+            // _uiDocument üzerinden kök elemanı alıyoruz
+            if (_uiDocument == null || _uiDocument.rootVisualElement == null) return;
+            var root = _uiDocument.rootVisualElement;
+
+            // 1. Hotbar gizle/aç
+            if (_hotbarContainer != null)
+                _hotbarContainer.style.display = displayState;
+
+            // 2. Enerji dairesini gizle/aç
+            var energyWidget = root.Q<UnityEngine.UIElements.VisualElement>("EnergyWidget");
+            if (energyWidget != null)
+                energyWidget.style.display = displayState;
         }
     }
 }

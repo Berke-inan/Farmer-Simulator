@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -62,6 +63,9 @@ public class PlayerInteractor : NetworkBehaviour
 
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
 
+        // Ekrana basılacak tuşları tutacağımız geçici liste
+        List<ActionPrompt> currentPrompts = new List<ActionPrompt>();
+
         if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
         {
             OutlineGlow targetGlow = hit.collider.GetComponentInParent<OutlineGlow>();
@@ -75,13 +79,22 @@ public class PlayerInteractor : NetworkBehaviour
                     currentGlowingObject.EnableGlow();
                 }
             }
-            else
+            else if (currentGlowingObject != null)
             {
-                if (currentGlowingObject != null)
-                {
-                    currentGlowingObject.DisableGlow();
-                    currentGlowingObject = null;
-                }
+                currentGlowingObject.DisableGlow();
+                currentGlowingObject = null;
+            }
+
+            IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+            if (interactable != null)
+            {
+                currentPrompts.AddRange(interactable.GetPrompts());
+            }
+
+            ISecondaryInteractable secondary = hit.collider.GetComponentInParent<ISecondaryInteractable>();
+            if (secondary != null)
+            {
+                // currentPrompts.AddRange(secondary.GetPrompts()); 
             }
         }
         else
@@ -91,6 +104,22 @@ public class PlayerInteractor : NetworkBehaviour
                 currentGlowingObject.DisableGlow();
                 currentGlowingObject = null;
             }
+        }
+
+        if (currentPrompts.Count == 0 && inventory != null && inventory.eldekiObje != null)
+        {
+            if (inventory.eldekiObje.TryGetComponent(out IUseableTool alet))
+            {
+                currentPrompts.Add(new ActionPrompt("Sol Tık", "KULLAN"));
+            }
+
+            currentPrompts.Add(new ActionPrompt("G", "YERE AT"));
+        }
+
+        // ÇÖZÜM BURASI: Bu satırı yorum satırından çıkardım, artık yazılar UI'a iletilecek!
+        if (FarmerSimulator.UI.HUDManager.Instance != null)
+        {
+            FarmerSimulator.UI.HUDManager.Instance.UpdateActionPrompts(currentPrompts);
         }
     }
 

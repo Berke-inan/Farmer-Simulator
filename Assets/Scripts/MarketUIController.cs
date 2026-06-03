@@ -8,6 +8,9 @@ using UnityEngine.InputSystem;
 
 public class MarketUIController : MonoBehaviour
 {
+
+    public static bool IsMarketOpen { get; private set; }
+
     public UIDocument uiDocument;
     private VisualElement root, buyPage, cartPage, sellPage;
     private Button buyTab, cartTab, sellTab, landTab;
@@ -59,16 +62,25 @@ public class MarketUIController : MonoBehaviour
         root.Q<Button>("ConfirmSellBtn").clicked += OnSellConfirmed;
 
         root.style.display = DisplayStyle.None;
+        IsMarketOpen = false;
     }
 
     private void Update()
     {
+        // YENİ: Market menüsü açıksa, arkadaki her şeye rağmen fareyi serbest ve görünür tutmaya ZORLA!
+        if (root != null && root.style.display == DisplayStyle.Flex)
+        {
+            if (UnityEngine.Cursor.lockState != CursorLockMode.None)
+            {
+                UnityEngine.Cursor.lockState = CursorLockMode.None;
+                UnityEngine.Cursor.visible = true;
+            }
+        }
+
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasReleasedThisFrame)
         {
             if (root != null && root.style.display == DisplayStyle.Flex)
             {
-                // YENİ: Arayüz açıldıktan sonra en az 0.2 saniye geçtiyse ESC çalışsın.
-                // Bu sayede Arsa modundan çıkarken kullandığın ESC burayı anında kapatmaz.
                 if (Time.time - lastOpenedTime > 0.2f)
                 {
                     currentLaptop?.ExitLaptop();
@@ -83,6 +95,7 @@ public class MarketUIController : MonoBehaviour
         root.style.display = DisplayStyle.Flex;
         UpdateBalanceUI();
         SwitchPage(0);
+        IsMarketOpen = true;
 
         // YENİ: Arayüzün açıldığı anı kaydediyoruz
         lastOpenedTime = Time.time;
@@ -369,5 +382,9 @@ public class MarketUIController : MonoBehaviour
         RefreshSellList();
     }
 
-    public void CloseUI() => root.style.display = DisplayStyle.None;
+    public void CloseUI()
+    {
+        root.style.display = DisplayStyle.None;
+        IsMarketOpen = false; // MARKET KAPANDI!
+    }
 }

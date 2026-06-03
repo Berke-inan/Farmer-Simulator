@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using System.Collections; // Coroutine (Gecikme) kullanmak için bu þart
+using System.Collections.Generic; // List<> yapýsýný kullanabilmek için eklendi
 
 public class BottleInteractable : NetworkBehaviour, IInteractable
 {
@@ -22,6 +23,15 @@ public class BottleInteractable : NetworkBehaviour, IInteractable
         {
             SiseyeDoldurServerRpc(interactor.NetworkObjectId, activeIndex);
         }
+    }
+
+    // Þiþeye/Süte bakýldýðýnda HUD'da görünecek yönerge
+    public List<ActionPrompt> GetPrompts()
+    {
+        return new List<ActionPrompt>()
+        {
+            new ActionPrompt("E", "DOLDUR")
+        };
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]

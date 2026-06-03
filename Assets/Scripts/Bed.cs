@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -37,6 +38,15 @@ public class Bed : NetworkBehaviour, IInteractable
             ulong clientId = playerObject.OwnerClientId;
             DayNightCycleManager.Instance.SendSleepRequestRpc(clientId);
         }
+
+
+    }
+    public List<ActionPrompt> GetPrompts()
+    {
+        return new List<ActionPrompt>()
+        {
+            new ActionPrompt("E", "UYU")
+        };
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]

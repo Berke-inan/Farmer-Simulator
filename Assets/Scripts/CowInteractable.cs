@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 public class CowInteractable : NetworkBehaviour, IInteractable
 {
@@ -30,6 +31,18 @@ public class CowInteractable : NetworkBehaviour, IInteractable
         {
             Debug.Log("Süt saðmak için eline 'Boþ Kova' almalýsýn!");
         }
+    }
+
+    // Ýneðe bakýldýðýnda HUD'da görünecek yönerge
+    public List<ActionPrompt> GetPrompts()
+    {
+        // Ýnek zaten saðýldýysa farklý, saðýlmaya hazýrsa farklý metin gösteriyoruz
+        string eylemMetni = gunlukSagildiMi.Value ? "ZATEN SAÐILDI" : "SÜT SAÐ";
+
+        return new List<ActionPrompt>()
+        {
+            new ActionPrompt("E", eylemMetni)
+        };
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]

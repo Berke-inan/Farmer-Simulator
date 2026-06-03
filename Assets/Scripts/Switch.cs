@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 public class Switch : NetworkBehaviour, IInteractable
 {
@@ -12,6 +13,17 @@ public class Switch : NetworkBehaviour, IInteractable
     public AudioSource audioSource;
     [Tooltip("Çalýnacak Çýt (Click) sesi")]
     public AudioClip clickSound;
+
+    // Þaltere bakýldýðýnda HUD'da görünecek yönerge
+    public List<ActionPrompt> GetPrompts()
+    {
+        string eylemMetni = isOn ? "SÖNDÜR" : "YAK";
+
+        return new List<ActionPrompt>()
+        {
+            new ActionPrompt("E", eylemMetni)
+        };
+    }
 
     public void Interact(NetworkObject interactor)
     {

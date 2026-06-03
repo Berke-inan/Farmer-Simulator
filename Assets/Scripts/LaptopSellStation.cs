@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class LaptopSellStation : NetworkBehaviour, IInteractable
 {
@@ -36,5 +37,14 @@ public class LaptopSellStation : NetworkBehaviour, IInteractable
                 Debug.Log($"{slot.itemData.itemName} satıldı!");
             }
         }
+    }
+
+    // Satış noktasına bakıldığında HUD'da görünecek yönerge
+    public List<ActionPrompt> GetPrompts()
+    {
+        return new List<ActionPrompt>()
+        {
+            new ActionPrompt("E", "SAT")
+        };
     }
 }
