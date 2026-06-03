@@ -201,3 +201,49 @@
     margin: 0;
     -unity-text-align: middle-center;
 }
+
+    .prompt-container {
+    position: absolute;
+    right: 50px;
+    top: 55%;
+    translate: 0 -50%;
+    flex-direction: column;
+    align-items: flex-end; 
+}
+
+.prompt-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+    background-color: rgba(10, 11, 10, 0.85); 
+    padding: 6px 8px 6px 20px;
+    border-radius: 4px;
+    border-right-width: 4px;
+    border-right-color: #d97706; /* Sağdan turuncu vurgu */
+}
+
+.prompt-action-text {
+    color: #eaddcf;
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    margin-right: 15px;
+    margin-top: 2px; /* Dikey ortalama için ufak dokunuş */
+}
+
+.prompt-key-box {
+    min-width: 36px;
+    height: 36px;
+    background-color: #d97706; /* Turuncu tuş kutusu */
+    border-radius: 4px;
+    padding: 0 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.prompt-key-text {
+    color: #0a0b0a; /* Koyu zemin rengi ile zıtlık */
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-top: -2px;
+}

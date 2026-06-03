@@ -14,11 +14,16 @@ public class TractorCameraController : NetworkBehaviour
     [Header("Öncelik Ayarları")]
     public int activePriority = 20;
 
-    private void Awake()
+    // YENİ: Kamerayı döndüren bileşenin referansı
+    private CinemachineInputAxisController _axisController;
+
+    // Awake yerine Netcode'un güvenli başlama metodunu kullanıyoruz!
+    public override void OnNetworkSpawn()
     {
         if (tractorCam != null)
         {
             // Kamerayı prefabdan çıkarıp ana sahneye (root) alıyoruz
+            // Artık ağ bağlantısı kurulduktan sonra yaptığımız için Netcode kamerayı silmeyecek.
             tractorCam.transform.SetParent(null);
 
             // DİKKAT: Obje her zaman AÇIK kalacak. Kapatma/Açma yok!
@@ -27,16 +32,24 @@ public class TractorCameraController : NetworkBehaviour
             // Başlangıçta önceliğini 0 yaparak sırasını beklemesini sağlıyoruz
             tractorCam.Priority = 0;
 
-            // ========================================================
-            // KESİN ÇÖZÜM: KODLA OTOMATİK ZORUNLU BAĞLANTI
-            // Cinemachine'e "Traktörün gövdesini değil, bizim o hareketli 
-            // CameraTarget noktamızı takip et" emrini veriyoruz.
-            // ========================================================
+            // YENİ: Dönüş bileşenini bul ve hafızaya al
+            _axisController = tractorCam.GetComponent<CinemachineInputAxisController>();
+
+            // Cinemachine'e takip hedeflerini veriyoruz
             if (cameraTarget != null)
             {
                 tractorCam.Follow = cameraTarget;
                 tractorCam.LookAt = cameraTarget;
             }
+        }
+    }
+
+    private void Update()
+    {
+        // KESİN ÇÖZÜM: Menü açıksa kamera dönüşünü tamamen kilitle!
+        if (_axisController != null)
+        {
+            _axisController.enabled = !FarmerSimulator.UI.MainMenuController.IsMenuOpen;
         }
     }
 

@@ -31,7 +31,7 @@ public class KesilebilirNesne : NetworkBehaviour
         VurusAlServerRpc();
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void VurusAlServerRpc()
     {
         int limitVurusSayisi = dekorAgacVurusSayisi;

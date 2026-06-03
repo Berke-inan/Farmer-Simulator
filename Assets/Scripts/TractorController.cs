@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 public class TractorController : NetworkBehaviour, IInteractable
 {
@@ -12,6 +13,9 @@ public class TractorController : NetworkBehaviour, IInteractable
 
     [Header("Fizik Ayarları")]
     public Transform centerOfMass;
+
+    public float CurrentSpeedKmh => rb != null ? rb.linearVelocity.magnitude * 3.6f : 0f; // Hızı dışarıya açıyoruz
+    private TractorDashboardUI dashboardUI;
 
     [Header("Motor Ayarları")]
     public float motorTorque = 1500f;
@@ -52,6 +56,7 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (centerOfMass != null) rb.centerOfMass = centerOfMass.localPosition;
 
         fuelSystem = GetComponent<TractorFuelSystem>();
+        dashboardUI = GetComponent<TractorDashboardUI>();
     }
 
     public void Interact(NetworkObject interactor)
@@ -79,19 +84,45 @@ public class TractorController : NetworkBehaviour, IInteractable
             currentDriver = playerObj;
             playerObj.transform.position = driverSeat.position;
             playerObj.transform.rotation = driverSeat.rotation;
-            TogglePlayerComponents(playerObj, false);
+            TogglePlayerComponents(playerObj, false); // Kapatma emrini ver
 
+            // Sadece süren yerel oyuncu için (Input ve Kamera)
             if (playerObj.IsOwner)
             {
+                if (dashboardUI != null) dashboardUI.ToggleDashboard(true);
+                // Sürüş tuşlarını aktif et
                 inputActions.Player.Enable();
                 inputActions.Player.Interact.started += OnInteractPressed;
+
+                // Traktör kamerasını aç (Öncelik 20)
                 if (cameraController != null) cameraController.SetCameraActive(true);
+
+                // UI İpuçlarını zorla HUD'a bas
+                if (FarmerSimulator.UI.HUDManager.Instance != null)
+                {
+                    List<ActionPrompt> drivingPrompts = new List<ActionPrompt>()
+                    {
+                        new ActionPrompt("T", "MOTOR"),
+                        new ActionPrompt("F", "ALET TAK/ÇIKAR"),
+                        new ActionPrompt("V", "ALETİ ÇALIŞTIR"),
+                        new ActionPrompt("Space", "EL FRENİ"),
+                        new ActionPrompt("E", "İN")
+                    };
+                    FarmerSimulator.UI.HUDManager.Instance.UpdateActionPrompts(drivingPrompts);
+                }
             }
+            if (FarmerSimulator.UI.HUDManager.Instance != null)
+                FarmerSimulator.UI.HUDManager.Instance.SetPlayerHUDVisible(false);
+
+            if (dashboardUI != null) dashboardUI.ToggleDashboard(true);
         }
     }
 
     private void OnInteractPressed(InputAction.CallbackContext context)
     {
+
+        if (FarmerSimulator.UI.MainMenuController.IsMenuOpen) return;
+
         if (IsOccupied && IsOwner) DismountTractorServerRpc();
     }
 
@@ -111,6 +142,28 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (currentDriver != null)
         {
+            // Sadece süren yerel oyuncu için (Input ve Kamera)
+            if (currentDriver.IsOwner)
+            {
+                if (dashboardUI != null) dashboardUI.ToggleDashboard(false);
+                inputActions.Player.Interact.started -= OnInteractPressed;
+                inputActions.Player.Disable();
+                if (cameraController != null) cameraController.SetCameraActive(false);
+
+                // HUD'ı temizle
+                if (FarmerSimulator.UI.HUDManager.Instance != null)
+                {
+                    FarmerSimulator.UI.HUDManager.Instance.UpdateActionPrompts(new List<ActionPrompt>());
+                }
+
+                if (FarmerSimulator.UI.HUDManager.Instance != null)
+                    FarmerSimulator.UI.HUDManager.Instance.SetPlayerHUDVisible(true);
+
+                // Traktör Dashboard'unu kapat
+                if (dashboardUI != null) dashboardUI.ToggleDashboard(false);
+            }
+
+            // Oyuncuyu güvenli bir yere çıkar
             Vector3 safeLeft = Quaternion.Euler(0, transform.eulerAngles.y, 0) * Vector3.left;
             Vector3 targetXZ = transform.position + (safeLeft * 3.5f);
             Vector3 rayStart = new Vector3(targetXZ.x, transform.position.y + 10f, targetXZ.z);
@@ -126,39 +179,67 @@ public class TractorController : NetworkBehaviour, IInteractable
 
             currentDriver.transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
 
-            if (currentDriver.IsOwner)
-            {
-                inputActions.Player.Interact.started -= OnInteractPressed;
-                inputActions.Player.Disable();
-                if (cameraController != null) cameraController.SetCameraActive(false);
-            }
-
-            TogglePlayerComponents(currentDriver, true);
+            TogglePlayerComponents(currentDriver, true); // Bileşenleri geri aç
             currentDriver = null;
         }
     }
 
-    private void TogglePlayerComponents(NetworkObject player, bool state)
+    public List<ActionPrompt> GetPrompts()
     {
-        if (player.TryGetComponent(out PlayerMovement movement)) movement.enabled = state;
-        if (player.TryGetComponent(out CharacterController characterController)) characterController.enabled = state;
-        if (player.TryGetComponent(out PlayerInteractor interactor)) interactor.enabled = state;
+        string eylemMetni = IsOccupied ? "DOLU" : "BİN";
+        return new List<ActionPrompt>()
+        {
+            new ActionPrompt("E", eylemMetni)
+        };
+    }
 
-        Animator animator = player.GetComponentInChildren<Animator>();
+    // ========================================================
+    // KESİN ÇÖZÜM: HATASIZ BİLEŞEN AÇMA/KAPAMA SİSTEMİ
+    // ========================================================
+    private void TogglePlayerComponents(NetworkObject playerObj, bool state)
+    {
+        // 1. GENEL BİLEŞENLER (Fizik ve Animasyon - Herkes için)
+
+        // CharacterController (Unity'nin kendi yeşil kapsülü)
+        CharacterController cc = playerObj.GetComponentInChildren<CharacterController>();
+        if (cc != null) cc.enabled = state;
+
+        // PlayerMovement (Senin yürüme kodun)
+        PlayerMovement movement = playerObj.GetComponentInChildren<PlayerMovement>();
+        if (movement != null) movement.enabled = state;
+
+        // Animator (Child objelerde aranıyor)
+        Animator animator = playerObj.GetComponentInChildren<Animator>();
         if (animator != null) animator.SetBool("isDriving", !state);
 
-        if (player.IsOwner)
+
+        // 2. SADECE YEREL OYUNCU BİLEŞENLERİ (isOwner kontrolü)
+        if (playerObj.IsOwner)
         {
-            // YENİ EKLENEN KISIM: Traktöre binerken eşyayı sakla, inerken geri getir
-            if (player.TryGetComponent(out PlayerInventory inventory))
+            // PlayerInteractor (Kameradaki Raycast kodu - KESİN KAPANMALI!)
+            PlayerInteractor interactor = playerObj.GetComponentInChildren<PlayerInteractor>();
+            if (interactor != null) interactor.enabled = state;
+
+            // PlayerCameraController (Karakterin kendi kamera kontrol scripti)
+            PlayerCameraController camController = playerObj.GetComponentInChildren<PlayerCameraController>();
+            if (camController != null) camController.enabled = state;
+
+            // Envanter ve Eldeki Eşya Görünürlüğü (ZORT DİYEN ÇİZGİLERİN ÇÖZÜMÜ)
+            PlayerInventory inventory = playerObj.GetComponentInChildren<PlayerInventory>();
+            if (inventory != null)
             {
-                // state = false demek traktöre biniyor demektir.
-                // Bu durumda SetHolstered(true) ile eşyayı saklıyoruz.
+                // state = false ise biniyoruz demektir -> Eşyayı sakla
                 inventory.SetHolstered(!state);
+
+                // KESİN ÇÖZÜM: Sadece kılıflama yetmez, objeyi tamamen KAPA!
+                if (inventory.eldekiObje != null)
+                {
+                    inventory.eldekiObje.SetActive(state); // state false ise obje kapanır
+                }
             }
 
-            if (player.TryGetComponent(out PlayerCameraController camController)) camController.enabled = state;
-            Unity.Cinemachine.CinemachineCamera playerCam = player.GetComponentInChildren<Unity.Cinemachine.CinemachineCamera>(true);
+            // Karakterin kendi Cinemachine Kamerasının önceliğini düşür (2 bindiğimizde traktör kamerasına geçebilsin)
+            Unity.Cinemachine.CinemachineCamera playerCam = playerObj.GetComponentInChildren<Unity.Cinemachine.CinemachineCamera>(true);
             if (playerCam != null) playerCam.Priority = state ? 10 : 0;
         }
     }
@@ -167,19 +248,19 @@ public class TractorController : NetworkBehaviour, IInteractable
     {
         if (IsOwner)
         {
-            // --- YENİ EKLENEN: MOTOR ÇALIŞTIRMA (T TUŞU) ---
-            // Sadece aracı süren kişi T tuşuna basabilir
+            // Motor Çalıştırma (T Tuşu)
             if (IsOccupied &&
-                currentDriver != null &&
-                currentDriver.IsOwner &&
-                Keyboard.current != null &&
-                Keyboard.current.tKey.wasPressedThisFrame)
+                 currentDriver != null &&
+                 currentDriver.IsOwner &&
+                 !FarmerSimulator.UI.MainMenuController.IsMenuOpen && // YENİ KİLİT
+                 Keyboard.current != null &&
+                 Keyboard.current.tKey.wasPressedThisFrame)
             {
                 if (fuelSystem != null)
                     fuelSystem.ToggleEngineServerRpc();
             }
-            // ----------------------------------------------
 
+            // Fiziksel tekerleklerin yerini görsel tekerleklere aktar
             if (wcFL != null && visualFL != null) UpdateSingleWheel(wcFL, visualFL);
             if (wcFR != null && visualFR != null) UpdateSingleWheel(wcFR, visualFR);
             if (wcBL != null && visualBL != null) UpdateSingleWheel(wcBL, visualBL);
@@ -187,6 +268,7 @@ public class TractorController : NetworkBehaviour, IInteractable
         }
         else
         {
+            // Diğer oyuncularda tekerlekleri döndür (Client-Side Prediction)
             AnimateWheelsForClient();
         }
     }
@@ -235,28 +317,40 @@ public class TractorController : NetworkBehaviour, IInteractable
             return;
         }
 
-        // --- YENİ EKLENEN: MOTOR KAPALIYSA ENGELLEME ---
-        // Eğer motor kapalıysa arabanın frenlerine sonuna kadar bas ve gidememesini sağla
+        // Motor Kapalıysa WASD Engelleme
         if (fuelSystem != null && !fuelSystem.isEngineRunning.Value)
         {
             CurrentGasInput = 0f;
-            smoothedSteeringInput = 0f; // Direksiyon da kitlensin
+            smoothedSteeringInput = 0f;
 
             if (wcFL != null)
             {
                 wcFL.motorTorque = wcFR.motorTorque = wcBL.motorTorque = wcBR.motorTorque = 0f;
-                wcFL.brakeTorque = wcFR.brakeTorque = wcBL.brakeTorque = wcBR.brakeTorque = brakeForce; // Freni çek
+                wcFL.brakeTorque = wcFR.brakeTorque = wcBL.brakeTorque = wcBR.brakeTorque = brakeForce;
             }
-            return; // Buradan aşağıya inme (WASD çalışmaz)
+            return;
         }
-        // -----------------------------------------------
 
-        CurrentGasInput = inputActions.Player.GasBrake.ReadValue<float>();
+        // ==========================================
+        // YENİ KİLİT: MENÜ AÇIKKEN KONTROLLERİ DEVRE DIŞI BIRAK
+        // (Traktör momentumuyla akmaya devam eder)
+        // ==========================================
+        if (FarmerSimulator.UI.MainMenuController.IsMenuOpen)
+        {
+            CurrentGasInput = 0f; // Ayağını gazdan çek
+            steeringInput = 0f;   // Direksiyonu bırak
+            isBraking = false;    // Frene basma (Araç kendi kendine süzülür)
+        }
+        else
+        {
+            // Normal Sürüş Mantığı
+            CurrentGasInput = inputActions.Player.GasBrake.ReadValue<float>();
+            if (fuelSystem != null && !fuelSystem.HasFuel) CurrentGasInput = 0f;
 
-        if (fuelSystem != null && !fuelSystem.HasFuel) CurrentGasInput = 0f;
-
-        steeringInput = inputActions.Player.Steering.ReadValue<float>();
-        isBraking = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
+            steeringInput = inputActions.Player.Steering.ReadValue<float>();
+            isBraking = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
+        }
+        // ==========================================
 
         smoothedSteeringInput = Mathf.MoveTowards(smoothedSteeringInput, steeringInput, Time.fixedDeltaTime * steerSpeed);
 

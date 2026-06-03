@@ -10,7 +10,7 @@
     
     <ui:VisualElement name="MenuContainer" class="menu-container">
         
-        <ui:VisualElement name="MainMenuPanel" class="menu-panel">
+        <ui:VisualElement name="MainMenuPanel" class="menu-panel panel-hidden">
             <ui:Label text="ÇİFTLİK SİMÜLASYONU" class="kicker-title" />
             <ui:VisualElement class="title-row">
                 <ui:Label text="FARM" class="main-title-w" />
@@ -53,6 +53,62 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <ui:VisualElement name="PausePanel" class="menu-panel panel-hidden">
+            <ui:Label text="SİMÜLASYON DURAKLATILDI" class="kicker-title" />
+            <ui:VisualElement class="title-row">
+                <ui:Label text="PAU" class="main-title-w" />
+                <ui:Label text="SE" class="main-title-o" />
+            </ui:VisualElement>
+            <ui:Label text="CO-OP • SUNUCU AKTİF" class="subtitle-tags" />
+            
+            <ui:VisualElement class="button-container">
+                <ui:Button name="ResumeButton" class="menu-item-btn">
+                    <ui:Label text="&gt;" class="btn-num" picking-mode="Ignore" />
+                    <ui:VisualElement class="btn-divider" picking-mode="Ignore" />
+                    <ui:Label text="SİMÜLASYONA DÖN" class="btn-text" picking-mode="Ignore" />
+                </ui:Button>
+                
+                <ui:Button name="PauseSettingsButton" class="menu-item-btn">
+                    <ui:Label text="01" class="btn-num" picking-mode="Ignore" />
+                    <ui:VisualElement class="btn-divider" picking-mode="Ignore" />
+                    <ui:Label text="SİSTEM AYARLARI" class="btn-text" picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:VisualElement class="horizontal-divider" />
+
+                <ui:Button name="DisconnectRequestButton" class="menu-item-btn quit-btn">
+                    <ui:Label text="—" class="btn-num quit-num" picking-mode="Ignore" />
+                    <ui:VisualElement class="btn-divider" picking-mode="Ignore" />
+                    <ui:Label text="BAĞLANTIYI KES" class="btn-text quit-text" picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="ConfirmDisconnectPanel" class="menu-panel panel-hidden">
+            <ui:Label text="SİSTEM UYARISI" class="kicker-title" style="color: #ef4444;" />
+            <ui:VisualElement class="title-row">
+                <ui:Label text="EMİN Mİ" class="main-title-w" />
+                <ui:Label text="SİN" class="main-title-o" style="color: #ef4444;" />
+            </ui:VisualElement>
+            <ui:Label text="KAYDEDİLMEMİŞ VERİLER SİLİNİR" class="subtitle-tags" />
+            
+            <ui:VisualElement class="button-container">
+                <ui:Button name="CancelDisconnectButton" class="menu-item-btn">
+                    <ui:Label text="&lt;" class="btn-num" picking-mode="Ignore" />
+                    <ui:VisualElement class="btn-divider" picking-mode="Ignore" />
+                    <ui:Label text="GERİ DÖN" class="btn-text" picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:VisualElement class="horizontal-divider" />
+
+                <ui:Button name="ConfirmDisconnectButton" class="menu-item-btn quit-btn">
+                    <ui:Label text="!" class="btn-num quit-num" picking-mode="Ignore" />
+                    <ui:VisualElement class="btn-divider" picking-mode="Ignore" />
+                    <ui:Label text="EVET, BAĞLANTIYI KOPAR" class="btn-text quit-text" picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
         <ui:VisualElement name="MultiplayerPanel" class="menu-panel panel-hidden">
             <ui:Label text="AĞ BAĞLANTISI" class="kicker-title" />
             <ui:VisualElement class="title-row">
@@ -77,7 +133,7 @@
                 <ui:VisualElement name="JoinContainer" class="panel-hidden" style="margin-top: 20px;">
                     <ui:TextField label="AĞ KODU:" name="RelayCodeField" class="menu-textfield" max-length="6" />
                     <ui:Button name="ConnectButton" class="menu-item-btn">
-                        <ui:Label text=">" class="btn-num" picking-mode="Ignore" />
+                        <ui:Label text="&gt;" class="btn-num" picking-mode="Ignore" />
                         <ui:VisualElement class="btn-divider" picking-mode="Ignore" />
                         <ui:Label text="BAĞLANTIYI KUR" class="btn-text" picking-mode="Ignore" />
                     </ui:Button>
@@ -92,7 +148,7 @@
                 </ui:Button>
                 
                 <ui:Button name="ContinueHostButton" class="menu-item-btn panel-hidden">
-                    <ui:Label text=">" class="btn-num" picking-mode="Ignore" />
+                    <ui:Label text="&gt;" class="btn-num" picking-mode="Ignore" />
                     <ui:VisualElement class="btn-divider" picking-mode="Ignore" />
                     <ui:Label text="OPERASYONU BAŞLAT" class="btn-text" picking-mode="Ignore" />
                 </ui:Button>
@@ -138,13 +194,8 @@
             
             <ui:ScrollView class="credits-scroll">
                 <ui:Label text="Berke İnan" class="credits-text highlight" />
-                <ui:Label text="Ana Geliştirici &amp; Yazılım Mimarı" class="credits-text" />
-                
                 <ui:Label text="Aybek Özman" class="credits-text highlight" style="margin-top: 10px;" />
-                <ui:Label text="Proje Ortağı &amp; Tasarım" class="credits-text" />
-                
-                <ui:Label text="Altyapı" class="credits-text highlight" style="margin-top: 10px;" />
-                <ui:Label text="Unity 6 &amp; Netcode for GameObjects" class="credits-text" />
+                <ui:Label text="Unity 6 &amp; Netcode for GameObjects" class="credits-text" style="margin-top: 10px;" />
             </ui:ScrollView>
 
             <ui:VisualElement class="horizontal-divider" />

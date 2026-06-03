@@ -23,6 +23,8 @@
 
         </ui:VisualElement>
 
+        <ui:VisualElement name="ActionPromptContainer" class="prompt-container" picking-mode="Ignore" />
+
         <ui:VisualElement class="hud-bottom" picking-mode="Ignore">
             
             <ui:VisualElement class="hotbar-wrapper">

@@ -3,6 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using Unity.Cinemachine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 public class LaptopInteractable : NetworkBehaviour, IInteractable
 {
@@ -48,6 +49,16 @@ public class LaptopInteractable : NetworkBehaviour, IInteractable
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         marketUI.OpenUI(this);
+    }
+    // Laptop'a bakıldığında HUD'da görünecek yönerge
+    public List<ActionPrompt> GetPrompts()
+    {
+        string eylemMetni = isBusy.Value ? "MEŞGUL" : "LAPTOP'A GİR";
+
+        return new List<ActionPrompt>()
+        {
+            new ActionPrompt("E", eylemMetni)
+        };
     }
 
     private void Update()

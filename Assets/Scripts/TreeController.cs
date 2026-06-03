@@ -1,6 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
-
+using System.Collections.Generic;
 public enum TreeState { Fide, Buyumus, Meyveli, Kuru }
 
 public class TreeController : NetworkBehaviour, IInteractable
@@ -139,6 +139,23 @@ public class TreeController : NetworkBehaviour, IInteractable
             ilkSuVerildiMi = true;
             susuzKalanSure = 0f;
         }
+    }
+
+    // Aðaca bakýldýðýnda HUD'da görünecek yönerge
+    public List<ActionPrompt> GetPrompts()
+    {
+        List<ActionPrompt> prompts = new List<ActionPrompt>();
+
+        if (mevcutDurum.Value == TreeState.Kuru)
+        {
+            prompts.Add(new ActionPrompt("E", "KURUMUÞ"));
+        }
+        else
+        {
+            prompts.Add(new ActionPrompt("E", "SULA"));
+        }
+
+        return prompts;
     }
 
     // ==========================================

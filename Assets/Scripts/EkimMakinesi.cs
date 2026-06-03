@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic; // List<> yapýsý için eklendi
 
 public class EkimMakinesi : NetworkBehaviour, IInteractable
 {
@@ -8,6 +9,10 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
     [Header("Makine Kapasitesi")]
     public int maxKapasite = 50;
     public NetworkVariable<int> mevcutTohum = new NetworkVariable<int>(0);
+
+    // V tuþu ile açýlýp kapanma durumunu aðda senkronize tutan deðiþken
+    [Header("Çalýþma Durumu")]
+    public NetworkVariable<bool> makineAcik = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private int aktifTohumID = 0;
     private GameObject aktifEkinPrefab;
@@ -21,8 +26,8 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
     private void OnTriggerStay(Collider other)
     {
-        // Sunucu tarafýnda çalýþma ve makine aktiflik kontrolleri
-        if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value || mevcutTohum.Value <= 0 || aktifEkinPrefab == null) return;
+        // GÜNCELLEME: makineAcik.Value kontrolü eklendi. V ile açýlmadýysa çalýþmaz.
+        if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value || !makineAcik.Value || mevcutTohum.Value <= 0 || aktifEkinPrefab == null) return;
 
         islemSayaci += Time.deltaTime;
         if (islemSayaci < islemAraligi) return;
@@ -69,16 +74,31 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
         if (mevcutTohum.Value <= 0) { aktifEkinPrefab = null; aktifTohumID = 0; }
     }
 
+    // ==========================================
+    // DÝNAMÝK HUD TUÞ ÝPUÇLARI (IInteractable)
+    // ==========================================
+    public List<ActionPrompt> GetPrompts()
+    {
+        List<ActionPrompt> prompts = new List<ActionPrompt>();
+
+        // 1. Eylem: Tohum Yükleme durumu (E)
+        string tohumMetni = mevcutTohum.Value >= maxKapasite ? "KAPASÝTE DOLU" : "TOHUM YÜKLE";
+        prompts.Add(new ActionPrompt("E", tohumMetni));
+
+        // 2. Eylem: Açma/Kapama durumu (V)
+        string calismaMetni = makineAcik.Value ? "MAKÝNEYÝ KAPAT" : "MAKÝNEYÝ AÇ";
+        prompts.Add(new ActionPrompt("V", calismaMetni));
+
+        return prompts;
+    }
+
     public void Interact(NetworkObject interactor)
     {
-        // Yeni sistem: Sadece PlayerInventory üzerinden kontrol saðlýyoruz
         if (interactor.TryGetComponent(out PlayerInventory inventory))
         {
             int aktifSlotIndex = inventory.activeHotbarIndex.Value;
             InventorySlot slot = inventory.slots[aktifSlotIndex];
 
-            // Eþya tohum mu ve envanterde yer var mý kontrolü
-            // Not: ItemData içinde bir 'isSeed' bool'u veya benzeri bir kontrol olduðunu varsayýyoruz
             if (!slot.IsEmpty && slot.itemData != null)
             {
                 if (mevcutTohum.Value < maxKapasite)
@@ -87,6 +107,14 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
                 }
             }
         }
+    }
+
+    // V tuþuna basýldýðýnda dýþarýdan (Traktörden veya PlayerInteractor'dan) çaðrýlacak Rpc metodu
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void ToggleMachineServerRpc()
+    {
+        makineAcik.Value = !makineAcik.Value;
+        Debug.Log($"[Ekim Makinesi] Çalýþma durumu güncellendi: {makineAcik.Value}");
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -101,11 +129,10 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
                 ItemData data = slot.itemData;
 
-                // Makine boþsa ilk tohumun verilerini al, doluysa tohum türü uyuþuyor mu bak
                 if (mevcutTohum.Value == 0)
                 {
                     aktifTohumID = data.itemID;
-                    aktifEkinPrefab = data.groundPrefab; // ItemData'daki ekilecek prefab
+                    aktifEkinPrefab = data.groundPrefab;
                 }
                 else if (aktifTohumID != data.itemID) return;
 
@@ -115,7 +142,6 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
                 if (eklenecekMiktar > 0)
                 {
                     mevcutTohum.Value += eklenecekMiktar;
-                    // PlayerInventory'de yazdýðýmýz yeni miktar düþürme metodunu çaðýrýyoruz
                     envanter.DecreaseItemAmountServerRpc(slotIndex, eklenecekMiktar);
                 }
             }

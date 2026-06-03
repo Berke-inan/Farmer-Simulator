@@ -3,7 +3,7 @@
     flex-grow: 1;
     width: 100%;
     height: 100%;
-    background-color: transparent; /* Tüm ekranı kaplayan siyahlık kalktı, sahne görünecek */
+    background-color: transparent; 
     justify-content: center;
     align-items: flex-start;
 }
@@ -14,12 +14,12 @@
     left: 0;
     top: 0;
     bottom: 0;
-    width: 580px; /* Sadece sol tarafı kaplayacak genişlik */
-    background-color: rgba(10, 11, 10, 0.96); /* Görseldeki koyu zemin, arkası çok hafif saydam */
-    padding: 0 80px; /* İçerik için sağdan soldan boşluk */
+    width: 580px; 
+    background-color: rgba(10, 11, 10, 0.96); 
+    padding: 0 80px; 
     justify-content: center;
     border-right-width: 1px;
-    border-right-color: rgba(255, 255, 255, 0.05); /* Sağ kenara menüyü oyundan ayıran ince, zarif bir çizgi */
+    border-right-color: rgba(255, 255, 255, 0.05); 
     transition-property: opacity, translate;
     transition-duration: 0.4s;
     transition-timing-function: ease-out-cubic;
@@ -124,7 +124,6 @@
     color: #eaddcf; 
     translate: 10px 0; 
 }
-
 .menu-item-btn:hover > .btn-num {
     color: #636b60;
 }
@@ -140,11 +139,9 @@
 .quit-num {
     color: #4a2121;
 }
-
 .quit-text {
     color: #8a3434;
 }
-
 .menu-item-btn.quit-btn:hover > .quit-text {
     color: #ef4444;
 }
@@ -155,7 +152,7 @@
     align-items: center;
     position: absolute;
     bottom: 50px;
-    left: 80px; /* Soldaki panel hizası ile aynı hizada tutmak için eklendi */
+    left: 80px;
 }
 
 .green-dot {

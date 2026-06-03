@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
+using System.Collections.Generic; // List<> yapýsýný kullanabilmek için eklendi
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
@@ -128,12 +129,26 @@ public class HorseController : NetworkBehaviour, IInteractable
         }
     }
 
+    // ==========================================
+    // DÝNAMÝK HUD TUÞ ÝPUÇLARI (IInteractable)
+    // ==========================================
+    public List<ActionPrompt> GetPrompts()
+    {
+        // At doluysa "DOLU", boþsa "BÝN" yönergesi çýkar
+        string eylemMetni = IsOccupied ? "DOLU" : "BÝN";
+
+        return new List<ActionPrompt>()
+        {
+            new ActionPrompt("E", eylemMetni)
+        };
+    }
+
     public void Interact(NetworkObject interactor)
     {
         if (!IsOccupied) MountHorseServerRpc(interactor.NetworkObjectId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void IslikCalServerRpc(ulong callerId)
     {
         if (isRidden) return;
@@ -347,14 +362,12 @@ public class HorseController : NetworkBehaviour, IInteractable
             smoothedNavDirection = transform.forward;
         }
 
-        // --- GÜÇLENDÝRÝLMÝÞ BÝNÝCÝ RADARI ---
         Vector3 targetPosition = transform.position + (movementXZ * Time.deltaTime);
         bool hitWall = false;
         if (currentSpeed > 0.1f)
         {
             if (agent.Raycast(transform.position + (transform.forward * horseHeadLength), out _)) hitWall = true;
 
-            // Fiziksel Radar: Göðüs hizasýndan fýrlatýp dik yüzeylere çarpýp çarpmadýðýna bakýyoruz
             Vector3 gogusHizasi = transform.position + Vector3.up * 1.0f;
             if (Physics.Raycast(gogusHizasi, transform.forward, out RaycastHit physHit, horseHeadLength))
             {
@@ -422,7 +435,6 @@ public class HorseController : NetworkBehaviour, IInteractable
                 {
                     agent.SetDestination(callerTarget.position);
 
-                    // 10 Metrede Çaký Gibi Durma Sistemi
                     if (Vector3.Distance(transform.position, callerTarget.position) <= 10.0f)
                     {
                         agent.ResetPath();
@@ -527,27 +539,22 @@ public class HorseController : NetworkBehaviour, IInteractable
             UpdateAnimator(speedRatio, 0f, isGrounded, 1f, verticalVelocity);
         }
 
-        // --- DEÐÝÞÝKLÝK BURADA: AKILLI ÇARPIÞMA SÝSTEMÝ (Anti-Hayalet At) ---
         Vector3 targetPosition = transform.position + (movementXZ * Time.deltaTime);
         bool hitWall = false;
 
         if (currentSpeed > 0.1f)
         {
-            // 1. NavMesh Radarý
             if (agent.Raycast(transform.position + (transform.forward * horseHeadLength), out _)) hitWall = true;
 
-            // 2. Saf Fizik Radarý: Atýn göðsünden (Y=1.0) ileriye ýþýn atar.
-            // Çarptýðý þeyin yüzey eðimi (normal.y) 0.5'ten küçükse bu zemin (Terrain) deðil, %100 duvar veya çittir!
             Vector3 gogusHizasi = transform.position + Vector3.up * 1.0f;
             if (Physics.Raycast(gogusHizasi, transform.forward, out RaycastHit physHit, horseHeadLength))
             {
                 if (!physHit.collider.isTrigger && physHit.normal.y < 0.5f) hitWall = true;
             }
 
-            // Duvara tosladýysa
             if (hitWall)
             {
-                targetPosition = transform.position; // Ýleri gitmesini fiziksel olarak iptal et
+                targetPosition = transform.position;
 
                 if (currentState == AnimalState.Called)
                 {
@@ -555,7 +562,6 @@ public class HorseController : NetworkBehaviour, IInteractable
                 }
                 else if (currentState == AnimalState.Panic)
                 {
-                    // PANÝK HALÝ DÜZELTMESÝ: Çite toslarsa içinden geçmeye çalýþmak yerine arkasýný dönüp kaçsýn!
                     Vector3 yeniKacisYonu = Quaternion.Euler(0, Random.Range(120, 240), 0) * transform.forward;
                     SetRandomDestination(transform.position + (yeniKacisYonu * panicEscapeRadius), panicEscapeRadius / 2f);
                 }
@@ -579,7 +585,7 @@ public class HorseController : NetworkBehaviour, IInteractable
         animator.SetFloat(verticalVelHash, vVel);
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void KorkutServerRpc(Vector3 tehlikeKaynagi)
     {
         if (!IsServer || isRidden) return;
