@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -22,5 +23,12 @@ public class InteractableItem : NetworkBehaviour, IInteractable
             inventory.RequestPickupServerRpc(NetworkObjectId);
             Debug.Log($"[Sistem] {itemID} ID'li eşya için toplama isteği gönderildi.");
         }
+    }
+    public List<ActionPrompt> GetPrompts()
+    {
+        return new List<ActionPrompt>
+    {
+        new ActionPrompt("E", "Eşyayı Yerden Al")
+    };
     }
 }

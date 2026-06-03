@@ -1,5 +1,6 @@
-using UnityEngine;
+using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine;
 
 public class EkimMakinesi : NetworkBehaviour, IInteractable
 {
@@ -120,5 +121,13 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
                 }
             }
         }
+    }
+
+    public List<ActionPrompt> GetPrompts()
+    {
+        return new List<ActionPrompt>
+    {
+        new ActionPrompt("V", "Ekim Yap")
+    };
     }
 }

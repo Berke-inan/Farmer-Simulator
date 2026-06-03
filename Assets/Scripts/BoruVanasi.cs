@@ -1,6 +1,7 @@
-using UnityEngine;
-using Unity.Netcode;
 using System.Collections;
+using System.Collections.Generic;
+using Unity.Netcode;
+using UnityEngine;
 
 public class BoruVanasi : NetworkBehaviour, IInteractable
 {
@@ -88,5 +89,12 @@ public class BoruVanasi : NetworkBehaviour, IInteractable
         }
 
         vanaDonuyor = false;
+    }
+    public List<ActionPrompt> GetPrompts()
+    {
+        return new List<ActionPrompt>
+    {
+        new ActionPrompt("E", "Vanayý Çevir")
+    };
     }
 }
