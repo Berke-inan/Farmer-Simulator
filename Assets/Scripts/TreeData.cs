@@ -6,6 +6,9 @@ public class TreeData : ScriptableObject
     [Header("Aðaç Bilgileri")]
     public string agacAdi = "Limon Aðacý";
 
+    [Tooltip("Bu aðaçtan toplanan meyvenin veritabanýndaki ID numarasý")]
+    public int meyveItemID;
+
     [Header("Büyüme Süreleri (Saniye)")]
     [Tooltip("Fideden normal aðaca geçmesi için gereken SÜRE (Örn: 120 saniye = 2 dakika)")]
     public float buyumeSuresi = 120f;

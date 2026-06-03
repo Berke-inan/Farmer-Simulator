@@ -103,7 +103,7 @@ public class TreeController : NetworkBehaviour, IInteractable
         else if (mevcutDurum.Value == TreeState.Buyumus && gecenBuyumeSuresi >= agacVerisi.meyveVermeSuresi)
         {
             mevcutDurum.Value = TreeState.Meyveli;
-            agactakiMeyve.Value = 2; // Aðaç meyve verdiðinde üstünde 2 hasatlýk meyve olur
+            agactakiMeyve.Value = 10; // Aðaç meyve verdiðinde üstünde 2 hasatlýk meyve olur
             gecenBuyumeSuresi = 0f;
         }
     }

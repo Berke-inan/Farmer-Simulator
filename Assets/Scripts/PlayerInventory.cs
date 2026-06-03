@@ -16,8 +16,11 @@ public class PlayerInventory : NetworkBehaviour
     public NetworkVariable<int> activeHotbarIndex = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public event Action<int, InventorySlot> OnSlotChanged;
 
+    public NetworkList<int> sepetIcerikIDleri;
+
     private void Awake()
     {
+        sepetIcerikIDleri = new NetworkList<int>(null, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         if (slots == null || slots.Length != maxSlots)
         {
             slots = new InventorySlot[maxSlots];
@@ -424,7 +427,29 @@ public class PlayerInventory : NetworkBehaviour
                 crop.tohumID.Value = data.itemID;
             }
 
-            DecreaseItemAmountServerRpc(slotIndex, 1);
+            // --- YENİ SİSTEM: Tohum Paketi Hakkı Düşürme ---
+            var tempSlot = slots[slotIndex];
+
+            // Eğer paket yeniyse (-1), kapasitesini ItemData'dan çek
+            if (tempSlot.kalanEkimHakki == -1)
+            {
+                tempSlot.kalanEkimHakki = data.maxEkimHakki;
+            }
+
+            // Paketten 1 tohum ektik
+            tempSlot.kalanEkimHakki--;
+
+            // Eğer pakette tohum kalmadıysa
+            if (tempSlot.kalanEkimHakki <= 0)
+            {
+                // Paketi çöpe at
+                DecreaseItemAmountServerRpc(slotIndex, 1);
+            }
+            else
+            {
+                // Pakette hala tohum var, güncel sayıyı ağda senkronize et
+                slots[slotIndex] = tempSlot;
+            }
         }
     }
 
@@ -539,5 +564,80 @@ public class PlayerInventory : NetworkBehaviour
             }
             tData.SetDetailLayer(startX, startZ, i, details);
         }
+    }
+    [Rpc(SendTo.Server)]
+    public void SepeteMeyveToplaServerRpc(ulong agacNetId)
+    {
+        if (sepetDoluluk.Value >= 10) return;
+
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(agacNetId, out NetworkObject agacObj))
+        {
+            TreeController agac = agacObj.GetComponent<TreeController>();
+            if (agac != null && agac.mevcutDurum.Value == TreeState.Meyveli)
+            {
+                bool hasatBasarili = agac.MeyveHasatEt();
+                if (hasatBasarili)
+                {
+                    // Ağacın veri dosyasından (TreeData) meyve ID'sini alıp listeye kaydediyoruz
+                    int meyveID = agac.agacVerisi != null ? agac.agacVerisi.meyveItemID : 0;
+
+                    sepetIcerikIDleri.Add(meyveID);
+                    sepetDoluluk.Value = sepetIcerikIDleri.Count; // Görselleri tetikler
+                }
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SepeteYerdenEsyaToplaServerRpc(ulong esyaNetId)
+    {
+        if (sepetDoluluk.Value >= 10) return;
+
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(esyaNetId, out NetworkObject esyaObj))
+        {
+            if (esyaObj.TryGetComponent<InteractableItem>(out var yerdekiEsya))
+            {
+                // Yerdeki yumurta/meyve her neyse ID'sini sepet listesine ekle
+                sepetIcerikIDleri.Add(yerdekiEsya.itemID);
+                sepetDoluluk.Value = sepetIcerikIDleri.Count;
+
+                esyaObj.Despawn(); // Dünyadan kaldır
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SepettenEsyaBosaltServerRpc(Vector3 spawnNoktasi)
+    {
+        // Sepet boşsa veya liste senkron değilse işlem yapma
+        if (sepetDoluluk.Value <= 0 || sepetIcerikIDleri.Count == 0) return;
+
+        // Sepete en son giren eşyayı en önce çıkartıyoruz (LIFO - Son Giren İlk Çıkar)
+        int sonIndex = sepetIcerikIDleri.Count - 1;
+        int atilacakItemID = sepetIcerikIDleri[sonIndex];
+
+        sepetIcerikIDleri.RemoveAt(sonIndex);
+        sepetDoluluk.Value = sepetIcerikIDleri.Count; // Kalan sayıya göre sepet içi görseller azalır
+
+        // ID'ye denk gelen prefabı dünyada spawn et
+        GameObject esyaPrefab = GetPrefabByItemID(atilacakItemID);
+        if (esyaPrefab != null)
+        {
+            GameObject dunyaEsyasi = Instantiate(esyaPrefab, spawnNoktasi, Quaternion.identity);
+            dunyaEsyasi.GetComponent<NetworkObject>().Spawn();
+        }
+    }
+
+    // Yardımcı Fonksiyon: ID'ye göre Spawn edilecek Prefab'ı bulur
+    private GameObject GetPrefabByItemID(int id)
+    {
+        if (DeliveryManager.Instance != null)
+        {
+            foreach (var item in DeliveryManager.Instance.allAvailableItems)
+            {
+                if (item.itemID == id) return item.prefabToSpawn;
+            }
+        }
+        return null;
     }
 }

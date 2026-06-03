@@ -17,3 +17,6 @@ MonoBehaviour:
   itemIcon: {fileID: 21300000, guid: 18be4fe46b0d0a84d95682450d4b5f59, type: 3}
   price: 30
   prefabToSpawn: {fileID: 8979387006333313394, guid: 1ca98737045faba4aa540c94b8366cdb, type: 3}
+  isMachine: 1
+  maxStock: 10
+  restockInterval: 60
