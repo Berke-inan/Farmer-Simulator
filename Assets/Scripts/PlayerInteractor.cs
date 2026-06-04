@@ -153,10 +153,12 @@ public class PlayerInteractor : NetworkBehaviour
             if (inventory.eldekiObje.TryGetComponent(out IUseableTool alet))
             {
                 Ray ray = new Ray(playerCamera.position, playerCamera.forward);
-                if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
-                {
-                    alet.EylemYap(hit, inventory);
-                }
+
+                // ESKİ HALİ: if (Physics.Raycast(...))
+                // YENİ HALİ: Çarpma zorunluluğunu kaldırdık, yiyecek tüketmek için bir yere bakmak gerekmez.
+                Physics.Raycast(ray, out RaycastHit hit, interactionDistance);
+
+                alet.EylemYap(hit, inventory);
             }
         }
     }
