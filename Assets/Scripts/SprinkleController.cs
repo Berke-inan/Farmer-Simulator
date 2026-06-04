@@ -34,7 +34,7 @@ public class SprinkleController : NetworkBehaviour
         // Eğer Instance boş dönerse (ki bazen multiplayer'da olur), yedek plan olarak sahnede zorla arar:
         if (layerManager == null)
         {
-            layerManager = FindObjectOfType<TerrainLayerManager>();
+            layerManager = FindAnyObjectByType<TerrainLayerManager>();
         }
 
         if (layerManager == null)

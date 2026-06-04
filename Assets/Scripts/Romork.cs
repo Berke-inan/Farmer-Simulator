@@ -92,14 +92,19 @@ public class Romork : NetworkBehaviour, IInteractable
             }
         }
     }
-
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void RomorkaKoyServerRpc(ulong playerNetId, int itemID, int slotIndex)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerNetId, out NetworkObject playerObj))
         {
             PlayerInventory inventory = playerObj.GetComponent<PlayerInventory>();
-            ItemData data = Resources.Load<ItemData>("Items/" + itemID);
+
+            // --- DEĞİŞEN KISIM BAŞLANGICI ---
+            // Eski hatalı satır: ItemData data = Resources.Load<ItemData>("Items/" + itemID);
+
+            if (ItemRegistry.Instance == null || ItemRegistry.Instance.itemDatabase == null) return;
+            ItemData data = ItemRegistry.Instance.itemDatabase.GetItemByID(itemID);
+            // --- DEĞİŞEN KISIM SONU ---
 
             if (data != null && data.groundPrefab != null)
             {

@@ -29,4 +29,5 @@ public class ItemData : ScriptableObject
 
     [Header("Tarım Ayarları")]
     public GameObject ekinPrefab;
+    public int maxEkimHakki = 5;
 }

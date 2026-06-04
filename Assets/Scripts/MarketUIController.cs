@@ -8,10 +8,12 @@ using UnityEngine.InputSystem;
 
 public class MarketUIController : MonoBehaviour
 {
-
+    public static MarketUIController Instance { get; private set; }
     public static bool IsMarketOpen { get; private set; }
 
+    [Header("Arayüz Bağlantıları")]
     public UIDocument uiDocument;
+
     private VisualElement root, buyPage, cartPage, sellPage;
     private Button buyTab, cartTab, sellTab, landTab;
     private ScrollView marketList, cartList, sellList;
@@ -24,13 +26,16 @@ public class MarketUIController : MonoBehaviour
     private Dictionary<int, int> sellQuantities = new Dictionary<int, int>();
     private Dictionary<int, List<SellableItem>> itemsInZoneGrouped = new Dictionary<int, List<SellableItem>>();
 
-    private LaptopInteractable currentLaptop;
+    // STOK MANTIĞI: Sunucudan gelen anlık stokları tutar
+    private Dictionary<int, int> clientStocks = new Dictionary<int, int>();
 
-    // YENİ: ESC çakışmasını önlemek için arayüzün açılma zamanını tutar
+    private LaptopInteractable currentLaptop;
     private float lastOpenedTime;
 
     private void Awake()
     {
+        if (Instance == null) Instance = this;
+
         root = uiDocument.rootVisualElement;
 
         buyPage = root.Q<VisualElement>("BuyPage");
@@ -67,7 +72,7 @@ public class MarketUIController : MonoBehaviour
 
     private void Update()
     {
-        // YENİ: Market menüsü açıksa, arkadaki her şeye rağmen fareyi serbest ve görünür tutmaya ZORLA!
+        // Market menüsü açıksa, fareyi serbest ve görünür tutmaya zorla
         if (root != null && root.style.display == DisplayStyle.Flex)
         {
             if (UnityEngine.Cursor.lockState != CursorLockMode.None)
@@ -77,6 +82,7 @@ public class MarketUIController : MonoBehaviour
             }
         }
 
+        // ESC ile kapatma (Çakışmayı önlemek için 0.2sn gecikme kalkanı)
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasReleasedThisFrame)
         {
             if (root != null && root.style.display == DisplayStyle.Flex)
@@ -96,8 +102,6 @@ public class MarketUIController : MonoBehaviour
         UpdateBalanceUI();
         SwitchPage(0);
         IsMarketOpen = true;
-
-        // YENİ: Arayüzün açıldığı anı kaydediyoruz
         lastOpenedTime = Time.time;
     }
 
@@ -105,10 +109,7 @@ public class MarketUIController : MonoBehaviour
 
     private void OnLandTabClicked()
     {
-        if (currentLaptop != null)
-        {
-            currentLaptop.ArsaSecimModunaGec();
-        }
+        if (currentLaptop != null) currentLaptop.ArsaSecimModunaGec();
     }
 
     private void ShowNotify(string msg, Color borderColor)
@@ -152,19 +153,68 @@ public class MarketUIController : MonoBehaviour
         if (index == 2) RefreshSellList();
     }
 
+    // --- YENİ: SUNUCUDAN GELEN STOK GÜNCELLEMESİ ---
+    public void UpdateItemStock(int itemID, int newStock)
+    {
+        clientStocks[itemID] = newStock;
+
+        // Sadece mağaza sayfası açıksa arayüzü anında yenile
+        if (root != null && root.style.display == DisplayStyle.Flex && buyPage.style.display == DisplayStyle.Flex)
+        {
+            RefreshMarketList();
+        }
+    }
+
     private void RefreshMarketList()
     {
         marketList.Clear();
         foreach (var item in DeliveryManager.Instance.allAvailableItems)
         {
-            marketList.Add(CreateWebCard(item.itemName, item.price, item.itemIcon, "SEPETE EKLE", () => {
+            // İstemcide stok bilgisi yoksa varsayılan değeri ata
+            if (!clientStocks.ContainsKey(item.itemID))
+            {
+                clientStocks[item.itemID] = item.isMachine ? 1 : item.maxStock;
+            }
+
+            int currentStock = clientStocks[item.itemID];
+            string buttonText = currentStock > 0 ? "SEPETE EKLE" : "TÜKENDİ";
+            string cardName = $"{item.itemName} (Stok: {currentStock})";
+
+            var card = CreateWebCard(cardName, item.price, item.itemIcon, buttonText, () => {
+                if (clientStocks[item.itemID] <= 0)
+                {
+                    ShowNotify("Bu ürün şu an stokta yok!", Color.red);
+                    return;
+                }
+
+                // Sepetteki adet mevcut stoğu aşmasın
+                int currentInCart = cartData.ContainsKey(item.itemID) ? cartData[item.itemID].qty : 0;
+                if (currentInCart >= clientStocks[item.itemID])
+                {
+                    ShowNotify("Mevcut tüm stoğu zaten sepete eklediniz!", Color.yellow);
+                    return;
+                }
+
                 if (cartData.ContainsKey(item.itemID))
                     cartData[item.itemID] = (item, cartData[item.itemID].qty + 1);
                 else
                     cartData[item.itemID] = (item, 1);
 
                 ShowNotify($"{item.itemName} sepete eklendi! (Adet: {cartData[item.itemID].qty})", Color.green);
-            }));
+            });
+
+            // Ürün tükendiyse butonu görsel ve işlevsel olarak kapat
+            if (currentStock <= 0)
+            {
+                Button btn = card.Q<Button>(className: "add-button");
+                if (btn != null)
+                {
+                    btn.SetEnabled(false);
+                    btn.style.opacity = 0.5f;
+                }
+            }
+
+            marketList.Add(card);
         }
     }
 
@@ -180,19 +230,28 @@ public class MarketUIController : MonoBehaviour
             total += item.price * qty;
 
             cartList.Add(CreateQtyCard(item.itemName, item.price, item.itemIcon, qty,
-                () => {
+                () => { // Eksi Butonu
                     if (cartData[kvp.Key].qty > 1)
                         cartData[kvp.Key] = (item, cartData[kvp.Key].qty - 1);
                     else
                         cartData.Remove(kvp.Key);
                     RefreshCartList();
                 },
-                () => {
-                    cartData[kvp.Key] = (item, cartData[kvp.Key].qty + 1);
-                    RefreshCartList();
+                () => { // Artı Butonu
+                    int maxAllowed = clientStocks.ContainsKey(kvp.Key) ? clientStocks[kvp.Key] : (item.isMachine ? 1 : item.maxStock);
+                    if (cartData[kvp.Key].qty < maxAllowed)
+                    {
+                        cartData[kvp.Key] = (item, cartData[kvp.Key].qty + 1);
+                        RefreshCartList();
+                    }
+                    else
+                    {
+                        ShowNotify("Stok sınırına ulaştınız!", Color.yellow);
+                    }
                 }));
         }
 
+        // Arsa işlemleri
         if (ArsaSecici.Instance != null && ArsaSecici.Instance.sepettekiArsalar.Count > 0)
         {
             int arsaAdet = ArsaSecici.Instance.sepettekiArsalar.Count;
@@ -217,6 +276,7 @@ public class MarketUIController : MonoBehaviour
         sellList.Clear();
         itemsInZoneGrouped.Clear();
         var rawItems = DeliveryManager.Instance.GetItemsInZone();
+
         foreach (var s in rawItems)
         {
             if (s.itemData == null) continue;
@@ -326,43 +386,66 @@ public class MarketUIController : MonoBehaviour
             return;
         }
 
-        int total = cartData.Values.Sum(x => x.data.price * x.qty);
+        int totalCost = cartData.Values.Sum(x => x.data.price * x.qty);
+        int arsaCost = 0;
+
         if (arazilerVar)
         {
-            total += ArsaSecici.Instance.sepettekiArsalar.Count * ArsaSecici.Instance.arsaBirimFiyati;
+            arsaCost = ArsaSecici.Instance.sepettekiArsalar.Count * ArsaSecici.Instance.arsaBirimFiyati;
+            totalCost += arsaCost;
         }
 
-        if (EconomyManager.Instance.currentMoney < total)
+        if (EconomyManager.Instance.currentMoney < totalCost)
         {
             ShowNotify("Bakiye yetersiz!", Color.red);
             return;
         }
 
-        // --- YENİ: Parayı GÜNCELLİYORUZ (Düşüyoruz) ---
-        // EconomyManager içinde parayı düşmek için özel bir fonksiyonun (Örn: ParaHarca(total)) varsa
-        // alttaki satırı silip onu kullanabilirsin. Yoksa bu satır direkt parayı düşecektir.
-        EconomyManager.Instance.currentMoney -= total;
-
+        // --- ARSA SATIN ALIMI ---
         if (arazilerVar)
         {
+            // Arsa parasını lokal düşüp sistemi tetikliyoruz
+            EconomyManager.Instance.currentMoney -= arsaCost;
             ArsaSecici.Instance.UI_SatinAlimiTamamla();
         }
 
+        // --- MARKET EŞYALARI SATIN ALIMI ---
         if (cartData.Count > 0)
         {
             List<int> idsToSend = new List<int>();
             foreach (var kvp in cartData)
+            {
                 for (int i = 0; i < kvp.Value.qty; i++) idsToSend.Add(kvp.Key);
+            }
 
+            // ÖNEMLİ: Market parasını sunucu kesecek, lokalden biz düşmüyoruz.
             DeliveryManager.Instance.PurchaseCartRpc(idsToSend.ToArray(), NetworkManager.Singleton.LocalClientId);
+        }
+        else
+        {
+            // Sadece arsa alındıysa arayüzü anında yenile
+            UpdateBalanceUI();
+            RefreshCartList();
+            ShowNotify("Arsa alımı tamamlandı!", Color.green);
+        }
+    }
+
+    // --- YENİ: SUNUCUDAN GELEN SATIN ALIM YANITI ---
+    public void OnPurchaseResponse(bool success, string message)
+    {
+        if (success)
+        {
             cartData.Clear();
+            ShowNotify(message, Color.green);
+        }
+        else
+        {
+            ShowNotify(message, Color.red);
         }
 
-        ShowNotify("Ödeme başarılı! İşlemler tamamlandı.", Color.green);
-
-        // Bakiyeyi yeni değere göre anında arayüzde yenile
         UpdateBalanceUI();
         RefreshCartList();
+        RefreshMarketList(); // Yeni stokları göstermek için marketi de yenile
     }
 
     private void OnSellConfirmed()
@@ -376,15 +459,14 @@ public class MarketUIController : MonoBehaviour
 
         DeliveryManager.Instance.SellSelectedItemsRpc(idsToSell.ToArray());
         sellQuantities.Clear();
-        ShowNotify("Satış tamamlandı!", Color.cyan);
+        ShowNotify("Satış isteği sunucuya gönderildi!", Color.cyan);
 
-        UpdateBalanceUI();
-        RefreshSellList();
+        // Bakiye, Server tarafından AddMoney ile güncellendiğinde senkronize olur
     }
 
     public void CloseUI()
     {
         root.style.display = DisplayStyle.None;
-        IsMarketOpen = false; // MARKET KAPANDI!
+        IsMarketOpen = false;
     }
 }

@@ -91,7 +91,6 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
             }
         }
     }
-
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void MakineyeYukleServerRpc(ulong oyuncuId, int slotIndex)
     {
@@ -104,20 +103,32 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
                 ItemData data = slot.itemData;
 
+                // 1. KORUMA: Elimizdeki eþyanýn "ekinPrefab"ý yoksa o tohum deðildir, makineye alma!
+                if (data.ekinPrefab == null) return;
+
                 if (mevcutTohum.Value == 0)
                 {
                     aktifTohumID = data.itemID;
-                    aktifEkinPrefab = data.groundPrefab;
+                    // HATA BURADAYDI: groundPrefab yerine ekinPrefab olmalý
+                    aktifEkinPrefab = data.ekinPrefab;
                 }
-                else if (aktifTohumID != data.itemID) return;
+                else if (aktifTohumID != data.itemID) return; // Farklý tohum yüklenmesini engeller
 
                 int bosYer = maxKapasite - mevcutTohum.Value;
-                int eklenecekMiktar = Mathf.Min(bosYer, slot.amount);
 
-                if (eklenecekMiktar > 0)
+                // YENÝ SÝSTEM ENTEGRASYONU: Paketin içindeki gerçek tohum sayýsýný bul
+                int pakettekiTohumSayisi = slot.kalanEkimHakki == -1 ? data.maxEkimHakki : slot.kalanEkimHakki;
+
+                // Eðer makinede paketin tamamýný alacak yer varsa
+                if (bosYer >= pakettekiTohumSayisi)
                 {
-                    mevcutTohum.Value += eklenecekMiktar;
-                    envanter.DecreaseItemAmountServerRpc(slotIndex, eklenecekMiktar);
+                    mevcutTohum.Value += pakettekiTohumSayisi;
+                    // Paketi envanterden sil (1 adet paketi eksilt)
+                    envanter.DecreaseItemAmountServerRpc(slotIndex, 1);
+                }
+                else
+                {
+                    Debug.Log("Makinede tam bir paket tohum için yeterli yer yok!");
                 }
             }
         }
@@ -125,9 +136,27 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
     public List<ActionPrompt> GetPrompts()
     {
-        return new List<ActionPrompt>
-    {
-        new ActionPrompt("V", "Ekim Yap")
-    };
+        List<ActionPrompt> prompts = new List<ActionPrompt>();
+        prompts.Add(new ActionPrompt("V", "Ekim Yap (Aç/Kapat)"));
+
+        // Römorktaki gibi dinamik "E" tuþu ipuçlarýný ekliyoruz
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null && NetworkManager.Singleton.LocalClient.PlayerObject != null)
+        {
+            if (NetworkManager.Singleton.LocalClient.PlayerObject.TryGetComponent(out PlayerInventory inventory))
+            {
+                InventorySlot aktifSlot = inventory.slots[inventory.activeHotbarIndex.Value];
+
+                // Elimizde bir tohum paketi varsa (ekinPrefab doluysa tohumdur)
+                if (!aktifSlot.IsEmpty && aktifSlot.itemData != null && aktifSlot.itemData.ekinPrefab != null)
+                {
+                    if (mevcutTohum.Value < maxKapasite)
+                        prompts.Add(new ActionPrompt("E", "Tohum Yükle"));
+                    else
+                        prompts.Add(new ActionPrompt("E", "Makine Dolu"));
+                }
+            }
+        }
+
+        return prompts;
     }
 }

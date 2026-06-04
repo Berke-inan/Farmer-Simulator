@@ -9,15 +9,22 @@ public class PlayerInventory : NetworkBehaviour
     public InventorySlot[] slots;
 
     [Header("El Görselleri")]
-    public Transform handTransform;
+    public Transform localHandTransform; // FPS Kameranın altındaki nokta
     public GameObject eldekiObje;
 
     public NetworkVariable<bool> isHolstered = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public NetworkVariable<int> activeHotbarIndex = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+    // --- YENİ EKLENEN: Diğer oyuncuların elinde ne olduğunu görmesi için ---
+    public NetworkVariable<int> syncHeldItemID = new NetworkVariable<int>(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
     public event Action<int, InventorySlot> OnSlotChanged;
+
+    public NetworkList<int> sepetIcerikIDleri;
 
     private void Awake()
     {
+        sepetIcerikIDleri = new NetworkList<int>(null, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         if (slots == null || slots.Length != maxSlots)
         {
             slots = new InventorySlot[maxSlots];
@@ -29,23 +36,98 @@ public class PlayerInventory : NetworkBehaviour
     {
         activeHotbarIndex.OnValueChanged += HandleHotbarChanged;
         isHolstered.OnValueChanged += HandleHolsterChanged;
-        UpdateHeldItemVisuals(activeHotbarIndex.Value);
+
+        // YENİ: Diğer oyuncular senin elindeki eşyanın ID değişimini dinleyecek
+        syncHeldItemID.OnValueChanged += HandleSyncHeldItemChanged;
+
+        if (IsOwner)
+        {
+            UpdateHeldItemVisuals(activeHotbarIndex.Value);
+        }
+        else
+        {
+            // Sen oyuna ilk girdiğinde diğer oyuncular elindeki eşyayı direk görsün diye
+            UpdateNetworkVisuals(syncHeldItemID.Value);
+        }
     }
 
     public override void OnNetworkDespawn()
     {
         activeHotbarIndex.OnValueChanged -= HandleHotbarChanged;
         isHolstered.OnValueChanged -= HandleHolsterChanged;
+        syncHeldItemID.OnValueChanged -= HandleSyncHeldItemChanged;
     }
 
     private void HandleHotbarChanged(int previousIndex, int newIndex)
     {
-        UpdateHeldItemVisuals(newIndex);
+        if (IsOwner) UpdateHeldItemVisuals(newIndex); // Artık sadece sahibi çalıştıracak
     }
 
     private void HandleHolsterChanged(bool previousVal, bool newVal)
     {
-        UpdateHeldItemVisuals(activeHotbarIndex.Value);
+        if (IsOwner) UpdateHeldItemVisuals(activeHotbarIndex.Value); // Artık sadece sahibi çalıştıracak
+    }
+
+    // --- YENİ EKLENEN: Diğer oyuncuların görselini yöneten fonksiyonlar ---
+    private void HandleSyncHeldItemChanged(int oldID, int newID)
+    {
+        if (!IsOwner)
+        {
+            UpdateNetworkVisuals(newID);
+        }
+    }
+
+    private void UpdateNetworkVisuals(int itemID)
+    {
+        if (eldekiObje != null) Destroy(eldekiObje);
+
+        if (itemID == -1) return;
+
+        if (ItemRegistry.Instance == null || ItemRegistry.Instance.itemDatabase == null) return;
+
+        ItemData data = ItemRegistry.Instance.itemDatabase.GetItemByID(itemID);
+        if (data != null && data.heldModelPrefab != null)
+        {
+            // ESKİ HALİNE DÖNDÜ: Herkes eşyayı localHandTransform noktasında görecek
+            eldekiObje = Instantiate(data.heldModelPrefab, localHandTransform);
+            eldekiObje.transform.localPosition = data.holdPositionOffset;
+            eldekiObje.transform.localEulerAngles = data.holdRotationOffset;
+        }
+    }
+    // -----------------------------------------------------------------------
+
+    private void UpdateHeldItemVisuals(int slotIndex)
+    {
+        if (!IsOwner) return; // Kesin Güvenlik: Sadece eşyanın gerçek sahibi çalıştırsın
+
+        if (eldekiObje != null) Destroy(eldekiObje);
+
+        int newSyncID = -1; // YENİ: Herkese gönderilecek ağ ID'si (El boşken -1 kalır)
+
+        if (!isHolstered.Value && slotIndex >= 0 && slotIndex < slots.Length)
+        {
+            InventorySlot currentSlot = slots[slotIndex];
+
+            if (!currentSlot.IsEmpty && currentSlot.itemData != null && currentSlot.itemData.heldModelPrefab != null)
+            {
+                newSyncID = currentSlot.itemData.itemID; // Elimize bir şey aldık, ID'sini not al
+
+                eldekiObje = Instantiate(currentSlot.itemData.heldModelPrefab, localHandTransform);
+                eldekiObje.transform.localPosition = currentSlot.itemData.holdPositionOffset;
+                eldekiObje.transform.localEulerAngles = currentSlot.itemData.holdRotationOffset;
+
+                if (eldekiObje.TryGetComponent(out LocalToolDurability ltd))
+                {
+                    ltd.currentHealth = currentSlot.kalanCan == -1f ? ltd.maxHealth : currentSlot.kalanCan;
+                }
+            }
+        }
+
+        // YENİ: Sahibiysek ve elimizdeki eşya değiştiyse, bunu ağa (diğer oyunculara) bildir
+        if (syncHeldItemID.Value != newSyncID)
+        {
+            syncHeldItemID.Value = newSyncID;
+        }
     }
 
     [Rpc(SendTo.Server)]
@@ -143,27 +225,6 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    private void UpdateHeldItemVisuals(int slotIndex)
-    {
-        if (eldekiObje != null) Destroy(eldekiObje);
-
-        if (isHolstered.Value) return;
-
-        if (slotIndex < 0 || slotIndex >= slots.Length) return;
-
-        InventorySlot currentSlot = slots[slotIndex];
-        if (currentSlot.IsEmpty || currentSlot.itemData == null || currentSlot.itemData.heldModelPrefab == null) return;
-
-        eldekiObje = Instantiate(currentSlot.itemData.heldModelPrefab, handTransform);
-        eldekiObje.transform.localPosition = currentSlot.itemData.holdPositionOffset;
-        eldekiObje.transform.localEulerAngles = currentSlot.itemData.holdRotationOffset;
-
-        if (eldekiObje.TryGetComponent(out LocalToolDurability ltd))
-        {
-            ltd.currentHealth = currentSlot.kalanCan == -1f ? ltd.maxHealth : currentSlot.kalanCan;
-        }
-    }
-
     public bool CanPickupToActiveSlot(int itemID)
     {
         InventorySlot activeSlot = slots[activeHotbarIndex.Value];
@@ -195,7 +256,7 @@ public class PlayerInventory : NetworkBehaviour
         OnSlotChanged?.Invoke(activeHotbarIndex.Value, activeSlot);
         Transform camTransform = GetComponent<PlayerInteractor>().playerCamera;
 
-        DropItemServerRpc(idToDrop, canToDrop, handTransform.position, camTransform.forward);
+        DropItemServerRpc(idToDrop, canToDrop, localHandTransform.position, camTransform.forward);
     }
 
     [Rpc(SendTo.Server)]
@@ -261,7 +322,8 @@ public class PlayerInventory : NetworkBehaviour
         {
             if (eldekiObje.TryGetComponent(out LocalToolDurability ltd) && ltd.kirilmaSesi != null)
             {
-                AudioSource.PlayClipAtPoint(ltd.kirilmaSesi, handTransform.position);
+                // BURASI DEĞİŞTİ: handTransform yerine localHandTransform yazdık
+                AudioSource.PlayClipAtPoint(ltd.kirilmaSesi, localHandTransform.position);
             }
         }
 
@@ -424,7 +486,23 @@ public class PlayerInventory : NetworkBehaviour
                 crop.tohumID.Value = data.itemID;
             }
 
-            DecreaseItemAmountServerRpc(slotIndex, 1);
+            var tempSlot = slots[slotIndex];
+
+            if (tempSlot.kalanEkimHakki == -1)
+            {
+                tempSlot.kalanEkimHakki = data.maxEkimHakki;
+            }
+
+            tempSlot.kalanEkimHakki--;
+
+            if (tempSlot.kalanEkimHakki <= 0)
+            {
+                DecreaseItemAmountServerRpc(slotIndex, 1);
+            }
+            else
+            {
+                slots[slotIndex] = tempSlot;
+            }
         }
     }
 
@@ -539,5 +617,73 @@ public class PlayerInventory : NetworkBehaviour
             }
             tData.SetDetailLayer(startX, startZ, i, details);
         }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SepeteMeyveToplaServerRpc(ulong agacNetId)
+    {
+        if (sepetDoluluk.Value >= 10) return;
+
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(agacNetId, out NetworkObject agacObj))
+        {
+            TreeController agac = agacObj.GetComponent<TreeController>();
+            if (agac != null && agac.mevcutDurum.Value == TreeState.Meyveli)
+            {
+                bool hasatBasarili = agac.MeyveHasatEt();
+                if (hasatBasarili)
+                {
+                    int meyveID = agac.agacVerisi != null ? agac.agacVerisi.meyveItemID : 0;
+                    sepetIcerikIDleri.Add(meyveID);
+                    sepetDoluluk.Value = sepetIcerikIDleri.Count;
+                }
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SepeteYerdenEsyaToplaServerRpc(ulong esyaNetId)
+    {
+        if (sepetDoluluk.Value >= 10) return;
+
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(esyaNetId, out NetworkObject esyaObj))
+        {
+            if (esyaObj.TryGetComponent<InteractableItem>(out var yerdekiEsya))
+            {
+                sepetIcerikIDleri.Add(yerdekiEsya.itemID);
+                sepetDoluluk.Value = sepetIcerikIDleri.Count;
+                esyaObj.Despawn();
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SepettenEsyaBosaltServerRpc(Vector3 spawnNoktasi)
+    {
+        if (sepetDoluluk.Value <= 0 || sepetIcerikIDleri.Count == 0) return;
+
+        int sonIndex = sepetIcerikIDleri.Count - 1;
+        int atilacakItemID = sepetIcerikIDleri[sonIndex];
+
+        sepetIcerikIDleri.RemoveAt(sonIndex);
+        sepetDoluluk.Value = sepetIcerikIDleri.Count;
+
+        GameObject esyaPrefab = GetPrefabByItemID(atilacakItemID);
+        if (esyaPrefab != null)
+        {
+            GameObject dunyaEsyasi = Instantiate(esyaPrefab, spawnNoktasi, Quaternion.identity);
+            dunyaEsyasi.GetComponent<NetworkObject>().Spawn();
+        }
+    }
+
+    private GameObject GetPrefabByItemID(int id)
+    {
+        if (DeliveryManager.Instance != null)
+        {
+            foreach (var item in DeliveryManager.Instance.allAvailableItems)
+            {
+                if (item.itemID == id) return item.prefabToSpawn;
+            }
+        }
+        return null;
     }
 }

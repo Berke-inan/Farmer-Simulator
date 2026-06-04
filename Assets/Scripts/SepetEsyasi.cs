@@ -1,31 +1,50 @@
 using UnityEngine;
 using Unity.Netcode;
-using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
-public class SepetEsyasi : MonoBehaviour
+public class SepetEsyasi : MonoBehaviour, IUseableTool
 {
-    [Header("Sepet Modelleri")]
-    public GameObject modelBos;
-    public GameObject modelYarim;
-    public GameObject modelDolu;
+    // YENÝ YAPI: ID'ye göre görsel setlerini tutan yardýmcý sýnýf
+    [System.Serializable]
+    public class GorselSeti
+    {
+        public int itemID; // Örn: 15 (Yumurta)
+        public GameObject[] gorselModeller; // O ID'ye ait 10 adet görsel obje
+    }
 
-    [Header("Toplama Ayarlarý")]
-    public float toplamaMenzili = 4f;
+    [Header("Görsel Ayarlarý")]
+    [Tooltip("ID bazlý görsel setlerini buraya tanýmlayýn (Örn: ID 15 için Yumurta objeleri)")]
+    public List<GorselSeti> gorselSetleri = new List<GorselSeti>();
+
+    [Header("Sepet Ayarlarý")]
+    public int maxKapasite = 10;
+
+    [Header("Toplanabilir Eþya Filtresi")]
+    public List<int> kabulEdilenItemIDler = new List<int>();
 
     private PlayerInventory inventory;
+    private Dictionary<int, GameObject[]> gorselVeritabaný = new Dictionary<int, GameObject[]>();
 
     private void Start()
     {
-        // Obje eline verildiðinde (Instantiate edildiðinde) oyuncunun envanter koduna ulaþýr
         inventory = GetComponentInParent<PlayerInventory>();
+
+        // Hýzlý eriþim için listeyi Dictionary'ye çeviriyoruz
+        foreach (var set in gorselSetleri)
+        {
+            if (!gorselVeritabaný.ContainsKey(set.itemID))
+            {
+                gorselVeritabaný.Add(set.itemID, set.gorselModeller);
+            }
+        }
 
         if (inventory != null)
         {
-            // Sepetin ilk doluluk durumuna göre görseli ayarla
-            GorselleriGuncelle(inventory.sepetDoluluk.Value);
+            // Ýlk açýlýþta mevcut duruma göre güncelle
+            GorselleriGuncelle();
 
-            // Doluluk deðiþtiðinde (NetworkVariable) görselleri güncellemesi için abone ol
-            inventory.sepetDoluluk.OnValueChanged += DolulukDegistigindeGorselleriGuncelle;
+            // YENÝ: sepetDoluluk yerine sepetIcerikIDleri listesindeki deðiþimi dinliyoruz
+            inventory.sepetIcerikIDleri.OnListChanged += DolulukDegistigindeGorselleriGuncelle;
         }
     }
 
@@ -33,48 +52,78 @@ public class SepetEsyasi : MonoBehaviour
     {
         if (inventory != null)
         {
-            inventory.sepetDoluluk.OnValueChanged -= DolulukDegistigindeGorselleriGuncelle;
+            inventory.sepetIcerikIDleri.OnListChanged -= DolulukDegistigindeGorselleriGuncelle;
         }
     }
 
-    private void DolulukDegistigindeGorselleriGuncelle(int eskiDurum, int yeniDurum)
+    // NetworkList deðiþim olayý (event) parametreleri
+    private void DolulukDegistigindeGorselleriGuncelle(NetworkListEvent<int> changeEvent)
     {
-        GorselleriGuncelle(yeniDurum);
+        GorselleriGuncelle();
     }
 
-    private void GorselleriGuncelle(int durum)
+    // ANA GÖRSEL GÜNCELLEME MANTIÐI
+    private void GorselleriGuncelle()
     {
-        if (modelBos != null) modelBos.SetActive(durum == 0);
-        if (modelYarim != null) modelYarim.SetActive(durum == 1);
-        if (modelDolu != null) modelDolu.SetActive(durum >= 2);
-    }
-
-    private void Update()
-    {
-        // Sadece sahibi bizsek ve F tuþuna basýldýysa
-        if (inventory == null || !inventory.IsOwner) return;
-
-        if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
+        // Önce tüm ID setlerinin tüm görsellerini kapatarak temizlik yap
+        foreach (var set in gorselVeritabaný.Values)
         {
-            if (inventory.sepetDoluluk.Value >= 2)
+            foreach (var obje in set)
             {
-                Debug.Log("Sepet tamamen dolu!");
-                return;
+                if (obje != null) obje.SetActive(false);
             }
+        }
 
-            // PlayerInteractor üzerinden kameraya ulaþýrýz
-            Transform cam = inventory.GetComponent<PlayerInteractor>().playerCamera;
-            Ray ray = new Ray(cam.position, cam.forward);
+        // Sepette eþya yoksa iþlem bitti (hepsi kapalý kaldý)
+        if (inventory == null || inventory.sepetIcerikIDleri.Count == 0) return;
 
-            if (Physics.Raycast(ray, out RaycastHit hit, toplamaMenzili))
+        // Sepet Doluluðu
+        int durum = inventory.sepetIcerikIDleri.Count;
+
+        // KRÝTÝK KISIM: Sepetin "Türü" ne?
+        // Karýþýk sepet olmamasý için listenin ÝLK elemanýnýn ID'sine bakýyoruz.
+        int sepetTuruID = inventory.sepetIcerikIDleri[0];
+
+        // Bu ID'ye ait görseller veritabanýmýzda var mý?
+        if (gorselVeritabaný.TryGetValue(sepetTuruID, out GameObject[] aktifGorseller))
+        {
+            // Sadece bu türe ait görselleri sýrayla aç
+            for (int i = 0; i < aktifGorseller.Length; i++)
             {
-                TreeController agac = hit.collider.GetComponentInParent<TreeController>();
-                if (agac != null && agac.mevcutDurum.Value == TreeState.Meyveli)
+                if (aktifGorseller[i] != null)
                 {
-                    // RPC artýk PlayerInventory üzerinden gönderilmeli
-                    inventory.ToplamaIstegiServerRpc(agac.NetworkObjectId);
+                    aktifGorseller[i].SetActive(i < durum);
                 }
             }
+        }
+    }
+
+    public void EylemYap(RaycastHit hit, PlayerInventory inv)
+    {
+        // 1. Aðaçtan meyve toplama
+        TreeController agac = hit.collider.GetComponentInParent<TreeController>();
+        if (agac != null && agac.mevcutDurum.Value == TreeState.Meyveli)
+        {
+            if (inv.sepetDoluluk.Value >= maxKapasite) return;
+            inv.SepeteMeyveToplaServerRpc(agac.NetworkObjectId);
+            return;
+        }
+
+        // 2. Yerden eþya toplama
+        InteractableItem yerdekiEsya = hit.collider.GetComponentInParent<InteractableItem>();
+        if (yerdekiEsya != null)
+        {
+            if (!kabulEdilenItemIDler.Contains(yerdekiEsya.itemID)) return;
+            if (inv.sepetDoluluk.Value >= maxKapasite) return;
+            inv.SepeteYerdenEsyaToplaServerRpc(yerdekiEsya.GetComponent<NetworkObject>().NetworkObjectId);
+            return;
+        }
+
+        // 3. BOÞALTMA MANTIÐI
+        if (inv.sepetDoluluk.Value > 0)
+        {
+            Vector3 bosaltmaNoktasi = hit.point + (Vector3.up * 0.5f);
+            inv.SepettenEsyaBosaltServerRpc(bosaltmaNoktasi);
         }
     }
 }
