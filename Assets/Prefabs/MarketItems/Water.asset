@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 287caf2f6b9289f48a8ed09313390c23, type: 3}
   m_Name: Water
   m_EditorClassIdentifier: Assembly-CSharp::MarketItem
-  itemID: 0
-  itemName: 
+  itemID: 31
+  itemName: Water
   itemIcon: {fileID: 0}
-  price: 0
-  prefabToSpawn: {fileID: 0}
+  price: 10
+  prefabToSpawn: {fileID: 4079859512506773140, guid: f72f11151ab411d4a9263986fe24a6b5, type: 3}
   isMachine: 0
   maxStock: 10
   restockInterval: 60

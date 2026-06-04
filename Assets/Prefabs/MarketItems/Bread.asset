@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 287caf2f6b9289f48a8ed09313390c23, type: 3}
   m_Name: Bread
   m_EditorClassIdentifier: Assembly-CSharp::MarketItem
-  itemID: 0
-  itemName: 
+  itemID: 30
+  itemName: Bread
   itemIcon: {fileID: 0}
-  price: 0
-  prefabToSpawn: {fileID: 0}
+  price: 10
+  prefabToSpawn: {fileID: 7798523875705588319, guid: 1ef9914f3cd1fd54d9f25dbb8de32bc8, type: 3}
   isMachine: 0
   maxStock: 10
   restockInterval: 60
