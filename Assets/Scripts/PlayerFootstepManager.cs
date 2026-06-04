@@ -27,7 +27,7 @@ public class PlayerFootstepManager : NetworkBehaviour
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-        audioSource.spatialBlend = 1f;
+        audioSource.spatialBlend = 1f; // %100 3D Ses
         audioSource.playOnAwake = false;
     }
 
@@ -38,20 +38,21 @@ public class PlayerFootstepManager : NetworkBehaviour
 
     private void Update()
     {
+        // Mesafe hesabýný sadece bu karakterin sahibi olan local oyuncu yapar
         if (!IsOwner) return;
 
-        // 1. ZEMÝN KONTROLÜ (Havadaysak ses çalma ve mesafe sayma)
+        // 1. ZEMÝN KONTROLÜ
         Vector3 rayStart = transform.position + (Vector3.up * 0.5f);
         bool isGrounded = Physics.Raycast(rayStart, Vector3.down, out RaycastHit groundHit, 1.2f);
 
         if (!isGrounded)
         {
-            distanceTraveled = 0f; // Havada sayacý sýfýrla
-            lastPosition = transform.position; // Pozisyonu güncelle ki yere inince anýnda çalmasýn
+            distanceTraveled = 0f;
+            lastPosition = transform.position;
             return;
         }
 
-        // 2. YATAY MESAFE HESABI (Sadece X ve Z ekseni. Yokuþtaki hatalarý önler)
+        // 2. YATAY MESAFE HESABI
         Vector3 currentPosXZ = new Vector3(transform.position.x, 0, transform.position.z);
         Vector3 lastPosXZ = new Vector3(lastPosition.x, 0, lastPosition.z);
 
@@ -59,10 +60,8 @@ public class PlayerFootstepManager : NetworkBehaviour
         distanceTraveled += distanceThisFrame;
         lastPosition = transform.position;
 
-        // Yatay hýzý hesapla
         float currentSpeed = distanceThisFrame / Time.deltaTime;
 
-        // Karakter duruyorsa iþlem yapma
         if (currentSpeed < 0.1f)
         {
             distanceTraveled = 0f;
@@ -76,45 +75,76 @@ public class PlayerFootstepManager : NetworkBehaviour
         float slopeAngle = Vector3.Angle(Vector3.up, groundHit.normal);
         if (slopeAngle > 5f)
         {
-            // Yokuþ dikleþtikçe adým kotasýný daralt (yavaþlamayý telafi eder)
             currentStepDistance *= Mathf.Lerp(1f, 0.5f, slopeAngle / 45f);
         }
 
-        // 4. SESÝ ÇAL (Artýk zaman kýsýtlamasýna gerek yok, mesafe kusursuz çalýþýr)
+        // 4. ADIM TETÝKLEME KONTROLÜ
         if (distanceTraveled >= currentStepDistance)
         {
-            // ÇÖZÜM: Sayacý 0 yapma! Artan küsuratý (örneðin 3.6 - 3.5 = 0.1) koru.
-            // Bu sayede ritim sekmesi/gecikmesi yaþanmaz.
             distanceTraveled %= currentStepDistance;
-
-            // Çarptýðýmýz zemin verisini (groundHit) fonksiyona yolluyoruz ki tekrar lazer atmasýn
             PlayFootstepSound(isRunning, groundHit);
         }
     }
 
     private void PlayFootstepSound(bool isRunning, RaycastHit groundHit)
     {
-        AudioClip clipToPlay = woodFootstepClip; // Varsayýlan Ses
-        float baseVolume = woodVolume;
+        // Að üzerinden klip gönderemediðimiz için zeminleri sayýlara atýyoruz:
+        // 0 = Ahþap (Wood), 1 = Toprak (Dirt), 2 = Taþ (Rock)
+        int zeminTuruIndeksi = 0;
 
-        // Hangi zeminde yürüdüðümüzü bul
-        if (groundHit.collider.TryGetComponent(out Terrain terrain))
+        if (groundHit.collider != null && groundHit.collider.TryGetComponent(out Terrain terrain))
         {
             int texIndex = GetDominantTerrainTexture(groundHit.point, terrain);
-            if (texIndex == 3) // Taþ zemin indeksi
+            if (texIndex == 3)
             {
-                clipToPlay = rockFootstepClip;
-                baseVolume = rockVolume;
+                zeminTuruIndeksi = 2; // Taþ
             }
             else
             {
-                clipToPlay = dirtFootstepClip;
-                baseVolume = dirtVolume;
+                zeminTuruIndeksi = 1; // Toprak
             }
         }
 
-        // Sesi Çal
-        if (clipToPlay != null)
+        // 1. Kendi ekranýmýzda hiç að gecikmesi (Ping) beklemeden ANINDA sesi çalýyoruz
+        ExecutePlayFootstep(zeminTuruIndeksi, isRunning);
+
+        // 2. Sunucuya "Ben adým attým, diðerlerine de çal" paketini fýrlatýyoruz
+        RequestFootstepPlayServerRpc(zeminTuruIndeksi, isRunning);
+    }
+
+    [Rpc(SendTo.Server)]
+    private void RequestFootstepPlayServerRpc(int zeminTuru, bool isRunning)
+    {
+        // Sunucu emri alýr ve sesi sadece sahibi OLMAYAN (NotOwner) diðer oyunculara gönderir.
+        // Böylece senin bilgisayarýnda ses ikinci kez patlayýp yanký yapmaz.
+        BroadcastFootstepToOthersRpc(zeminTuru, isRunning);
+    }
+
+    [Rpc(SendTo.NotOwner)]
+    private void BroadcastFootstepToOthersRpc(int zeminTuru, bool isRunning)
+    {
+        // Diðer oyuncularýn bilgisayarlarýnda, senin karakterinin olduðu koordinatta ses tetiklenir
+        ExecutePlayFootstep(zeminTuru, isRunning);
+    }
+
+    // --- SESÝ FÝZÝKSEL OLARAK HOPARLÖRE GÖNDEREN ANA MOTOR ---
+    private void ExecutePlayFootstep(int zeminTuru, bool isRunning)
+    {
+        AudioClip clipToPlay = woodFootstepClip;
+        float baseVolume = woodVolume;
+
+        if (zeminTuru == 1)
+        {
+            clipToPlay = dirtFootstepClip;
+            baseVolume = dirtVolume;
+        }
+        else if (zeminTuru == 2)
+        {
+            clipToPlay = rockFootstepClip;
+            baseVolume = rockVolume;
+        }
+
+        if (clipToPlay != null && audioSource != null)
         {
             float finalVolume = isRunning ? (baseVolume * runVolumeMultiplier) : baseVolume;
             audioSource.pitch = Random.Range(isRunning ? 1.1f : 0.95f, isRunning ? 1.25f : 1.05f);

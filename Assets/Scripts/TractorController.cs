@@ -73,7 +73,12 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject playerObj))
         {
             GetComponent<NetworkObject>().ChangeOwnership(playerObj.OwnerClientId);
-            playerObj.TrySetParent(transform);
+
+            // --- DEĞİŞTİRİLEN KISIM 1: KESİN NETCODE PARENTING ---
+            // Oyuncuyu direkt koltuğa bağlıyoruz ve 'false' diyerek tam koltuk merkezine (0,0,0) ışınlıyoruz.
+            // Bu işlem otomatik olarak tüm client'lara pürüzsüzce senkronize edilir.
+            playerObj.TrySetParent(driverSeat, false);
+
             MountTractorClientRpc(playerId);
         }
     }
@@ -84,9 +89,13 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject playerObj))
         {
             currentDriver = playerObj;
-            playerObj.transform.position = driverSeat.position;
-            playerObj.transform.rotation = driverSeat.rotation;
+
+            // --- DEĞİŞTİRİLEN KISIM 2: MANUEL DÜNYA POZİSYON ATAMASI SİLİNDİ ---
+            // Karakter fizik motorunun (CharacterController) yerçekimi uygulayıp parent'ı dışarı fırlatmasını 
+            // engellemek için önce bileşenleri uyutuyoruz. Ardından garanti olsun diye local pozisyonu sıfırlıyoruz.
             TogglePlayerComponents(playerObj, false);
+            playerObj.transform.localPosition = Vector3.zero;
+            playerObj.transform.localRotation = Quaternion.identity;
 
             if (playerObj.IsOwner)
             {
@@ -346,7 +355,7 @@ public class TractorController : NetworkBehaviour, IInteractable
             }
 
             float antiDragTorque = (Mathf.Abs(CurrentGasInput) > 0.1f) ? 0.001f : 0f;
-            wcBL.motorTorque = wcBR.motorTorque = antiDragTorque; // Hata veren satır düzeltildi!
+            wcBL.motorTorque = wcBR.motorTorque = antiDragTorque;
         }
 
         float currentSteerAngle = smoothedSteeringInput * maxSteerAngle;
@@ -375,10 +384,57 @@ public class TractorController : NetworkBehaviour, IInteractable
 
     public List<ActionPrompt> GetPrompts()
     {
-        string eylemMetni = IsOccupied ? "DOLU" : "BİN";
-        return new List<ActionPrompt>
+        List<ActionPrompt> prompts = new List<ActionPrompt>();
+
+        if (fuelSystem != null)
         {
-            new ActionPrompt("E", eylemMetni)
-        };
+            prompts.Add(new ActionPrompt("Traktör Deposu", $"{Mathf.RoundToInt(fuelSystem.currentFuel.Value)}L / {Mathf.RoundToInt(fuelSystem.maxFuel)}L"));
+        }
+
+        if (!IsOccupied)
+        {
+            prompts.Add(new ActionPrompt("E", "Traktöre Bin"));
+        }
+
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null && NetworkManager.Singleton.LocalClient.PlayerObject != null)
+        {
+            var playerObj = NetworkManager.Singleton.LocalClient.PlayerObject;
+            var inventory = playerObj.GetComponent<PlayerInventory>();
+
+            bool tabancaElinde = false;
+            var pompa = FindObjectOfType<PompaTabancasi>();
+            if (pompa != null && pompa.tutanOyuncuId.Value == playerObj.NetworkObjectId)
+            {
+                tabancaElinde = true;
+            }
+
+            bool bidonElinde = false;
+            if (inventory != null)
+            {
+                int activeIdx = inventory.activeHotbarIndex.Value;
+                if (!inventory.slots[activeIdx].IsEmpty && inventory.slots[activeIdx].itemData != null)
+                {
+                    GameObject heldPrefab = inventory.slots[activeIdx].itemData.heldModelPrefab;
+                    if (heldPrefab != null && heldPrefab.GetComponent<YakitBidonu>() != null)
+                    {
+                        bidonElinde = true;
+                    }
+                }
+            }
+
+            if (tabancaElinde || bidonElinde)
+            {
+                if (fuelSystem != null && fuelSystem.currentFuel.Value >= fuelSystem.maxFuel)
+                {
+                    prompts.Add(new ActionPrompt("DEPO DOLU!", "Traktörün deposu tamamen dolu"));
+                }
+                else
+                {
+                    prompts.Add(new ActionPrompt("Sol Tık (Basılı Tut)", "Traktörü Doldur"));
+                }
+            }
+        }
+
+        return prompts;
     }
 }
