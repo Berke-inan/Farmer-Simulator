@@ -402,7 +402,7 @@ public class TractorController : NetworkBehaviour, IInteractable
             var inventory = playerObj.GetComponent<PlayerInventory>();
 
             bool tabancaElinde = false;
-            var pompa = FindObjectOfType<PompaTabancasi>();
+            var pompa = FindAnyObjectByType<PompaTabancasi>();
             if (pompa != null && pompa.tutanOyuncuId.Value == playerObj.NetworkObjectId)
             {
                 tabancaElinde = true;

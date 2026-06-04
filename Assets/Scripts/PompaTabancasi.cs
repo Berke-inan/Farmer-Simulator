@@ -62,7 +62,7 @@ public class PompaTabancasi : NetworkBehaviour, IInteractable
                 inventory = playerObj.GetComponent<PlayerInventory>();
                 if (inventory != null)
                 {
-                    aktifElTransform = inventory.handTransform;
+                    aktifElTransform = inventory.localHandTransform;
                     if (playerObj.IsOwner)
                     {
                         lokalTutanBenMiyim = true;
