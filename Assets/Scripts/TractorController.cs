@@ -193,7 +193,17 @@ public class TractorController : NetworkBehaviour, IInteractable
                 }
             }
 
-            if (player.TryGetComponent(out PlayerCameraController camController)) camController.enabled = state;
+            if (player.TryGetComponent(out PlayerCameraController camController))
+            {
+                // Değişkeni atamak yerine, yeni yazdığımız fonksiyonu çağırıyoruz
+                // Böylece script kapanmadan hemen önce görünürlük anında güncelleniyor
+                camController.SetRidingState(!state);
+
+                // Ardından script güvenle kapatılabilir
+                camController.enabled = state;
+            }
+            // --- DEĞİŞTİRİLEN KISIM SONU ---
+
             Unity.Cinemachine.CinemachineCamera playerCam = player.GetComponentInChildren<Unity.Cinemachine.CinemachineCamera>(true);
             if (playerCam != null) playerCam.Priority = state ? 10 : 0;
         }

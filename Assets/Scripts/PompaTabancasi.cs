@@ -100,7 +100,7 @@ public class PompaTabancasi : NetworkBehaviour, IInteractable
             if (inventory != null)
             {
                 cachedInventory = inventory;
-                aktifElTransform = inventory.handTransform;
+                aktifElTransform = inventory.localHandTransform;
 
                 if (interactor != null)
                 {
