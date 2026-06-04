@@ -40,6 +40,8 @@ namespace FarmerSimulator.UI
         private PlayerInventory _boundInventory;
         private PlayerEnergy _boundEnergy;
 
+        private List<ActionPrompt> _sonGelenPrompts = new List<ActionPrompt>();
+
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -91,19 +93,7 @@ namespace FarmerSimulator.UI
             }
 
             UpdateDynamicStats();
-
-            if (_boundInventory != null && _promptContainer != null && _promptContainer.childCount == 0)
-            {
-                int activeIdx = _boundInventory.activeHotbarIndex.Value;
-                if (!_boundInventory.slots[activeIdx].IsEmpty && _boundInventory.slots[activeIdx].itemData != null)
-                {
-                    GameObject heldPrefab = _boundInventory.slots[activeIdx].itemData.heldModelPrefab;
-                    if (heldPrefab != null && heldPrefab.GetComponent<YakitBidonu>() != null)
-                    {
-                        UpdateActionPrompts(new List<ActionPrompt>());
-                    }
-                }
-            }
+            RenderLivePrompts();
         }
 
         private void BindPlayerSystems(GameObject player)
@@ -232,48 +222,123 @@ namespace FarmerSimulator.UI
 
         public void UpdateActionPrompts(List<ActionPrompt> prompts)
         {
+            _sonGelenPrompts = prompts != null ? new List<ActionPrompt>(prompts) : new List<ActionPrompt>();
+        }
+
+        private void RenderLivePrompts()
+        {
             if (_promptContainer == null) return;
 
             _promptContainer.Clear();
-
-            if (prompts == null) prompts = new List<ActionPrompt>();
 
             if (_boundInventory != null)
             {
                 int activeIdx = _boundInventory.activeHotbarIndex.Value;
                 if (!_boundInventory.slots[activeIdx].IsEmpty && _boundInventory.slots[activeIdx].itemData != null)
                 {
-                    GameObject heldPrefab = _boundInventory.slots[activeIdx].itemData.heldModelPrefab;
-                    if (heldPrefab != null && heldPrefab.GetComponent<YakitBidonu>() != null)
+                    // 1. Alet Can Mekaniği
+                    if (_boundInventory.eldekiObje != null)
                     {
-                        prompts.Insert(0, new ActionPrompt("Bidon Yakıtı", $"{_boundInventory.bidonMevcutYakit.Value:F1}L / 25L"));
+                        float canYuzdesi = -1f;
+                        LocalToolDurability localAlet = _boundInventory.eldekiObje.GetComponentInChildren<LocalToolDurability>(true);
+
+                        if (localAlet != null && localAlet.maxHealth > 0f)
+                        {
+                            canYuzdesi = (localAlet.currentHealth / localAlet.maxHealth) * 100f;
+                        }
+                        else
+                        {
+                            DurabilityManager alet = _boundInventory.eldekiObje.GetComponentInChildren<DurabilityManager>(true);
+                            if (alet != null && alet.maxHealth > 0f)
+                            {
+                                canYuzdesi = (alet.currentHealth.Value / alet.maxHealth) * 100f;
+                            }
+                        }
+
+                        if (canYuzdesi >= 0f)
+                        {
+                            var barContainer = new VisualElement();
+                            barContainer.style.width = 210f;
+                            barContainer.style.marginBottom = 14f;
+                            barContainer.style.backgroundColor = new Color(0.05f, 0.05f, 0.05f, 0.7f);
+                            barContainer.style.paddingLeft = 12f;
+                            barContainer.style.paddingRight = 12f;
+                            barContainer.style.paddingTop = 8f;
+                            barContainer.style.paddingBottom = 10f;
+
+                            // ANA KUTU KÖŞE YUVARLAMA HATASI DÜZELTİLDİ
+                            barContainer.style.borderTopLeftRadius = 6f;
+                            barContainer.style.borderTopRightRadius = 6f;
+                            barContainer.style.borderBottomLeftRadius = 6f;
+                            barContainer.style.borderBottomRightRadius = 6f;
+                            var titleLabel = new Label("ALET DURUMU");
+                            titleLabel.style.color = new Color(0.75f, 0.75f, 0.75f);
+                            titleLabel.style.fontSize = 11f;
+                            titleLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+                            titleLabel.style.marginBottom = 6f;
+
+                            var barBg = new VisualElement();
+                            barBg.style.height = 11f;
+                            barBg.style.backgroundColor = new Color(0.12f, 0.12f, 0.12f, 0.95f);
+
+                            // BAR YUVASI KÖŞE YUVARLAMA HATASI DÜZELTİLDİ
+                            barBg.style.borderTopLeftRadius = 3f;
+                            barBg.style.borderTopRightRadius = 3f;
+                            barBg.style.borderBottomLeftRadius = 3f;
+                            barBg.style.borderBottomRightRadius = 3f;
+
+                            var barFill = new VisualElement();
+                            barFill.style.height = Length.Percent(100f);
+                            barFill.style.width = Length.Percent(Mathf.Clamp(canYuzdesi, 0f, 100f));
+                            barFill.style.backgroundColor = new Color(0f, 1f, 0.4f);
+
+                            // YEŞİL DOLGU KÖŞE YUVARLAMA HATASI DÜZELTİLDİ
+                            barFill.style.borderTopLeftRadius = 3f;
+                            barFill.style.borderTopRightRadius = 3f;
+                            barFill.style.borderBottomLeftRadius = 3f;
+                            barFill.style.borderBottomRightRadius = 3f;
+
+                            barBg.Add(barFill);
+                            barContainer.Add(titleLabel);
+                            barContainer.Add(barBg);
+
+                            _promptContainer.Add(barContainer);
+                        }
+                    }
+
+                    // 2. Bidon Yakıt Göstergesi
+                    if (_boundInventory.slots[activeIdx].itemData.name.ToLower().Contains("bidon"))
+                    {
+                        _promptContainer.Add(CreateStandardPromptRow($"{_boundInventory.bidonMevcutYakit.Value:F1}L / 25L", "Bidon Yakıtı"));
                     }
                 }
             }
 
-            if (prompts.Count == 0) return;
-
-            foreach (var prompt in prompts)
+            foreach (var prompt in _sonGelenPrompts)
             {
-                var row = new VisualElement();
-                row.AddToClassList("prompt-row");
-
-                var actionLabel = new Label(prompt.Action);
-                actionLabel.AddToClassList("prompt-action-text");
-
-                var keyBox = new VisualElement();
-                keyBox.AddToClassList("prompt-key-box");
-
-                var keyLabel = new Label(prompt.Key);
-                keyLabel.AddToClassList("prompt-key-text");
-
-                keyBox.Add(keyLabel);
-
-                row.Add(actionLabel);
-                row.Add(keyBox);
-
-                _promptContainer.Add(row);
+                _promptContainer.Add(CreateStandardPromptRow(prompt.Action, prompt.Key));
             }
+        }
+
+        private VisualElement CreateStandardPromptRow(string action, string key)
+        {
+            var row = new VisualElement();
+            row.AddToClassList("prompt-row");
+
+            var actionLabel = new Label(action);
+            actionLabel.AddToClassList("prompt-action-text");
+
+            var keyBox = new VisualElement();
+            keyBox.AddToClassList("prompt-key-box");
+
+            var keyLabel = new Label(key);
+            keyLabel.AddToClassList("prompt-key-text");
+
+            keyBox.Add(keyLabel);
+            row.Add(actionLabel);
+            row.Add(keyBox);
+
+            return row;
         }
 
         private void DrawRadialEnergyBar(MeshGenerationContext ctx)

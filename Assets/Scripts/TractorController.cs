@@ -73,7 +73,12 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject playerObj))
         {
             GetComponent<NetworkObject>().ChangeOwnership(playerObj.OwnerClientId);
-            playerObj.TrySetParent(transform);
+
+            // --- DEĞİŞTİRİLEN KISIM 1: KESİN NETCODE PARENTING ---
+            // Oyuncuyu direkt koltuğa bağlıyoruz ve 'false' diyerek tam koltuk merkezine (0,0,0) ışınlıyoruz.
+            // Bu işlem otomatik olarak tüm client'lara pürüzsüzce senkronize edilir.
+            playerObj.TrySetParent(driverSeat, false);
+
             MountTractorClientRpc(playerId);
         }
     }
@@ -84,9 +89,13 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject playerObj))
         {
             currentDriver = playerObj;
-            playerObj.transform.position = driverSeat.position;
-            playerObj.transform.rotation = driverSeat.rotation;
+
+            // --- DEĞİŞTİRİLEN KISIM 2: MANUEL DÜNYA POZİSYON ATAMASI SİLİNDİ ---
+            // Karakter fizik motorunun (CharacterController) yerçekimi uygulayıp parent'ı dışarı fırlatmasını 
+            // engellemek için önce bileşenleri uyutuyoruz. Ardından garanti olsun diye local pozisyonu sıfırlıyoruz.
             TogglePlayerComponents(playerObj, false);
+            playerObj.transform.localPosition = Vector3.zero;
+            playerObj.transform.localRotation = Quaternion.identity;
 
             if (playerObj.IsOwner)
             {
@@ -411,7 +420,6 @@ public class TractorController : NetworkBehaviour, IInteractable
                 }
                 else
                 {
-                    // --- GÜNCELLENEN TUŞ METNİ ---
                     prompts.Add(new ActionPrompt("Sol Tık (Basılı Tut)", "Traktörü Doldur"));
                 }
             }

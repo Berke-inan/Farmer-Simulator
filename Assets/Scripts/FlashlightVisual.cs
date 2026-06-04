@@ -8,40 +8,25 @@ public class FlashlightVisual : MonoBehaviour
     public AudioClip clickSound;
 
     private PlayerFlashlightSync syncSystem;
-    private bool lastState = false;
 
     private void Start()
     {
         syncSystem = GetComponentInParent<PlayerFlashlightSync>();
 
+        // Envanterden feneri eline her aldýðýnda (Instantiate anýnda)
+        // aðda fener açýk mý kapalý mý kontrol et ve durumunu anýnda üzerine uygula
         if (syncSystem != null)
         {
-            lastState = syncSystem.isLightOn.Value;
-            if (spotlight != null) spotlight.enabled = lastState;
+            syncSystem.RefreshFlashlightVisuals(syncSystem.isLightOn.Value);
         }
     }
 
-    private void Update()
-    {
-        if (syncSystem == null) return;
-
-        if (syncSystem.isLightOn.Value != lastState)
-        {
-            lastState = syncSystem.isLightOn.Value;
-
-            if (spotlight != null) spotlight.enabled = lastState;
-            if (audioSource != null && clickSound != null) audioSource.PlayOneShot(clickSound);
-        }
-    }
-
-    // --- ÝÞTE SÝHÝRLÝ DOKUNUÞ BURADA ---
-    // Envanter sistemi bu feneri elinden yok ettiði an otomatik çalýþýr
     private void OnDestroy()
     {
-        // Eðer fenerin sahibi bizsek, karakterdeki þalteri (að deðiþkenini) sýfýrla
+        // Fener envanterde deðiþtirilip yok edildiðinde þalteri güvenle kapatýr
         if (syncSystem != null && syncSystem.IsOwner)
         {
-            syncSystem.isLightOn.Value = false;
+            syncSystem.SetLightStateServerRpc(false);
         }
     }
 }
