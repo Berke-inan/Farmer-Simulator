@@ -74,10 +74,9 @@ public class TractorController : NetworkBehaviour, IInteractable
         {
             GetComponent<NetworkObject>().ChangeOwnership(playerObj.OwnerClientId);
 
-            // --- DEĞİŞTİRİLEN KISIM 1: KESİN NETCODE PARENTING ---
-            // Oyuncuyu direkt koltuğa bağlıyoruz ve 'false' diyerek tam koltuk merkezine (0,0,0) ışınlıyoruz.
-            // Bu işlem otomatik olarak tüm client'lara pürüzsüzce senkronize edilir.
-            playerObj.TrySetParent(driverSeat, false);
+            // --- DEĞİŞTİRİLEN KISIM 1: EBEVEYNLİK TAMAMEN KALKTI ---
+            // Netcode parenting buglarından kaçınmak için artık TrySetParent çağırmıyoruz.
+            // Karakter bağımsız bir obje olarak kalıyor, takibi alttaki sabitleme motoru yapacak.
 
             MountTractorClientRpc(playerId);
         }
@@ -90,12 +89,12 @@ public class TractorController : NetworkBehaviour, IInteractable
         {
             currentDriver = playerObj;
 
-            // --- DEĞİŞTİRİLEN KISIM 2: MANUEL DÜNYA POZİSYON ATAMASI SİLİNDİ ---
-            // Karakter fizik motorunun (CharacterController) yerçekimi uygulayıp parent'ı dışarı fırlatmasını 
-            // engellemek için önce bileşenleri uyutuyoruz. Ardından garanti olsun diye local pozisyonu sıfırlıyoruz.
+            // Yürüme ve fizik motorlarını durduruyoruz ki koltukta sabit kalabilsin
             TogglePlayerComponents(playerObj, false);
-            playerObj.transform.localPosition = Vector3.zero;
-            playerObj.transform.localRotation = Quaternion.identity;
+
+            // İlk biniş anında tam koltuğa oturt
+            playerObj.transform.position = driverSeat.position;
+            playerObj.transform.rotation = driverSeat.rotation;
 
             if (playerObj.IsOwner)
             {
@@ -138,7 +137,7 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (currentDriver != null)
         {
             GetComponent<NetworkObject>().RemoveOwnership();
-            currentDriver.TryRemoveParent();
+            // TryRemoveParent satırı kaldırıldı
             DismountTractorClientRpc();
         }
     }
@@ -188,6 +187,10 @@ public class TractorController : NetworkBehaviour, IInteractable
         if (player.TryGetComponent(out CharacterController characterController)) characterController.enabled = state;
         if (player.TryGetComponent(out PlayerInteractor interactor)) interactor.enabled = state;
 
+        // --- HATA DÜZELTME Satırı ---
+        // Oyuncunun üzerindeki NetworkTransform bileşenine dokunmuyoruz, her zaman açık kalıyor!
+        // Açık kaldığı için dünya pozisyonundaki değişimleri ağda pürüzsüzce senkronize edecek.
+
         Animator animator = player.GetComponentInChildren<Animator>();
         if (animator != null) animator.SetBool("isDriving", !state);
 
@@ -204,14 +207,9 @@ public class TractorController : NetworkBehaviour, IInteractable
 
             if (player.TryGetComponent(out PlayerCameraController camController))
             {
-                // Değişkeni atamak yerine, yeni yazdığımız fonksiyonu çağırıyoruz
-                // Böylece script kapanmadan hemen önce görünürlük anında güncelleniyor
                 camController.SetRidingState(!state);
-
-                // Ardından script güvenle kapatılabilir
                 camController.enabled = state;
             }
-            // --- DEĞİŞTİRİLEN KISIM SONU ---
 
             Unity.Cinemachine.CinemachineCamera playerCam = player.GetComponentInChildren<Unity.Cinemachine.CinemachineCamera>(true);
             if (playerCam != null) playerCam.Priority = state ? 10 : 0;
@@ -220,6 +218,15 @@ public class TractorController : NetworkBehaviour, IInteractable
 
     private void Update()
     {
+        // --- %100 KURŞUN GEÇİRMEZ KOD TABANLI TAKİP MOTORU ---
+        // Eğer traktörde sürücü varsa, ebeveynlik bağlarına sığınmadan 
+        // her kare onun konumunu ve kafasını tam hazırladığın driverSeat konumuna çiviliyoruz!
+        if (IsOccupied && currentDriver != null)
+        {
+            currentDriver.transform.position = driverSeat.position;
+            currentDriver.transform.rotation = driverSeat.rotation;
+        }
+
         if (IsOwner)
         {
             if (IsOccupied &&
