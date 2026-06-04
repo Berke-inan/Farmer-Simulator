@@ -91,6 +91,7 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
             }
         }
     }
+
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void MakineyeYukleServerRpc(ulong oyuncuId, int slotIndex)
     {
