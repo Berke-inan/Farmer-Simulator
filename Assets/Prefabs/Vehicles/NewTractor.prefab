@@ -6354,8 +6354,9 @@ GameObject:
   - component: {fileID: 1729991337680469698}
   - component: {fileID: 7860049975837318377}
   - component: {fileID: 1107067779684524800}
-  - component: {fileID: 8857990796751948834}
   - component: {fileID: 8248166486128651876}
+  - component: {fileID: 282071486007804174}
+  - component: {fileID: 6083492074440506189}
   m_Layer: 0
   m_Name: NewTractor
   m_TagString: Untagged
@@ -6809,7 +6810,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleStatus
   ShowTopMostFoldoutHeaderGroup: 1
---- !u!114 &8857990796751948834
+  anaGovdeDurumu: {fileID: 0}
+--- !u!114 &8248166486128651876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130530900198711497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bac18993e931b1f4f9e53d290cbe8ea9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TractorDashboardUI
+  dashboardDoc: {fileID: 0}
+--- !u!114 &282071486007804174
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6832,7 +6847,7 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
---- !u!114 &8248166486128651876
+--- !u!114 &6083492074440506189
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6844,7 +6859,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bac18993e931b1f4f9e53d290cbe8ea9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TractorDashboardUI
-  dashboardDoc: {fileID: 8857990796751948834}
+  dashboardDoc: {fileID: 282071486007804174}
 --- !u!1 &5261454493351848730
 GameObject:
   m_ObjectHideFlags: 0
