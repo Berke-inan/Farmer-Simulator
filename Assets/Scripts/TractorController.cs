@@ -74,9 +74,8 @@ public class TractorController : NetworkBehaviour, IInteractable
         {
             GetComponent<NetworkObject>().ChangeOwnership(playerObj.OwnerClientId);
 
-            // --- DEĞİŞTİRİLEN KISIM 1: EBEVEYNLİK TAMAMEN KALKTI ---
-            // Netcode parenting buglarından kaçınmak için artık TrySetParent çağırmıyoruz.
-            // Karakter bağımsız bir obje olarak kalıyor, takibi alttaki sabitleme motoru yapacak.
+            // Oyuncuyu direkt koltuğa bağlıyoruz ve 'false' diyerek tam koltuk merkezine (0,0,0) ışınlıyoruz.
+            playerObj.TrySetParent(driverSeat, false);
 
             MountTractorClientRpc(playerId);
         }
@@ -89,17 +88,12 @@ public class TractorController : NetworkBehaviour, IInteractable
         {
             currentDriver = playerObj;
 
-            // Yürüme ve fizik motorlarını durduruyoruz ki koltukta sabit kalabilsin
             TogglePlayerComponents(playerObj, false);
-
-            // İlk biniş anında tam koltuğa oturt
-            playerObj.transform.position = driverSeat.position;
-            playerObj.transform.rotation = driverSeat.rotation;
+            playerObj.transform.localPosition = Vector3.zero;
+            playerObj.transform.localRotation = Quaternion.identity;
 
             if (playerObj.IsOwner)
             {
-                if (dashboardUI != null) dashboardUI.ToggleDashboard(true);
-
                 inputActions.Player.Enable();
                 inputActions.Player.Interact.started += OnInteractPressed;
                 if (cameraController != null) cameraController.SetCameraActive(true);
@@ -115,13 +109,14 @@ public class TractorController : NetworkBehaviour, IInteractable
                         new ActionPrompt("E", "İN")
                     };
                     FarmerSimulator.UI.HUDManager.Instance.UpdateActionPrompts(drivingPrompts);
+
+                    // --- DÜZELTİLEN KISIM: Sadece araca binen kişi kendi UI'ını kapatır ---
+                    FarmerSimulator.UI.HUDManager.Instance.SetPlayerHUDVisible(false);
                 }
+
+                // Sadece araca binen kişi kendi Dashboard'unu açar
+                if (dashboardUI != null) dashboardUI.ToggleDashboard(true);
             }
-
-            if (FarmerSimulator.UI.HUDManager.Instance != null)
-                FarmerSimulator.UI.HUDManager.Instance.SetPlayerHUDVisible(false);
-
-            if (dashboardUI != null) dashboardUI.ToggleDashboard(true);
         }
     }
 
