@@ -336,7 +336,7 @@ public class TractorController : NetworkBehaviour, IInteractable
             }
 
             float antiDragTorque = (Mathf.Abs(CurrentGasInput) > 0.1f) ? 0.001f : 0f;
-            wcBL.motorTorque = wcBR.motorTorque = antiDragTorque; // Hata veren satır düzeltildi!
+            wcBL.motorTorque = wcBR.motorTorque = antiDragTorque;
         }
 
         float currentSteerAngle = smoothedSteeringInput * maxSteerAngle;
@@ -365,10 +365,58 @@ public class TractorController : NetworkBehaviour, IInteractable
 
     public List<ActionPrompt> GetPrompts()
     {
-        string eylemMetni = IsOccupied ? "DOLU" : "BİN";
-        return new List<ActionPrompt>
+        List<ActionPrompt> prompts = new List<ActionPrompt>();
+
+        if (fuelSystem != null)
         {
-            new ActionPrompt("E", eylemMetni)
-        };
+            prompts.Add(new ActionPrompt("Traktör Deposu", $"{Mathf.RoundToInt(fuelSystem.currentFuel.Value)}L / {Mathf.RoundToInt(fuelSystem.maxFuel)}L"));
+        }
+
+        if (!IsOccupied)
+        {
+            prompts.Add(new ActionPrompt("E", "Traktöre Bin"));
+        }
+
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null && NetworkManager.Singleton.LocalClient.PlayerObject != null)
+        {
+            var playerObj = NetworkManager.Singleton.LocalClient.PlayerObject;
+            var inventory = playerObj.GetComponent<PlayerInventory>();
+
+            bool tabancaElinde = false;
+            var pompa = FindObjectOfType<PompaTabancasi>();
+            if (pompa != null && pompa.tutanOyuncuId.Value == playerObj.NetworkObjectId)
+            {
+                tabancaElinde = true;
+            }
+
+            bool bidonElinde = false;
+            if (inventory != null)
+            {
+                int activeIdx = inventory.activeHotbarIndex.Value;
+                if (!inventory.slots[activeIdx].IsEmpty && inventory.slots[activeIdx].itemData != null)
+                {
+                    GameObject heldPrefab = inventory.slots[activeIdx].itemData.heldModelPrefab;
+                    if (heldPrefab != null && heldPrefab.GetComponent<YakitBidonu>() != null)
+                    {
+                        bidonElinde = true;
+                    }
+                }
+            }
+
+            if (tabancaElinde || bidonElinde)
+            {
+                if (fuelSystem != null && fuelSystem.currentFuel.Value >= fuelSystem.maxFuel)
+                {
+                    prompts.Add(new ActionPrompt("DEPO DOLU!", "Traktörün deposu tamamen dolu"));
+                }
+                else
+                {
+                    // --- GÜNCELLENEN TUŞ METNİ ---
+                    prompts.Add(new ActionPrompt("Sol Tık (Basılı Tut)", "Traktörü Doldur"));
+                }
+            }
+        }
+
+        return prompts;
     }
 }

@@ -1,97 +1,83 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-public class YakitIstasyonu : NetworkBehaviour
+public class YakitIstasyonu : NetworkBehaviour, IInteractable
 {
-    [Header("istasyon ayarlari")]
-    public NetworkVariable<float> istasyonYakiti = new NetworkVariable<float>(1000f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    [Header("Depo Kapasite Ayarlarý")]
+    public float maxFuel = 1000f;
+    public NetworkVariable<float> currentFuel = new NetworkVariable<float>(500f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    [Header("bidon dolum ayarlari")]
-    public float algilamaMesafesi = 6f;
-    public float bidonDolumHizi = 25f; // saniyede 25l
-
-    private float istasyonAktarimBirikimi = 0f;
-
-    // pompanin kullanacagi yakit cekme sistemi (sunucu tarafindan cagrilir)
-    public float YakitCek(float istenenMiktar)
+    public float YakitCek(float miktar)
     {
-        if (istasyonYakiti.Value <= 0) return 0f;
+        if (!IsServer) return 0f;
 
-        float verilecek = Mathf.Min(istenenMiktar, istasyonYakiti.Value);
-        istasyonYakiti.Value -= verilecek;
-
-        return verilecek;
+        float cekilecek = Mathf.Min(miktar, currentFuel.Value);
+        currentFuel.Value -= cekilecek;
+        return cekilecek;
     }
 
-    private void Update()
+    public void Interact(NetworkObject user)
     {
-        // sadece yerel oyuncu icin r tusuna basma kontrolu yapýyoruz
-        if (!IsSpawned || !IsClient) return;
+        // Sol týk mimarisine geçildiði için E tuþu etkileþimi boþ býrakýldý.
+    }
 
-        if (Keyboard.current != null && Keyboard.current.rKey.isPressed)
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void BidonuDoldurMiktarliServerRpc(ulong oyuncuId, float miktar)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(oyuncuId, out NetworkObject oyuncuNetObj))
         {
-            var localPlayer = NetworkManager.Singleton.LocalClient?.PlayerObject;
-            if (localPlayer == null) return;
-
-            PlayerInteractor pi = localPlayer.GetComponent<PlayerInteractor>();
-            PlayerInventory inventory = localPlayer.GetComponent<PlayerInventory>();
-
-            if (pi == null || pi.playerCamera == null || inventory == null) return;
-
-            // mesafe kontrolü
-            if (Vector3.Distance(transform.position, localPlayer.transform.position) > algilamaMesafesi) return;
-
-            Ray ray = new Ray(pi.playerCamera.position, pi.playerCamera.forward);
-            if (Physics.Raycast(ray, out RaycastHit hit, algilamaMesafesi))
+            if (oyuncuNetObj.TryGetComponent(out PlayerInventory inventory))
             {
-                // istasyona mý bakýyoruz
-                if (hit.collider.GetComponentInParent<YakitIstasyonu>() == this)
+                float currentBidon = inventory.bidonMevcutYakit.Value;
+                float bosYer = 25f - currentBidon;
+
+                if (bosYer > 0 && currentFuel.Value > 0)
                 {
-                    // elinde yakit bidonu scripti takýlý bir görsel var mý bakýyoruz
-                    if (inventory.eldekiObje != null && inventory.eldekiObje.TryGetComponent(out YakitBidonu bidonVisual))
+                    float transferMiktari = Mathf.Min(miktar, Mathf.Min(bosYer, currentFuel.Value));
+                    currentFuel.Value -= transferMiktari;
+                    inventory.bidonMevcutYakit.Value += transferMiktari;
+                }
+            }
+        }
+    }
+
+    public List<ActionPrompt> GetPrompts()
+    {
+        List<ActionPrompt> prompts = new List<ActionPrompt>();
+
+        prompts.Add(new ActionPrompt("Ýstasyon Deposu", $"{Mathf.RoundToInt(currentFuel.Value)}L / {Mathf.RoundToInt(maxFuel)}L"));
+
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null && NetworkManager.Singleton.LocalClient.PlayerObject != null)
+        {
+            var playerObj = NetworkManager.Singleton.LocalClient.PlayerObject;
+            var inventory = playerObj.GetComponent<PlayerInventory>();
+
+            if (inventory != null)
+            {
+                int activeIdx = inventory.activeHotbarIndex.Value;
+                if (!inventory.slots[activeIdx].IsEmpty && inventory.slots[activeIdx].itemData != null)
+                {
+                    if (inventory.eldekiObje != null && inventory.eldekiObje.GetComponent<YakitBidonu>() != null)
                     {
-                        // yakit verisi artik inventory icinde senkronize duruyor
-                        if (inventory.bidonMevcutYakit.Value < 25f && istasyonYakiti.Value > 0) // 25f yerine bidon max kapasitesi yazýlabilir
+                        if (inventory.bidonMevcutYakit.Value >= 25f)
                         {
-                            istasyonAktarimBirikimi += bidonDolumHizi * Time.deltaTime;
-                            if (istasyonAktarimBirikimi >= 2.5f)
-                            {
-                                IstasyondanBidonaServerRpc(localPlayer.NetworkObjectId, istasyonAktarimBirikimi);
-                                istasyonAktarimBirikimi = 0f;
-                            }
+                            prompts.Add(new ActionPrompt("BÝDON DOLU!", "Bidon kapasitesi tamamen dolu"));
+                        }
+                        else if (currentFuel.Value <= 0f)
+                        {
+                            prompts.Add(new ActionPrompt("ÝSTASYON BOÞ!", "Ýstasyonda mazot kalmadý"));
+                        }
+                        else
+                        {
+                            // --- SOL TIK REHBERLÝÐÝ ---
+                            prompts.Add(new ActionPrompt("Sol Týk (Basýlý Tut)", "Bidonu Doldur"));
                         }
                     }
                 }
             }
         }
-        else
-        {
-            istasyonAktarimBirikimi = 0f;
-        }
-    }
 
-    [Rpc(SendTo.Server)]
-    private void IstasyondanBidonaServerRpc(ulong playerNetId, float miktar)
-    {
-        if (istasyonYakiti.Value < miktar) miktar = istasyonYakiti.Value;
-        if (miktar <= 0) return;
-
-        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerNetId, out NetworkObject playerObj))
-        {
-            if (playerObj.TryGetComponent(out PlayerInventory inventory))
-            {
-                // artik bidonun kendisi yerine oyuncunun envanterindeki yakit degiskenini guncelliyoruz
-                float maxBidonKapasitesi = 25f; // bu degeri istersen itemdata icinden de cekebiliriz
-                float bosYer = maxBidonKapasitesi - inventory.bidonMevcutYakit.Value;
-                float eklenecek = Mathf.Min(miktar, bosYer);
-
-                if (eklenecek > 0)
-                {
-                    inventory.bidonMevcutYakit.Value += eklenecek;
-                    istasyonYakiti.Value -= eklenecek;
-                }
-            }
-        }
+        return prompts;
     }
 }

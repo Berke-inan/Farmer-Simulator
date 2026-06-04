@@ -21,15 +21,12 @@ namespace FarmerSimulator.UI
         private Label _lblTime;
         private Label _lblDay;
 
-        // Dinamik Tuş İpuçları Konteyneri
         private VisualElement _promptContainer;
 
-        // Çizim Motoru Verileri
         private float _currentEnergyVal = 100f;
         private float _maxEnergyVal = 100f;
         private float _capacityVal = 100f;
 
-        // Enerji Barı Renkleri
         private Color _colorBackground = new Color(0.1f, 0.15f, 0.1f);
         private Color _colorNormal = new Color(0f, 1f, 0.4f);
         private Color _colorCritical = new Color(0.97f, 0.25f, 0.25f);
@@ -65,7 +62,6 @@ namespace FarmerSimulator.UI
             _energyTextLabel = root.Q<Label>("EnergyTextLabel");
             _energyMaxLabel = root.Q<Label>("EnergyMaxLabel");
 
-            // Dinamik Yönerge Konteynerini Bağlama
             _promptContainer = root.Q<VisualElement>("ActionPromptContainer");
 
             if (_currentEnergyCircle != null)
@@ -78,16 +74,13 @@ namespace FarmerSimulator.UI
 
         private void Update()
         {
-            // 1. Menü durumuna göre HUD'ı tamamen gizle veya göster
             if (_uiDocument != null && _uiDocument.rootVisualElement != null)
             {
                 _uiDocument.rootVisualElement.style.display = MainMenuController.IsMenuOpen ? DisplayStyle.None : DisplayStyle.Flex;
             }
 
-            // Menü açıksa arkada boşuna enerji/para hesaplaması yapmasın
             if (MainMenuController.IsMenuOpen) return;
 
-            // 2. Oyuncu bağlantısı kontrolü
             if (_boundInventory == null && NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null)
             {
                 var localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
@@ -97,8 +90,20 @@ namespace FarmerSimulator.UI
                 }
             }
 
-            // 3. Değerleri güncelle
             UpdateDynamicStats();
+
+            if (_boundInventory != null && _promptContainer != null && _promptContainer.childCount == 0)
+            {
+                int activeIdx = _boundInventory.activeHotbarIndex.Value;
+                if (!_boundInventory.slots[activeIdx].IsEmpty && _boundInventory.slots[activeIdx].itemData != null)
+                {
+                    GameObject heldPrefab = _boundInventory.slots[activeIdx].itemData.heldModelPrefab;
+                    if (heldPrefab != null && heldPrefab.GetComponent<YakitBidonu>() != null)
+                    {
+                        UpdateActionPrompts(new List<ActionPrompt>());
+                    }
+                }
+            }
         }
 
         private void BindPlayerSystems(GameObject player)
@@ -194,7 +199,6 @@ namespace FarmerSimulator.UI
 
         private void UpdateDynamicStats()
         {
-            // SAAT GÜNCELLEMESİ
             if (DayNightCycleManager.Instance != null && _lblTime != null)
             {
                 float t = DayNightCycleManager.Instance.currentTime.Value;
@@ -203,47 +207,52 @@ namespace FarmerSimulator.UI
                 _lblTime.text = $"{hours:00}:{minutes:00}";
             }
 
-            // ENERJİ GÜNCELLEMESİ
             if (_boundEnergy != null && _currentEnergyCircle != null)
             {
                 _capacityVal = _boundEnergy.maksimumKapasite;
                 _maxEnergyVal = _boundEnergy.maxEnerji.Value;
                 _currentEnergyVal = _boundEnergy.guncelEnerji.Value;
 
-                // Renk Belirleme
                 if (_currentEnergyVal <= _boundEnergy.eylemYapmaSiniri * 2f)
                     _colorCurrent = _colorCritical;
                 else
                     _colorCurrent = _colorNormal;
 
-                // Metinleri Güncelleme
                 if (_energyTextLabel != null) _energyTextLabel.text = ((int)_currentEnergyVal).ToString();
                 if (_energyMaxLabel != null) _energyMaxLabel.text = $"/ {(int)_maxEnergyVal}";
 
-                // Çizimi Yenile
                 _currentEnergyCircle.MarkDirtyRepaint();
             }
 
-            // PARA GÜNCELLEMESİ
             if (EconomyManager.Instance != null && _lblMoney != null)
             {
                 _lblMoney.text = $"$ {EconomyManager.Instance.currentMoney}";
             }
         }
 
-        // ==========================================
-        // DİNAMİK YÖNERGE (PROMPT) GÜNCELLEME SİSTEMİ
-        // ==========================================
         public void UpdateActionPrompts(List<ActionPrompt> prompts)
         {
             if (_promptContainer == null) return;
 
-            // Her çağrıldığında eski tuşları temizle
             _promptContainer.Clear();
 
-            if (prompts == null || prompts.Count == 0) return;
+            if (prompts == null) prompts = new List<ActionPrompt>();
 
-            // Listedeki her bir tuş/eylem için dinamik olarak görsel oluştur
+            if (_boundInventory != null)
+            {
+                int activeIdx = _boundInventory.activeHotbarIndex.Value;
+                if (!_boundInventory.slots[activeIdx].IsEmpty && _boundInventory.slots[activeIdx].itemData != null)
+                {
+                    GameObject heldPrefab = _boundInventory.slots[activeIdx].itemData.heldModelPrefab;
+                    if (heldPrefab != null && heldPrefab.GetComponent<YakitBidonu>() != null)
+                    {
+                        prompts.Insert(0, new ActionPrompt("Bidon Yakıtı", $"{_boundInventory.bidonMevcutYakit.Value:F1}L / 25L"));
+                    }
+                }
+            }
+
+            if (prompts.Count == 0) return;
+
             foreach (var prompt in prompts)
             {
                 var row = new VisualElement();
@@ -260,7 +269,6 @@ namespace FarmerSimulator.UI
 
                 keyBox.Add(keyLabel);
 
-                // Önce Eylem yazısı, sağına turuncu Tuş kutusu eklensin
                 row.Add(actionLabel);
                 row.Add(keyBox);
 
@@ -268,13 +276,9 @@ namespace FarmerSimulator.UI
             }
         }
 
-        // ==========================================
-        // DAHA KALIN HALKALAR İLE ÇİZİM MOTORU
-        // ==========================================
         private void DrawRadialEnergyBar(MeshGenerationContext ctx)
         {
             var painter = ctx.painter2D;
-
             float lineWidth = 14f;
 
             painter.lineWidth = lineWidth;
@@ -288,23 +292,18 @@ namespace FarmerSimulator.UI
             Vector2 center = new Vector2(width / 2f, height / 2f);
             float radius = (Mathf.Min(width, height) / 2f) - (lineWidth / 2f);
 
-            // Açı Hesaplamaları
             float startAngle = -90f;
-
-            // Oranlar (0.0 - 1.0)
             float currentPct = Mathf.Clamp01(_currentEnergyVal / _capacityVal);
             float maxPct = Mathf.Clamp01(_maxEnergyVal / _capacityVal);
 
             float currentEndAngle = startAngle + (360f * currentPct);
             float maxEndAngle = startAngle + (360f * maxPct);
 
-            // 1. KATMAN: Koyu Arka Plan Halkası
             painter.strokeColor = _colorBackground;
             painter.BeginPath();
             painter.Arc(center, radius, 0f, 360f, ArcDirection.Clockwise);
             painter.Stroke();
 
-            // 2. KATMAN: Kaybedilen Maksimum Enerji Alanı (Koyu Yeşil)
             if (maxPct > currentPct)
             {
                 painter.strokeColor = _colorLostMax;
@@ -313,7 +312,6 @@ namespace FarmerSimulator.UI
                 painter.Stroke();
             }
 
-            // 3. KATMAN: Güncel Enerji Barı (Parlak Yeşil veya Kırmızı)
             if (currentPct > 0f)
             {
                 painter.strokeColor = _colorCurrent;
@@ -340,16 +338,12 @@ namespace FarmerSimulator.UI
         public void SetPlayerHUDVisible(bool state)
         {
             var displayState = state ? UnityEngine.UIElements.DisplayStyle.Flex : UnityEngine.UIElements.DisplayStyle.None;
-
-            // _uiDocument üzerinden kök elemanı alıyoruz
             if (_uiDocument == null || _uiDocument.rootVisualElement == null) return;
             var root = _uiDocument.rootVisualElement;
 
-            // 1. Hotbar gizle/aç
             if (_hotbarContainer != null)
                 _hotbarContainer.style.display = displayState;
 
-            // 2. Enerji dairesini gizle/aç
             var energyWidget = root.Q<UnityEngine.UIElements.VisualElement>("EnergyWidget");
             if (energyWidget != null)
                 energyWidget.style.display = displayState;
