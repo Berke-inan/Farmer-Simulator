@@ -74,9 +74,7 @@ public class TractorController : NetworkBehaviour, IInteractable
         {
             GetComponent<NetworkObject>().ChangeOwnership(playerObj.OwnerClientId);
 
-            // --- DEĞİŞTİRİLEN KISIM 1: KESİN NETCODE PARENTING ---
             // Oyuncuyu direkt koltuğa bağlıyoruz ve 'false' diyerek tam koltuk merkezine (0,0,0) ışınlıyoruz.
-            // Bu işlem otomatik olarak tüm client'lara pürüzsüzce senkronize edilir.
             playerObj.TrySetParent(driverSeat, false);
 
             MountTractorClientRpc(playerId);
@@ -90,17 +88,12 @@ public class TractorController : NetworkBehaviour, IInteractable
         {
             currentDriver = playerObj;
 
-            // --- DEĞİŞTİRİLEN KISIM 2: MANUEL DÜNYA POZİSYON ATAMASI SİLİNDİ ---
-            // Karakter fizik motorunun (CharacterController) yerçekimi uygulayıp parent'ı dışarı fırlatmasını 
-            // engellemek için önce bileşenleri uyutuyoruz. Ardından garanti olsun diye local pozisyonu sıfırlıyoruz.
             TogglePlayerComponents(playerObj, false);
             playerObj.transform.localPosition = Vector3.zero;
             playerObj.transform.localRotation = Quaternion.identity;
 
             if (playerObj.IsOwner)
             {
-                if (dashboardUI != null) dashboardUI.ToggleDashboard(true);
-
                 inputActions.Player.Enable();
                 inputActions.Player.Interact.started += OnInteractPressed;
                 if (cameraController != null) cameraController.SetCameraActive(true);
@@ -116,13 +109,14 @@ public class TractorController : NetworkBehaviour, IInteractable
                         new ActionPrompt("E", "İN")
                     };
                     FarmerSimulator.UI.HUDManager.Instance.UpdateActionPrompts(drivingPrompts);
+
+                    // --- DÜZELTİLEN KISIM: Sadece araca binen kişi kendi UI'ını kapatır ---
+                    FarmerSimulator.UI.HUDManager.Instance.SetPlayerHUDVisible(false);
                 }
+
+                // Sadece araca binen kişi kendi Dashboard'unu açar
+                if (dashboardUI != null) dashboardUI.ToggleDashboard(true);
             }
-
-            if (FarmerSimulator.UI.HUDManager.Instance != null)
-                FarmerSimulator.UI.HUDManager.Instance.SetPlayerHUDVisible(false);
-
-            if (dashboardUI != null) dashboardUI.ToggleDashboard(true);
         }
     }
 

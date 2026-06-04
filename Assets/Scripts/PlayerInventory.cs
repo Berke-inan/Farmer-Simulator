@@ -36,18 +36,37 @@ public class PlayerInventory : NetworkBehaviour
     {
         activeHotbarIndex.OnValueChanged += HandleHotbarChanged;
         isHolstered.OnValueChanged += HandleHolsterChanged;
-
-        // YENİ: Diğer oyuncular senin elindeki eşyanın ID değişimini dinleyecek
         syncHeldItemID.OnValueChanged += HandleSyncHeldItemChanged;
 
         if (IsOwner)
         {
             UpdateHeldItemVisuals(activeHotbarIndex.Value);
+
+            // --- YENİ EKLENEN: Client envanterinde değişiklik oldukça sunucuya kopyasını gönder ---
+            OnSlotChanged += (idx, slot) =>
+            {
+                int id = slot.IsEmpty ? -1 : slot.itemData.itemID;
+                SyncSlotToServerRpc(idx, id, slot.amount, slot.kalanCan);
+            };
         }
         else
         {
-            // Sen oyuna ilk girdiğinde diğer oyuncular elindeki eşyayı direk görsün diye
             UpdateNetworkVisuals(syncHeldItemID.Value);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SyncSlotToServerRpc(int index, int itemID, int amount, float kalanCan)
+    {
+        if (itemID == -1 || amount <= 0)
+        {
+            slots[index].ClearSlot();
+        }
+        else if (ItemRegistry.Instance != null && ItemRegistry.Instance.itemDatabase != null)
+        {
+            slots[index].itemData = ItemRegistry.Instance.itemDatabase.GetItemByID(itemID);
+            slots[index].amount = amount;
+            slots[index].kalanCan = kalanCan;
         }
     }
 
