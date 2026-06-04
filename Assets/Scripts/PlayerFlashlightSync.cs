@@ -67,6 +67,10 @@ public class PlayerFlashlightSync : NetworkBehaviour
         {
             if (visual.spotlight != null) visual.spotlight.enabled = state;
 
+            // --- YENÝ EKLENEN SATIR ---
+            // Point Light bileþenini de aðdan gelen þaltere baðlýyoruz
+            if (visual.pointLight != null) visual.pointLight.enabled = state;
+
             // Klik sesini fenerin olduðu konumdan tüm co-op lobisine 3D yayýnlar
             if (visual.audioSource != null && visual.clickSound != null)
             {

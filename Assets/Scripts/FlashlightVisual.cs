@@ -4,6 +4,7 @@ public class FlashlightVisual : MonoBehaviour
 {
     [Header("Bileþenler")]
     public Light spotlight;
+    public Light pointLight; // YENÝ: Ampul parlama efekti için eklenen Point Light
     public AudioSource audioSource;
     public AudioClip clickSound;
 
