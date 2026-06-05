@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 901791667383877888}
   - component: {fileID: 4100019463110770576}
   - component: {fileID: 6164124542481506649}
+  - component: {fileID: 6264831958457526367}
   m_Layer: 0
   m_Name: AK-47
   m_TagString: Untagged
@@ -192,6 +193,19 @@ MonoBehaviour:
   amount: 1
   kalanCan: -1
 --- !u!114 &6164124542481506649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6857397410335810854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db2339895f30054996e390caae573fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineGlow
+  outlineMaterial: {fileID: 2100000, guid: 61f03632b09ed084fb84a868a906cdf5, type: 2}
+--- !u!114 &6264831958457526367
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
