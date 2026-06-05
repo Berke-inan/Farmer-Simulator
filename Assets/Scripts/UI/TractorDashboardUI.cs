@@ -21,8 +21,17 @@ public class TractorDashboardUI : MonoBehaviour
         tractor = GetComponent<TractorController>();
         fuelSystem = GetComponent<TractorFuelSystem>();
         vehicleStatus = GetComponent<VehicleStatus>();
+    }
 
-        if (dashboardDoc != null)
+    private void Start()
+    {
+        if (dashboardDoc == null)
+        {
+            Debug.LogError("HATA 1: 'dashboardDoc' BOŞ! Inspector üzerinden UIDocument bileşenini bu scripte sürükleyip bırakmayı unutmuşsun.");
+            return;
+        }
+
+        if (dashboardDoc.rootVisualElement != null)
         {
             var root = dashboardDoc.rootVisualElement;
             dashboardContainer = root.Q<VisualElement>("DashboardContainer");
@@ -31,15 +40,28 @@ public class TractorDashboardUI : MonoBehaviour
             conditionFill = root.Q<VisualElement>("ConditionFill");
 
             if (dashboardContainer != null)
+            {
                 dashboardContainer.style.display = DisplayStyle.None;
+                Debug.Log("BAŞARILI: Traktör UI öğeleri başarıyla bulundu ve başlangıçta gizlendi.");
+            }
+            else
+            {
+                Debug.LogError("HATA 2: 'DashboardContainer' isimli öğe UXML içinde bulunamadı!");
+            }
         }
     }
 
     public void ToggleDashboard(bool show)
     {
+        Debug.Log($"ToggleDashboard Çalıştı! Arayüz Açılma İsteği: {show}");
+
         if (dashboardContainer != null)
         {
             dashboardContainer.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+        else
+        {
+            Debug.LogError("HATA 3: UI açılamadı çünkü dashboardContainer referansı kayıp!");
         }
     }
 

@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 31
   itemName: Water
   itemIcon: {fileID: 0}
-  price: 10
+  price: 8
   prefabToSpawn: {fileID: 4079859512506773140, guid: f72f11151ab411d4a9263986fe24a6b5, type: 3}
   isMachine: 0
   maxStock: 10

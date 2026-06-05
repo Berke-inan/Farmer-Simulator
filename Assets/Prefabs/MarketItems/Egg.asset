@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 99
   itemName: Egg
   itemIcon: {fileID: 0}
-  price: 10
+  price: 12
   prefabToSpawn: {fileID: 926321984778759642, guid: 8038eac4c67234242b314e0c7ac1a6b1, type: 3}
   isMachine: 0
   maxStock: 64

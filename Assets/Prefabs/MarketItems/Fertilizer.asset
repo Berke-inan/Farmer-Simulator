@@ -15,5 +15,8 @@ MonoBehaviour:
   itemID: 73
   itemName: Fertilizer
   itemIcon: {fileID: 0}
-  price: 10
+  price: 15
   prefabToSpawn: {fileID: 2663570300883223035, guid: 5c34457771c7957489dd2d73b86345e6, type: 3}
+  isMachine: 0
+  maxStock: 10
+  restockInterval: 60

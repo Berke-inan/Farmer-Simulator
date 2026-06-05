@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 88
   itemName: Lemon
   itemIcon: {fileID: 0}
-  price: 5
+  price: 10
   prefabToSpawn: {fileID: 6208617210724831335, guid: b91313c676f1c9843a81b23fce716b93, type: 3}
   isMachine: 0
   maxStock: 64
