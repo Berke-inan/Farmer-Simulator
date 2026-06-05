@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 480332317731185383}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.713, y: -2.41, z: -4.75}
+  m_LocalPosition: {x: -0.713, y: -2.41, z: -4.104}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -53,6 +53,37 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 1.4066193
   m_Center: {x: 0.61462545, y: 0, z: -0.29199386}
+--- !u!1 &820282817954346995
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1643071355006626370}
+  m_Layer: 0
+  m_Name: SmokePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1643071355006626370
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 820282817954346995}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.98, z: 1.57}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4854598291659259947}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &869836894286254609
 GameObject:
   m_ObjectHideFlags: 0
@@ -16649,7 +16680,7 @@ Transform:
   m_GameObject: {fileID: 7159365019538601704}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.285, z: -3.955}
+  m_LocalPosition: {x: 0, y: -1.939, z: -3.852}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16893,6 +16924,13 @@ GameObject:
   - component: {fileID: 2113629460142488138}
   - component: {fileID: 1331007290514924771}
   - component: {fileID: 6310259047591618891}
+  - component: {fileID: 7608125506807629470}
+  - component: {fileID: 2008070700741101844}
+  - component: {fileID: 230430417302208176}
+  - component: {fileID: 812460336414985098}
+  - component: {fileID: 324634794188845118}
+  - component: {fileID: 3253848816823431223}
+  - component: {fileID: 5852289383883145832}
   m_Layer: 0
   m_Name: RedTractor
   m_TagString: Untagged
@@ -16933,6 +16971,7 @@ Transform:
   - {fileID: 608997562705482194}
   - {fileID: 156382449134578704}
   - {fileID: 982754010793718587}
+  - {fileID: 1643071355006626370}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &8094046400704267554
@@ -16995,7 +17034,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1555016630
+  GlobalObjectIdHash: 1851203662
   InScenePlacedSourceGlobalObjectIdHash: 1658267771
   DeferredDespawnTick: 0
   Ownership: 1
@@ -17030,10 +17069,10 @@ MonoBehaviour:
   wcBL: {fileID: 1810418693168031683}
   wcBR: {fileID: 1451632213995498113}
   centerOfMass: {fileID: 6676751574739900153}
-  motorTorque: 1500
+  motorTorque: 2500
   maxSteerAngle: 25
   brakeForce: 3000
-  maxSpeedKmh: 150
+  maxSpeedKmh: 60
   steerSpeed: 1.5
   driverSeat: {fileID: 876440977974124722}
   cameraController: {fileID: 2933095412169163287}
@@ -17163,6 +17202,7 @@ MonoBehaviour:
   movingSound: {fileID: 8300000, guid: ed681374f23252945b5752025c14d743, type: 3}
   reverseBeepSound: {fileID: 8300000, guid: fbabcf141c0929e4e87fcd88384077a5, type: 3}
   engineStartSound: {fileID: 8300000, guid: 7f734e5502f0e5345bc88242f87cf051, type: 3}
+  engineStopSound: {fileID: 0}
   initialAccelSound: {fileID: 8300000, guid: 0c3c087d1825c7a49aea9f6b32678cc6, type: 3}
   throttleResumeSound: {fileID: 8300000, guid: 0106aed54420bb04c8b5769f9d1725cb, type: 3}
   decelerationSound: {fileID: 8300000, guid: ed681374f23252945b5752025c14d743, type: 3}
@@ -17252,11 +17292,136 @@ MonoBehaviour:
   maxFuel: 100
   maxRangeKm: 100
   idleConsumptionPerSecond: 0.01
+  maxSpeedConsumptionPerSecond: 0.3
   currentFuel:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 100
+  isEngineRunning:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+--- !u!114 &7608125506807629470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8569618220671850601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ef52a9701fb91c4c8b41e228a80178d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DurabilityManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 1000
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+--- !u!114 &2008070700741101844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8569618220671850601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c78a24d140deb741ad4cf334b2109e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceDamageDealer
+  ShowTopMostFoldoutHeaderGroup: 1
+  distanceThreshold: 50
+  damagePerThreshold: 1
+--- !u!114 &230430417302208176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8569618220671850601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d9b5506c2124445a9ed6f0f71f4dba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BreakDisableBehavior
+  ShowTopMostFoldoutHeaderGroup: 1
+  breakdownSound: {fileID: 8300000, guid: 80d99f1491d9ee343b8726633fabfed7, type: 3}
+  smokePrefab: {fileID: 1026303572599819439, guid: 7fc67d1a365b3b540b167e6a65cb3eb0, type: 3}
+  smokeSpawnPoint: {fileID: 1643071355006626370}
+  isBroken:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+--- !u!114 &812460336414985098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8569618220671850601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f5aee7928339904b9a35cf800ff0fbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RepairableTarget
+  ShowTopMostFoldoutHeaderGroup: 1
+  requiredHitsToRepair: 3
+--- !u!114 &324634794188845118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8569618220671850601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0821e64c05c49f54e9f9b0f80456ea07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VehicleStatus
+  ShowTopMostFoldoutHeaderGroup: 1
+  anaGovdeDurumu: {fileID: 7608125506807629470}
+--- !u!114 &3253848816823431223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8569618220671850601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bac18993e931b1f4f9e53d290cbe8ea9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TractorDashboardUI
+  dashboardDoc: {fileID: 0}
+--- !u!114 &5852289383883145832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8569618220671850601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: a5fb3468423b12041a46b44886837781, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 86c05690e4457b64f86500b6d1cc6018, type: 3}
+  m_SortingOrder: 10
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1 &9048412067266332554
 GameObject:
   m_ObjectHideFlags: 0
