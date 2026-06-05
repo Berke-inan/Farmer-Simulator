@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 736634748807457412}
   - component: {fileID: 5926825934184084496}
   - component: {fileID: -3331318857021567783}
+  - component: {fileID: 6892130663040386257}
   m_Layer: 0
   m_Name: FarmingHoe_Visual
   m_TagString: Untagged
@@ -215,3 +216,18 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &6892130663040386257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7539315446333618510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56fe6bbc7e84a0b4f9e067b1146373cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalToolDurability
+  maxHealth: 100
+  currentHealth: 0
+  kirilmaSesi: {fileID: 8300000, guid: 23a348c462567a345afde910d9b79554, type: 3}

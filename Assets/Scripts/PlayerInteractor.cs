@@ -1,10 +1,11 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerInteractor : NetworkBehaviour
 {
-    public float interactionDistance = 5f;
+    public float interactionDistance = 2.5f;
     public Transform playerCamera;
 
     private InputSystem_Actions inputActions;
@@ -25,7 +26,6 @@ public class PlayerInteractor : NetworkBehaviour
         inputActions.Player.Attack.started += ctx => UseHeldItem();
         inputActions.Player.Holster.started += ctx => inventory.ToggleHolster();
 
-        // Hotbar Seçimleri
         inputActions.Player.Hotbar1.started += ctx => inventory.ChangeHotbarSlot(0);
         inputActions.Player.Hotbar2.started += ctx => inventory.ChangeHotbarSlot(1);
         inputActions.Player.Hotbar3.started += ctx => inventory.ChangeHotbarSlot(2);
@@ -42,7 +42,29 @@ public class PlayerInteractor : NetworkBehaviour
     {
         if (!IsOwner || playerCamera == null) return;
 
+        float scrollY = Mouse.current.scroll.ReadValue().y;
+        if (scrollY != 0)
+        {
+            int currentIndex = inventory.activeHotbarIndex.Value;
+
+            if (scrollY > 0)
+            {
+                currentIndex--;
+                if (currentIndex < 0) currentIndex = 9;
+            }
+            else
+            {
+                currentIndex++;
+                if (currentIndex > 9) currentIndex = 0;
+            }
+
+            inventory.ChangeHotbarSlot(currentIndex);
+        }
+
         Ray ray = new Ray(playerCamera.position, playerCamera.forward);
+
+        // Ekrana basılacak tuşları tutacağımız geçici liste
+        List<ActionPrompt> currentPrompts = new List<ActionPrompt>();
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
         {
@@ -57,13 +79,22 @@ public class PlayerInteractor : NetworkBehaviour
                     currentGlowingObject.EnableGlow();
                 }
             }
-            else
+            else if (currentGlowingObject != null)
             {
-                if (currentGlowingObject != null)
-                {
-                    currentGlowingObject.DisableGlow();
-                    currentGlowingObject = null;
-                }
+                currentGlowingObject.DisableGlow();
+                currentGlowingObject = null;
+            }
+
+            IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+            if (interactable != null)
+            {
+                currentPrompts.AddRange(interactable.GetPrompts());
+            }
+
+            ISecondaryInteractable secondary = hit.collider.GetComponentInParent<ISecondaryInteractable>();
+            if (secondary != null)
+            {
+                // currentPrompts.AddRange(secondary.GetPrompts()); 
             }
         }
         else
@@ -73,6 +104,22 @@ public class PlayerInteractor : NetworkBehaviour
                 currentGlowingObject.DisableGlow();
                 currentGlowingObject = null;
             }
+        }
+
+        if (currentPrompts.Count == 0 && inventory != null && inventory.eldekiObje != null)
+        {
+            if (inventory.eldekiObje.TryGetComponent(out IUseableTool alet))
+            {
+                currentPrompts.Add(new ActionPrompt("Sol Tık", "KULLAN"));
+            }
+
+            currentPrompts.Add(new ActionPrompt("G", "YERE AT"));
+        }
+
+        // ÇÖZÜM BURASI: Bu satırı yorum satırından çıkardım, artık yazılar UI'a iletilecek!
+        if (FarmerSimulator.UI.HUDManager.Instance != null)
+        {
+            FarmerSimulator.UI.HUDManager.Instance.UpdateActionPrompts(currentPrompts);
         }
     }
 
@@ -106,10 +153,12 @@ public class PlayerInteractor : NetworkBehaviour
             if (inventory.eldekiObje.TryGetComponent(out IUseableTool alet))
             {
                 Ray ray = new Ray(playerCamera.position, playerCamera.forward);
-                if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance))
-                {
-                    alet.EylemYap(hit, inventory);
-                }
+
+                // ESKİ HALİ: if (Physics.Raycast(...))
+                // YENİ HALİ: Çarpma zorunluluğunu kaldırdık, yiyecek tüketmek için bir yere bakmak gerekmez.
+                Physics.Raycast(ray, out RaycastHit hit, interactionDistance);
+
+                alet.EylemYap(hit, inventory);
             }
         }
     }

@@ -3,19 +3,15 @@ using Unity.Netcode;
 
 public class BreakableTarget : NetworkBehaviour
 {
-    private Animator animator;
+    [Header("Fiziksel Parçalanma Ayarlarý")]
+    public float patlamaGucu = 1000f;
+    public float patlamaYaricapi = 3f;
+
+    [Header("Ses Ayarlarý")]
+    [Tooltip("Ayarlarýný yaptýðýn AudioSource bileþenini taþýyan ALT OBJEYÝ buraya sürükle")]
+    public AudioSource breakAudioSource;
+
     private bool isBroken = false;
-
-    private void Awake()
-    {
-        // Deðiþiklik: Eðer Animator alt objelerden birindeyse otomatik bulur!
-        animator = GetComponentInChildren<Animator>();
-
-        if (animator == null)
-        {
-            Debug.LogWarning("<color=red>UYARI: " + gameObject.name + " objesinde ve alt elemanlarýnda hiçbir Animator bileþeni bulunamadý!</color>");
-        }
-    }
 
     public void TakeDamage()
     {
@@ -29,19 +25,54 @@ public class BreakableTarget : NetworkBehaviour
         if (isBroken) return;
         isBroken = true;
 
-        PlayBreakAnimationClientRpc();
+        ShatterClientRpc();
     }
 
     [Rpc(SendTo.Everyone)]
-    private void PlayBreakAnimationClientRpc()
+    private void ShatterClientRpc()
     {
-        if (animator != null)
+        // --- YENÝ SES SÝSTEMÝ (INSPECTOR KONTROLLÜ) ---
+        if (breakAudioSource != null)
         {
-            animator.SetTrigger("Break");
-            Debug.Log("<color=cyan>Animator tetiklendi! Break animasyonu oynatýlýyor...</color>");
+            // 1. Ses objesini ana bardaktan tamamen koparýp baðýmsýz yapýyoruz (Bardak silinince ses kesilmesin)
+            breakAudioSource.transform.SetParent(null);
+
+            // 2. Makinalý tüfekle tarandýðýnda seslerin üst üste binmemesi için ufak ton farklýlýðý
+            breakAudioSource.pitch = Random.Range(0.85f, 1.15f);
+
+            // 3. Sesi çal
+            breakAudioSource.Play();
+
+            // 4. Klip uzunluðunu hesapla ve o süre dolduðunda bu baðýmsýz ses objesini de sahneden temizle
+            float klipSuresi = breakAudioSource.clip != null ? breakAudioSource.clip.length : 2f;
+            Destroy(breakAudioSource.gameObject, klipSuresi + 0.1f);
         }
 
-        // Animasyon bittikten sonra objeyi sahneden tamamen temizle
-        Destroy(gameObject, 1f);
+        // --- DERÝN ARAMA VE PARÇALANMA ---
+        MeshRenderer[] butunParcalar = GetComponentsInChildren<MeshRenderer>();
+
+        foreach (MeshRenderer mr in butunParcalar)
+        {
+            GameObject parca = mr.gameObject;
+            parca.transform.SetParent(null);
+
+            if (!parca.TryGetComponent<Collider>(out _))
+            {
+                parca.AddComponent<BoxCollider>();
+            }
+
+            if (!parca.TryGetComponent<Rigidbody>(out Rigidbody rb))
+            {
+                rb = parca.AddComponent<Rigidbody>();
+            }
+
+            rb.AddExplosionForce(patlamaGucu, transform.position, patlamaYaricapi);
+            Destroy(parca, Random.Range(5f, 8f));
+        }
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            GetComponent<NetworkObject>().Despawn(true);
+        }
     }
 }

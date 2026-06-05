@@ -1,6 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
-
+using System.Collections.Generic;
 public enum TreeState { Fide, Buyumus, Meyveli, Kuru }
 
 public class TreeController : NetworkBehaviour, IInteractable
@@ -103,7 +103,7 @@ public class TreeController : NetworkBehaviour, IInteractable
         else if (mevcutDurum.Value == TreeState.Buyumus && gecenBuyumeSuresi >= agacVerisi.meyveVermeSuresi)
         {
             mevcutDurum.Value = TreeState.Meyveli;
-            agactakiMeyve.Value = 2; // Aðaç meyve verdiðinde üstünde 2 hasatlýk meyve olur
+            agactakiMeyve.Value = 10; // Aðaç meyve verdiðinde üstünde 2 hasatlýk meyve olur
             gecenBuyumeSuresi = 0f;
         }
     }
@@ -139,6 +139,23 @@ public class TreeController : NetworkBehaviour, IInteractable
             ilkSuVerildiMi = true;
             susuzKalanSure = 0f;
         }
+    }
+
+    // Aðaca bakýldýðýnda HUD'da görünecek yönerge
+    public List<ActionPrompt> GetPrompts()
+    {
+        List<ActionPrompt> prompts = new List<ActionPrompt>();
+
+        if (mevcutDurum.Value == TreeState.Kuru)
+        {
+            prompts.Add(new ActionPrompt("E", "KURUMUÞ"));
+        }
+        else
+        {
+            prompts.Add(new ActionPrompt("E", "SULA"));
+        }
+
+        return prompts;
     }
 
     // ==========================================

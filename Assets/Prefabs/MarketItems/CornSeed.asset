@@ -15,5 +15,8 @@ MonoBehaviour:
   itemID: 0
   itemName: Corn Seed
   itemIcon: {fileID: 21300000, guid: 262a9a44c6c86894c8a7c3810635029f, type: 3}
-  price: 5
+  price: 10
   prefabToSpawn: {fileID: 7226053109832198535, guid: 133e067dc97b6834c916501bd4efabdc, type: 3}
+  isMachine: 0
+  maxStock: 10
+  restockInterval: 60

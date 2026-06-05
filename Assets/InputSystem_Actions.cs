@@ -947,7 +947,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""f753d9d9-3c75-4426-ad25-409249783b54"",
-                    ""path"": ""<Keyboard>/t"",
+                    ""path"": ""<Keyboard>/enter"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

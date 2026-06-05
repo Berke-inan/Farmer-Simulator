@@ -20,6 +20,48 @@ public class Romork : NetworkBehaviour, IInteractable
     // Römork içindeki fiziksel objeleri tutan yığın
     private Stack<NetworkObject> icindekiEsyalar = new Stack<NetworkObject>();
 
+    // ==========================================
+    // DİNAMİK HUD TUŞ İPUÇLARI (IInteractable)
+    // ==========================================
+    public List<ActionPrompt> GetPrompts()
+    {
+        List<ActionPrompt> prompts = new List<ActionPrompt>();
+        int maksimumKapasite = sutunSayisi * satirSayisi * maksimumKat;
+
+        // Yerel oyuncunun eline bakıyoruz (Sadece o anki oyuncunun ekranını etkiler)
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null && NetworkManager.Singleton.LocalClient.PlayerObject != null)
+        {
+            if (NetworkManager.Singleton.LocalClient.PlayerObject.TryGetComponent(out PlayerInventory inventory))
+            {
+                int aktifSlotIdx = inventory.activeHotbarIndex.Value;
+                InventorySlot aktifSlot = inventory.slots[aktifSlotIdx];
+
+                if (!aktifSlot.IsEmpty)
+                {
+                    // Oyuncunun ELİ DOLU (Yükleme Senaryosu)
+                    if (icindekiEsyalar.Count >= maksimumKapasite)
+                        prompts.Add(new ActionPrompt("E", "RÖMORK DOLU"));
+                    else
+                        prompts.Add(new ActionPrompt("E", "YÜKLE"));
+                }
+                else
+                {
+                    // Oyuncunun ELİ BOŞ (Alma Senaryosu)
+                    if (icindekiEsyalar.Count > 0)
+                        prompts.Add(new ActionPrompt("E", "AL"));
+                    else
+                        prompts.Add(new ActionPrompt("E", "RÖMORK BOŞ"));
+                }
+
+                return prompts;
+            }
+        }
+
+        // Yedek durum
+        prompts.Add(new ActionPrompt("E", "ETKİLEŞİM"));
+        return prompts;
+    }
+
     public void Interact(NetworkObject interactor)
     {
         if (interactor.TryGetComponent(out PlayerInventory inventory))
@@ -50,14 +92,19 @@ public class Romork : NetworkBehaviour, IInteractable
             }
         }
     }
-
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void RomorkaKoyServerRpc(ulong playerNetId, int itemID, int slotIndex)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerNetId, out NetworkObject playerObj))
         {
             PlayerInventory inventory = playerObj.GetComponent<PlayerInventory>();
-            ItemData data = Resources.Load<ItemData>("Items/" + itemID);
+
+            // --- DEĞİŞEN KISIM BAŞLANGICI ---
+            // Eski hatalı satır: ItemData data = Resources.Load<ItemData>("Items/" + itemID);
+
+            if (ItemRegistry.Instance == null || ItemRegistry.Instance.itemDatabase == null) return;
+            ItemData data = ItemRegistry.Instance.itemDatabase.GetItemByID(itemID);
+            // --- DEĞİŞEN KISIM SONU ---
 
             if (data != null && data.groundPrefab != null)
             {

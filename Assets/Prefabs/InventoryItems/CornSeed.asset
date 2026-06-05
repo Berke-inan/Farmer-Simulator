@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
   m_Name: CornSeed
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemID: 12
+  itemID: 9
   itemName: Corn Seed
   itemType: 0
   maxStack: 64

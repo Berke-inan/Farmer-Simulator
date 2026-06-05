@@ -1,9 +1,11 @@
-using UnityEngine;
+using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine;
 
 public class EkimMakinesi : NetworkBehaviour, IInteractable
 {
     private AttachableEquipment anaGovde;
+    private BreakDisableBehavior bozulmaKontrolu;
 
     [Header("Makine Kapasitesi")]
     public int maxKapasite = 50;
@@ -17,11 +19,15 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
     public float islemAraligi = 0.15f;
     private float islemSayaci = 0f;
 
-    private void Awake() => anaGovde = GetComponentInParent<AttachableEquipment>();
+    private void Awake()
+    {
+        anaGovde = GetComponentInParent<AttachableEquipment>();
+        bozulmaKontrolu = GetComponent<BreakDisableBehavior>();
+    }
 
     private void OnTriggerStay(Collider other)
     {
-        // Sunucu tarafýnda çalýþma ve makine aktiflik kontrolleri
+        if (bozulmaKontrolu != null && bozulmaKontrolu.isBroken.Value) return;
         if (!IsServer || anaGovde == null || !anaGovde.isWorking.Value || mevcutTohum.Value <= 0 || aktifEkinPrefab == null) return;
 
         islemSayaci += Time.deltaTime;
@@ -71,14 +77,11 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
     public void Interact(NetworkObject interactor)
     {
-        // Yeni sistem: Sadece PlayerInventory üzerinden kontrol saðlýyoruz
         if (interactor.TryGetComponent(out PlayerInventory inventory))
         {
             int aktifSlotIndex = inventory.activeHotbarIndex.Value;
             InventorySlot slot = inventory.slots[aktifSlotIndex];
 
-            // Eþya tohum mu ve envanterde yer var mý kontrolü
-            // Not: ItemData içinde bir 'isSeed' bool'u veya benzeri bir kontrol olduðunu varsayýyoruz
             if (!slot.IsEmpty && slot.itemData != null)
             {
                 if (mevcutTohum.Value < maxKapasite)
@@ -101,24 +104,60 @@ public class EkimMakinesi : NetworkBehaviour, IInteractable
 
                 ItemData data = slot.itemData;
 
-                // Makine boþsa ilk tohumun verilerini al, doluysa tohum türü uyuþuyor mu bak
+                // 1. KORUMA: Elimizdeki eþyanýn "ekinPrefab"ý yoksa o tohum deðildir, makineye alma!
+                if (data.ekinPrefab == null) return;
+
                 if (mevcutTohum.Value == 0)
                 {
                     aktifTohumID = data.itemID;
-                    aktifEkinPrefab = data.groundPrefab; // ItemData'daki ekilecek prefab
+                    // HATA BURADAYDI: groundPrefab yerine ekinPrefab olmalý
+                    aktifEkinPrefab = data.ekinPrefab;
                 }
-                else if (aktifTohumID != data.itemID) return;
+                else if (aktifTohumID != data.itemID) return; // Farklý tohum yüklenmesini engeller
 
                 int bosYer = maxKapasite - mevcutTohum.Value;
-                int eklenecekMiktar = Mathf.Min(bosYer, slot.amount);
 
-                if (eklenecekMiktar > 0)
+                // YENÝ SÝSTEM ENTEGRASYONU: Paketin içindeki gerçek tohum sayýsýný bul
+                int pakettekiTohumSayisi = slot.kalanEkimHakki == -1 ? data.maxEkimHakki : slot.kalanEkimHakki;
+
+                // Eðer makinede paketin tamamýný alacak yer varsa
+                if (bosYer >= pakettekiTohumSayisi)
                 {
-                    mevcutTohum.Value += eklenecekMiktar;
-                    // PlayerInventory'de yazdýðýmýz yeni miktar düþürme metodunu çaðýrýyoruz
-                    envanter.DecreaseItemAmountServerRpc(slotIndex, eklenecekMiktar);
+                    mevcutTohum.Value += pakettekiTohumSayisi;
+                    // Paketi envanterden sil (1 adet paketi eksilt)
+                    envanter.DecreaseItemAmountServerRpc(slotIndex, 1);
+                }
+                else
+                {
+                    Debug.Log("Makinede tam bir paket tohum için yeterli yer yok!");
                 }
             }
         }
+    }
+
+    public List<ActionPrompt> GetPrompts()
+    {
+        List<ActionPrompt> prompts = new List<ActionPrompt>();
+        prompts.Add(new ActionPrompt("V", "Ekim Yap (Aç/Kapat)"));
+
+        // Römorktaki gibi dinamik "E" tuþu ipuçlarýný ekliyoruz
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null && NetworkManager.Singleton.LocalClient.PlayerObject != null)
+        {
+            if (NetworkManager.Singleton.LocalClient.PlayerObject.TryGetComponent(out PlayerInventory inventory))
+            {
+                InventorySlot aktifSlot = inventory.slots[inventory.activeHotbarIndex.Value];
+
+                // Elimizde bir tohum paketi varsa (ekinPrefab doluysa tohumdur)
+                if (!aktifSlot.IsEmpty && aktifSlot.itemData != null && aktifSlot.itemData.ekinPrefab != null)
+                {
+                    if (mevcutTohum.Value < maxKapasite)
+                        prompts.Add(new ActionPrompt("E", "Tohum Yükle"));
+                    else
+                        prompts.Add(new ActionPrompt("E", "Makine Dolu"));
+                }
+            }
+        }
+
+        return prompts;
     }
 }

@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/TractorDashboard.uss?fileID=7433441132597879392&amp;guid=3b75c8fda527fb24dbdd7f11100ea479&amp;type=3#TractorDashboard"/>
+    <ui:VisualElement name="DashboardContainer" class="dashboard-container">
+        <ui:VisualElement class="speed-section">
+            <ui:Label name="SpeedLabel" text="0" class="speed-number"/>
+            <ui:Label text="KM/H" class="speed-unit"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="divider"/>
+        <ui:VisualElement class="bar-section">
+            <ui:Label text="MAZOT" class="bar-title"/>
+            <ui:VisualElement class="bar-bg">
+                <ui:VisualElement name="FuelFill" class="bar-fill fuel-color"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="bar-section">
+            <ui:Label text="ARAÇ DURUMU" class="bar-title"/>
+            <ui:VisualElement class="bar-bg">
+                <ui:VisualElement name="ConditionFill" class="bar-fill condition-color"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

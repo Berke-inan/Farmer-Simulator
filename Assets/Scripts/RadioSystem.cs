@@ -118,7 +118,7 @@ public class RadioSystem : NetworkBehaviour, ISecondaryInteractable
         ToggleRadioServerRpc();
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void ToggleRadioServerRpc()
     {
         isOn.Value = !isOn.Value;
@@ -133,7 +133,7 @@ public class RadioSystem : NetworkBehaviour, ISecondaryInteractable
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void RequestNextSongServerRpc()
     {
         if (!isOn.Value || isSwitching)

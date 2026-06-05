@@ -145,12 +145,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864111185607732302}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1223083310
+  GlobalObjectIdHash: 2204666212
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -179,6 +179,7 @@ MonoBehaviour:
   mouseSensitivity: 15
   cameraRoot: {fileID: 4370075213581412818}
   playerCinemachineCam: {fileID: 4831749522556745930}
+  isRiding: 0
 --- !u!114 &8538495779290203485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,7 +356,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   maksimumKapasite: 100
   normalEnerjiDusmeSuresi: 10
-  maxEnerjiDusmeSuresi: 30
+  maxEnerjiDusmeEsigi: 5
+  maxEnerjiDususMiktari: 1
   eylemYapmaSiniri: 5
   kosmaSiniri: 0
   gunlukSuIcmeLimiti: 4
@@ -391,25 +393,45 @@ MonoBehaviour:
   slots:
   - itemData: {fileID: 0}
     amount: 0
+    kalanCan: -1
+    kalanEkimHakki: -1
   - itemData: {fileID: 0}
     amount: 0
+    kalanCan: -1
+    kalanEkimHakki: -1
   - itemData: {fileID: 0}
     amount: 0
+    kalanCan: -1
+    kalanEkimHakki: -1
   - itemData: {fileID: 0}
     amount: 0
+    kalanCan: -1
+    kalanEkimHakki: -1
   - itemData: {fileID: 0}
     amount: 0
+    kalanCan: -1
+    kalanEkimHakki: -1
   - itemData: {fileID: 0}
     amount: 0
+    kalanCan: -1
+    kalanEkimHakki: -1
   - itemData: {fileID: 0}
     amount: 0
+    kalanCan: -1
+    kalanEkimHakki: -1
   - itemData: {fileID: 0}
     amount: 0
+    kalanCan: -1
+    kalanEkimHakki: -1
   - itemData: {fileID: 0}
     amount: 0
+    kalanCan: -1
+    kalanEkimHakki: -1
   - itemData: {fileID: 0}
     amount: 0
-  handTransform: {fileID: 4205934887589964364}
+    kalanCan: -1
+    kalanEkimHakki: -1
+  localHandTransform: {fileID: 4205934887589964364}
   eldekiObje: {fileID: 0}
   isHolstered:
     UpdateTraits:
@@ -421,6 +443,15 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  syncHeldItemID:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: -1
+  sepetIcerikIDleri:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
   sepetDoluluk:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -704,8 +735,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7438096846589699387}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.65, z: 0.174}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.65, z: 0.17399997}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

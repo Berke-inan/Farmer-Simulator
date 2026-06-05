@@ -1,5 +1,6 @@
-using UnityEngine;
+using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine;
 
 public class Candle : NetworkBehaviour, IInteractable
 {
@@ -46,5 +47,17 @@ public class Candle : NetworkBehaviour, IInteractable
 
         if (candleLight != null)
             candleLight.enabled = isLit;
+    }
+
+    // Iþýða/Muma bakýldýðýnda HUD'da görünecek yönerge
+    public List<ActionPrompt> GetPrompts()
+    {
+        // Iþýk yanýyorsa "SÖNDÜR", yanmýyorsa "YAK" yazdýrýyoruz
+        string eylemMetni = isLit ? "SÖNDÜR" : "YAK";
+
+        return new List<ActionPrompt>()
+        {
+            new ActionPrompt("E", eylemMetni)
+        };
     }
 }

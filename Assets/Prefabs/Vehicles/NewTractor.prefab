@@ -456,6 +456,37 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &2383185963575808325
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6269335175692082426}
+  m_Layer: 0
+  m_Name: SmokeSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6269335175692082426
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2383185963575808325}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.081, y: 0.46, z: 3.69}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6353101195743399140}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2534900449839827860
 GameObject:
   m_ObjectHideFlags: 0
@@ -841,6 +872,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4469334344621319129}
+  - component: {fileID: 5826157356452712796}
+  - component: {fileID: 8907350624816190953}
+  - component: {fileID: 4540475897926191624}
   m_Layer: 0
   m_Name: VisualNode_BL
   m_TagString: Untagged
@@ -864,6 +898,55 @@ Transform:
   - {fileID: 7937357574764010111}
   m_Father: {fileID: 6353101195743399140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5826157356452712796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3531777840458612373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ef52a9701fb91c4c8b41e228a80178d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DurabilityManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 1500
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 1500
+--- !u!114 &8907350624816190953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3531777840458612373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c78a24d140deb741ad4cf334b2109e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceDamageDealer
+  ShowTopMostFoldoutHeaderGroup: 1
+  distanceThreshold: 50
+  damagePerThreshold: 1
+--- !u!114 &4540475897926191624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3531777840458612373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6ba8a0586c395f4b83af81c0b1dfc24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModularPartBehavior
+  ShowTopMostFoldoutHeaderGroup: 1
+  breakSound: {fileID: 8300000, guid: 76ee2f81147b47f4d970a885b970b901, type: 3}
+  visualObject: {fileID: 8405460272062988377}
 --- !u!1 &3612095633882428642
 GameObject:
   m_ObjectHideFlags: 0
@@ -6266,6 +6349,14 @@ GameObject:
   - component: {fileID: 4692755187108537293}
   - component: {fileID: 2075962119377794508}
   - component: {fileID: 5442484949945036661}
+  - component: {fileID: 3697237687589602992}
+  - component: {fileID: 3421904042871694898}
+  - component: {fileID: 1729991337680469698}
+  - component: {fileID: 7860049975837318377}
+  - component: {fileID: 1107067779684524800}
+  - component: {fileID: 8248166486128651876}
+  - component: {fileID: 282071486007804174}
+  - component: {fileID: 6083492074440506189}
   m_Layer: 0
   m_Name: NewTractor
   m_TagString: Untagged
@@ -6305,6 +6396,7 @@ Transform:
   - {fileID: 153514266912832795}
   - {fileID: 441098686427221551}
   - {fileID: 8835700755338624463}
+  - {fileID: 6269335175692082426}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &5187670774868011787
@@ -6539,7 +6631,7 @@ MonoBehaviour:
   initialAccelSound: {fileID: 8300000, guid: 0c3c087d1825c7a49aea9f6b32678cc6, type: 3}
   throttleResumeSound: {fileID: 8300000, guid: 0106aed54420bb04c8b5769f9d1725cb, type: 3}
   decelerationSound: {fileID: 8300000, guid: ed681374f23252945b5752025c14d743, type: 3}
-  masterVolume: 0.08
+  masterVolume: 0.1
   fadeSpeed: 5
   maxPitch: 1.5
   maxSpeedForPitch: 70
@@ -6636,6 +6728,138 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &3697237687589602992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130530900198711497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ef52a9701fb91c4c8b41e228a80178d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DurabilityManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 1000
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 3
+--- !u!114 &3421904042871694898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130530900198711497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c78a24d140deb741ad4cf334b2109e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceDamageDealer
+  ShowTopMostFoldoutHeaderGroup: 1
+  distanceThreshold: 100
+  damagePerThreshold: 1
+--- !u!114 &1729991337680469698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130530900198711497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d9b5506c2124445a9ed6f0f71f4dba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BreakDisableBehavior
+  ShowTopMostFoldoutHeaderGroup: 1
+  breakdownSound: {fileID: 8300000, guid: 80d99f1491d9ee343b8726633fabfed7, type: 3}
+  smokePrefab: {fileID: 1026303572599819439, guid: 7fc67d1a365b3b540b167e6a65cb3eb0, type: 3}
+  smokeSpawnPoint: {fileID: 6269335175692082426}
+  isBroken:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+--- !u!114 &7860049975837318377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130530900198711497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f5aee7928339904b9a35cf800ff0fbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RepairableTarget
+  ShowTopMostFoldoutHeaderGroup: 1
+  requiredHitsToRepair: 3
+--- !u!114 &1107067779684524800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130530900198711497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0821e64c05c49f54e9f9b0f80456ea07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VehicleStatus
+  ShowTopMostFoldoutHeaderGroup: 1
+  anaGovdeDurumu: {fileID: 0}
+--- !u!114 &8248166486128651876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130530900198711497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bac18993e931b1f4f9e53d290cbe8ea9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TractorDashboardUI
+  dashboardDoc: {fileID: 0}
+--- !u!114 &282071486007804174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130530900198711497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: a5fb3468423b12041a46b44886837781, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 86c05690e4457b64f86500b6d1cc6018, type: 3}
+  m_SortingOrder: 10
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &6083492074440506189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130530900198711497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bac18993e931b1f4f9e53d290cbe8ea9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TractorDashboardUI
+  dashboardDoc: {fileID: 282071486007804174}
 --- !u!1 &5261454493351848730
 GameObject:
   m_ObjectHideFlags: 0
@@ -11905,6 +12129,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7048678016951594272}
+  - component: {fileID: 2648577305387909279}
+  - component: {fileID: 9047651263707716210}
+  - component: {fileID: 6996863167357921150}
   m_Layer: 0
   m_Name: VisualNode_FR
   m_TagString: Untagged
@@ -11928,6 +12155,55 @@ Transform:
   - {fileID: 6036873290284744314}
   m_Father: {fileID: 6353101195743399140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2648577305387909279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6854083224336744208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ef52a9701fb91c4c8b41e228a80178d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DurabilityManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 1300
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 1300
+--- !u!114 &9047651263707716210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6854083224336744208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c78a24d140deb741ad4cf334b2109e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceDamageDealer
+  ShowTopMostFoldoutHeaderGroup: 1
+  distanceThreshold: 50
+  damagePerThreshold: 1
+--- !u!114 &6996863167357921150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6854083224336744208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6ba8a0586c395f4b83af81c0b1dfc24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModularPartBehavior
+  ShowTopMostFoldoutHeaderGroup: 1
+  breakSound: {fileID: 8300000, guid: 76ee2f81147b47f4d970a885b970b901, type: 3}
+  visualObject: {fileID: 8405460272062988377}
 --- !u!1 &7097727865430084846
 GameObject:
   m_ObjectHideFlags: 0
@@ -12064,6 +12340,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4844678431594037080}
+  - component: {fileID: 6823079899873304486}
+  - component: {fileID: 7907328122278015997}
+  - component: {fileID: 1703207217331216333}
   m_Layer: 0
   m_Name: VisualNode_BR
   m_TagString: Untagged
@@ -12087,6 +12366,55 @@ Transform:
   - {fileID: 5285184535746621273}
   m_Father: {fileID: 6353101195743399140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6823079899873304486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7123626221064631454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ef52a9701fb91c4c8b41e228a80178d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DurabilityManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 1000
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 1900
+--- !u!114 &7907328122278015997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7123626221064631454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c78a24d140deb741ad4cf334b2109e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceDamageDealer
+  ShowTopMostFoldoutHeaderGroup: 1
+  distanceThreshold: 50
+  damagePerThreshold: 1
+--- !u!114 &1703207217331216333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7123626221064631454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6ba8a0586c395f4b83af81c0b1dfc24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModularPartBehavior
+  ShowTopMostFoldoutHeaderGroup: 1
+  breakSound: {fileID: 8300000, guid: 76ee2f81147b47f4d970a885b970b901, type: 3}
+  visualObject: {fileID: 8405460272062988377}
 --- !u!1 &7789093662776231419
 GameObject:
   m_ObjectHideFlags: 0
@@ -12115,7 +12443,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7789093662776231419}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.11805319, y: 0, z: 0, w: 0.9930073}
+  m_LocalRotation: {x: -0.11805313, y: 0.000000032084493, z: -0.00000000299213, w: -0.99300736}
   m_LocalPosition: {x: 0, y: 5.5283194, z: -10.810044}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -12136,7 +12464,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
   Priority:
     Enabled: 1
-    m_Value: 100
+    m_Value: 0
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
@@ -12433,6 +12761,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2393886262276868122}
+  - component: {fileID: 9201864467204633457}
+  - component: {fileID: 5836061443936541578}
+  - component: {fileID: 493027130378412224}
   m_Layer: 0
   m_Name: VisualNode_FL
   m_TagString: Untagged
@@ -12456,6 +12787,55 @@ Transform:
   - {fileID: 9218271650503023331}
   m_Father: {fileID: 6353101195743399140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9201864467204633457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8486757496140241474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ef52a9701fb91c4c8b41e228a80178d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DurabilityManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 1000
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 1000
+--- !u!114 &5836061443936541578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8486757496140241474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c78a24d140deb741ad4cf334b2109e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceDamageDealer
+  ShowTopMostFoldoutHeaderGroup: 1
+  distanceThreshold: 50
+  damagePerThreshold: 1
+--- !u!114 &493027130378412224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8486757496140241474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6ba8a0586c395f4b83af81c0b1dfc24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModularPartBehavior
+  ShowTopMostFoldoutHeaderGroup: 1
+  breakSound: {fileID: 8300000, guid: 76ee2f81147b47f4d970a885b970b901, type: 3}
+  visualObject: {fileID: 8405460272062988377}
 --- !u!1 &8630844941904968312
 GameObject:
   m_ObjectHideFlags: 0
@@ -17714,6 +18094,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f7d76359151585145a6ff65ce762fc43, type: 3}
+--- !u!1 &8405460272062988377 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f7d76359151585145a6ff65ce762fc43, type: 3}
+  m_PrefabInstance: {fileID: 8676000259420470536}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &9218271650503023331 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f7d76359151585145a6ff65ce762fc43, type: 3}

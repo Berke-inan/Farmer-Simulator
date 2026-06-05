@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 287caf2f6b9289f48a8ed09313390c23, type: 3}
+  m_Name: New Tractor
+  m_EditorClassIdentifier: Assembly-CSharp::MarketItem
+  itemID: 111
+  itemName: New Tractor
+  itemIcon: {fileID: 0}
+  price: 4000
+  prefabToSpawn: {fileID: 5130530900198711497, guid: 1749b490ef0269c4aa04e432a13aef6f, type: 3}
+  isMachine: 1
+  maxStock: 10
+  restockInterval: 60

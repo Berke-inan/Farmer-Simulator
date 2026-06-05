@@ -15,5 +15,8 @@ MonoBehaviour:
   itemID: 15
   itemName: Wheat Seed
   itemIcon: {fileID: 0}
-  price: 10
+  price: 5
   prefabToSpawn: {fileID: 6163511954771487862, guid: 95a31ef3a863b9541a705dbb5f0709fd, type: 3}
+  isMachine: 0
+  maxStock: 10
+  restockInterval: 60

@@ -4,195 +4,173 @@
     width: 100%;
     height: 100%;
     position: absolute;
-    padding: 0;
+    padding: 40px 50px; 
 }
 
-/* === ÜST ŞERİT === */
-.hud-header {
-    position: absolute;
-    top: 20px;
-    left: 28px;
-    right: 28px;
+/* === ÜST KISIM (ZAMAN & PARA) === */
+.hud-top {
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
 }
 
-/* Orta gün/sezon rozeti */
-.hud-day-badge {
-    position: absolute;
-    top: 20px;
-    left: 0;
-    right: 0;
-    align-items: center;
-    justify-content: center;
+/* Tipografik Veri Blokları */
+.hud-info-block {
+    flex-direction: column;
 }
 
-.hud-day-badge-inner {
-    background-color: rgba(0, 0, 0, 0.45);
-    border-radius: 20px;
-    border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.07);
-    padding: 4px 14px;
+.border-left-accent {
+    border-left-width: 4px;
+    border-left-color: #d97706; 
+    padding-left: 15px;
 }
 
-.hud-day-text {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.4);
-    -unity-font-style: bold;
-    letter-spacing: 1px;
-}
-
-/* === PILL (SAAT & PARA ORTAK) === */
-.hud-pill {
-    background-color: rgba(0, 0, 0, 0.55);
-    border-radius: 10px;
-    border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.08);
-    padding: 7px 14px;
-}
-
-/* Saat pill */
-.hud-pill-time {
-    border-color: rgba(100, 220, 255, 0.2);
-}
-
-.hud-pill-label {
-    font-size: 10px;
-    color: rgba(126, 232, 250, 0.5);
-    -unity-font-style: bold;
-    margin-bottom: 1px;
-}
-
-.hud-time-text {
-    font-size: 18px;
-    color: #7ee8fa;
-    -unity-font-style: bold;
-    letter-spacing: 1px;
-}
-
-/* Para pill */
-.hud-pill-money {
-    border-color: rgba(255, 210, 80, 0.2);
+.border-right-accent {
+    border-right-width: 4px;
+    border-right-color: #9ca328; 
+    padding-right: 15px;
     align-items: flex-end;
 }
 
-.hud-pill-label-money {
-    font-size: 10px;
-    color: rgba(255, 208, 96, 0.5);
+/* Üst Başlıklar (Kicker) */
+.hud-kicker {
+    color: #9ca328;
+    font-size: 14px;
     -unity-font-style: bold;
-    margin-bottom: 1px;
-    -unity-text-align: upper-right;
+    letter-spacing: 4px;
+    margin-bottom: 5px;
 }
 
-.hud-money-text {
-    font-size: 18px;
-    color: #ffd060;
+/* Değer Metinleri (Boyutlar 24px'e çekildi) */
+.hud-value-primary {
+    color: #eaddcf;
+    font-size: 24px; 
     -unity-font-style: bold;
-    -unity-text-align: upper-right;
+    letter-spacing: -1px;
+    margin-top: -2px; 
+    margin-bottom: 0px;
 }
 
-/* === ALT ŞERİT === */
-.hud-footer {
+.hud-value-secondary {
+    color: #636b60; 
+    font-size: 13px; /* Hiyerarşi uyumu için 16px'ten 13px'e düşürüldü */
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+}
+
+.hud-value-orange {
+    color: #d97706;
+    font-size: 24px; 
+    -unity-font-style: bold;
+    letter-spacing: -1px;
+    margin-top: -2px;
+    margin-bottom: 0px;
+}
+
+/* === ALT KISIM (SABİT POZİSYONLAMA) === */
+.hud-bottom {
     position: absolute;
-    bottom: 28px;
-    left: 0;
-    right: 0;
-    justify-content: center;
-    align-items: flex-end;
-    flex-direction: row;
+    bottom: 40px;
+    left: 50px;
+    right: 50px;
+    height: 140px;
 }
 
-/* === HOTBAR KONTEYNER === */
+/* === HOTBAR (ENVANTER) TAM MERKEZDE === */
+.hotbar-wrapper {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    translate: -50% 0; 
+    flex-direction: column;
+    align-items: center; 
+}
+
 .hotbar-container {
     flex-direction: row;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 6px;
-    border-radius: 12px;
-    border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.07);
 }
 
-/* Slot ayırıcı (3'lü gruplama için C# ile eklenecek) */
 .hotbar-divider {
-    width: 1px;
-    height: 36px;
-    background-color: rgba(255, 255, 255, 0.06);
-    margin: 0 2px;
+    width: 2px;
+    height: 30px;
+    background-color: #353b34; 
+    margin: 0 8px;
     align-self: center;
 }
 
-/* === TEK SLOT === */
+/* Tek Slot */
 .hotbar-slot {
-    width: 52px;
-    height: 52px;
-    background-color: rgba(255, 255, 255, 0.04);
-    margin: 0 2px;
-    border-radius: 8px;
-    border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.09);
+    width: 60px;
+    height: 60px;
+    background-color: rgba(10, 11, 10, 0.9); 
+    margin: 0 3px; 
+    border-radius: 0; 
+    border-width: 2px;
+    border-color: #353b34;
     justify-content: center;
     align-items: center;
+    transition-property: scale, border-color, background-color;
+    transition-duration: 0.15s;
 }
 
-/* Slot üst-sol numara */
+/* Aktif Slot Seçimi */
+.hotbar-slot-active {
+    border-color: #d97706;
+    background-color: rgba(217, 119, 6, 0.1); 
+    scale: 1.08;
+}
+
 .slot-number {
     position: absolute;
-    top: 3px;
-    left: 5px;
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.25);
+    top: 4px;
+    left: 6px;
+    font-size: 12px;
+    color: #636b60;
     -unity-font-style: bold;
 }
 
-/* Aktif slot */
-.hotbar-slot-active {
-    border-color: #00e5ff;
-    background-color: rgba(0, 229, 255, 0.1);
-}
-
-/* İkon */
 .slot-icon {
-    width: 30px;
-    height: 30px;
-    max-width: 30px;
-    max-height: 30px;
+    width: 48px;
+    height: 48px;
+    -unity-background-scale-mode: scale-to-fit;
 }
 
-/* Adet yazısı */
 .slot-amount {
     position: absolute;
-    bottom: 3px;
-    right: 4px;
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.7);
+    bottom: 4px;
+    right: 6px;
+    font-size: 14px;
+    color: #eaddcf;
     -unity-font-style: bold;
 }
 
-/* === ENERJİ WIDGET TASARIMI === */
+/* === ENERJİ WIDGET EN SAĞ ALT KÖŞEDE === */
+.energy-wrapper {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 100px;
+    height: 100px;
+    flex-direction: column;
+    align-items: center;
+}
 
 .energy-widget {
-    margin-left: 12px;
-    width: 80px; 
-    height: 80px;
+    width: 100px; 
+    height: 100px;
     justify-content: center;
     align-items: center;
 }
 
-/* GÜNCELLEME: energy-base-ring stili silindi */
-
-/* Çizim alanı */
 .energy-current-circle {
     position: absolute;
     width: 100%;
     height: 100%;
 }
 
-/* Merkez Metin Konteyneri */
 .energy-text-container {
     position: absolute;
-    /* GÜNCELLEME: Tam merkeze hizalamak için boşlukları sıfırladık */
-    top: 0;
+    top: -4px; 
     left: 0;
     right: 0;
     bottom: 0;
@@ -200,30 +178,72 @@
     align-items: center;
 }
 
-/* Güncel Enerji (Büyük) */
-.energy-text-label {
-    font-size: 20px;
-    color: #ffffff;
+.energy-val-main {
+    font-size: 26px; 
+    color: #eaddcf; 
     -unity-font-style: bold;
-    /* GÜNCELLEME: Taşmayı önlemek için negatif margin kaldırıldı */
-    margin-bottom: 0; 
+    margin-bottom: -4px; 
+    -unity-text-align: middle-center;
 }
 
-/* Maksimum Enerji (Küçük) */
-.energy-max-label {
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.5);
+.energy-val-sub {
+    font-size: 11px; 
+    color: rgba(234, 221, 207, 0.65);
     -unity-font-style: bold;
-    /* GÜNCELLEME: Taşmayı önlemek için margin sıfırlandı */
-    margin-bottom: 0; 
+    letter-spacing: -0.5px; 
+    -unity-text-align: middle-center;
 }
 
-/* ENERJİ Yazısı */
-.energy-sub-label {
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.3);
+/* Yazıyı akıştan koparıp sadece görsel olarak aşağı ekler */
+.energy-kicker-bottom {
+    position: absolute;
+    top: 105px; 
+    margin: 0;
+    -unity-text-align: middle-center;
+}
+
+    .prompt-container {
+    position: absolute;
+    right: 50px;
+    top: 55%;
+    translate: 0 -50%;
+    flex-direction: column;
+    align-items: flex-end; 
+}
+
+.prompt-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+    background-color: rgba(10, 11, 10, 0.85); 
+    padding: 6px 8px 6px 20px;
+    border-radius: 4px;
+    border-right-width: 4px;
+    border-right-color: #d97706; /* Sağdan turuncu vurgu */
+}
+
+.prompt-action-text {
+    color: #eaddcf;
+    font-size: 14px;
     -unity-font-style: bold;
-    letter-spacing: 0.5px;
-    /* GÜNCELLEME: Metinler arası dikey boşluk için azıcık boşluk eklendi */
-    margin-top: 2px; 
+    letter-spacing: 3px;
+    margin-right: 15px;
+    margin-top: 2px; /* Dikey ortalama için ufak dokunuş */
+}
+
+.prompt-key-box {
+    min-width: 36px;
+    height: 36px;
+    background-color: #d97706; /* Turuncu tuş kutusu */
+    border-radius: 4px;
+    padding: 0 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.prompt-key-text {
+    color: #0a0b0a; /* Koyu zemin rengi ile zıtlık */
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-top: -2px;
 }

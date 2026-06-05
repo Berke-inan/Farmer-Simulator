@@ -117,6 +117,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -6689036041284674117, guid: 022eca516e92cc548a5416be8ac37c6c, type: 3}
       insertIndex: -1
       addedObject: {fileID: -8435620081984963518}
+    - targetCorrespondingSourceObject: {fileID: -6689036041284674117, guid: 022eca516e92cc548a5416be8ac37c6c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3518026238425865568}
   m_SourcePrefab: {fileID: -5645937942226959685, guid: 022eca516e92cc548a5416be8ac37c6c, type: 3}
 --- !u!1 &5603283170915066520 stripped
 GameObject:
@@ -215,3 +218,18 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &3518026238425865568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5603283170915066520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56fe6bbc7e84a0b4f9e067b1146373cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalToolDurability
+  maxHealth: 100
+  currentHealth: 0
+  kirilmaSesi: {fileID: 8300000, guid: 23a348c462567a345afde910d9b79554, type: 3}

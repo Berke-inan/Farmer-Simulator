@@ -1,28 +1,76 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Unity.Netcode;
 
 public class PlayerFlashlightSync : NetworkBehaviour
 {
-    // Aðdaki herkesin okuyabildiði, sadece senin yazabildiðin fener durumu
+    // Co-op uyumlu güvenli að þalteri
     public NetworkVariable<bool> isLightOn = new NetworkVariable<bool>(
         false,
         NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Owner
+        NetworkVariableWritePermission.Server
     );
+
+    public override void OnNetworkSpawn()
+    {
+        // Þalter her deðiþtiðinde otomatik olarak bu fonksiyon tüm client'larda çalýþýr
+        isLightOn.OnValueChanged += OnFlashlightStateChanged;
+
+        // Oyuna sonradan giren biri olursa fenerin durumunu hemen eþitle
+        RefreshFlashlightVisuals(isLightOn.Value);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        isLightOn.OnValueChanged -= OnFlashlightStateChanged;
+    }
 
     private void Update()
     {
-        // Sadece kendi karakterinse tuþlarý dinle
+        // Tuþ kontrolünü sadece local oyuncu yapar
         if (!IsOwner) return;
 
         if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
         {
-            // Yalnýzca karakterin elinde "FlashlightVisual" kodlu bir obje varsa F tuþu çalýþsýn
-            // Bu sayede elinde fener yokken F'ye basarsan hiçbir þey olmaz (bug önleyici)
-            if (GetComponentInChildren<FlashlightVisual>() != null)
+            // Bug önleyici: Elimizde fener görseli varsa server'a istek gönder
+            if (GetComponentInChildren<FlashlightVisual>(true) != null)
             {
-                isLightOn.Value = !isLightOn.Value;
+                ToggleFlashlightServerRpc();
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void ToggleFlashlightServerRpc()
+    {
+        isLightOn.Value = !isLightOn.Value;
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SetLightStateServerRpc(bool state)
+    {
+        isLightOn.Value = state;
+    }
+
+    private void OnFlashlightStateChanged(bool oldState, bool newState)
+    {
+        RefreshFlashlightVisuals(newState);
+    }
+
+    // --- TÜM CÝHAZLARDA GÖRSELÝ VE SESÝ YENÝLEYEN ANA GÖVDE ---
+    public void RefreshFlashlightVisuals(bool state)
+    {
+        // 'true' parametresi sayesinde hiyerarþide gizlenmiþ/inaktif olan modelleri de tarar
+        FlashlightVisual visual = GetComponentInChildren<FlashlightVisual>(true);
+
+        if (visual != null)
+        {
+            if (visual.spotlight != null) visual.spotlight.enabled = state;
+
+            // Klik sesini fenerin olduðu konumdan tüm co-op lobisine 3D yayýnlar
+            if (visual.audioSource != null && visual.clickSound != null)
+            {
+                visual.audioSource.PlayOneShot(visual.clickSound);
             }
         }
     }

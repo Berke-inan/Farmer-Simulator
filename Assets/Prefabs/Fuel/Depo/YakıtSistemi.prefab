@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1169718589813539238
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7561640065169012502}
+  m_Layer: 0
+  m_Name: HortumBaslabgic
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7561640065169012502
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1169718589813539238}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -9.61, y: -0.4, z: 0.09}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1916864334926920791}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2052568073395595072
 GameObject:
   m_ObjectHideFlags: 0
@@ -31,6 +62,8 @@ Transform:
   m_Children:
   - {fileID: 7747610854240035134}
   - {fileID: 7014194930595309124}
+  - {fileID: 7561640065169012502}
+  - {fileID: 3009246301782077904}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7934255516133207632
@@ -824,6 +857,10 @@ PrefabInstance:
       propertyPath: m_AngularDamping
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 8685639963691141380, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
+      propertyPath: m_ConnectedBody
+      value: 
+      objectReference: {fileID: 1069647752115846113, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
     - target: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.733
@@ -925,6 +962,112 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 8882588229361769975, guid: b8fa83d6a426ab6488dd9765b610421b, type: 3}
   m_PrefabInstance: {fileID: 1878607763074333619}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &3000901880004938817
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1916864334926920791}
+    m_Modifications:
+    - target: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.08641052
+      objectReference: {fileID: 0}
+    - target: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.1539998
+      objectReference: {fileID: 0}
+    - target: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.010341644
+      objectReference: {fileID: 0}
+    - target: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.73891246
+      objectReference: {fileID: 0}
+    - target: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.12060009
+      objectReference: {fileID: 0}
+    - target: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.65426385
+      objectReference: {fileID: 0}
+    - target: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.106784336
+      objectReference: {fileID: 0}
+    - target: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 18.539
+      objectReference: {fileID: 0}
+    - target: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 83.046
+      objectReference: {fileID: 0}
+    - target: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3653346383200781759, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: m_Name
+      value: Tabanca
+      objectReference: {fileID: 0}
+    - target: {fileID: 6905616144812673581, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3714970978
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3653346383200781759, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7452666407423920356}
+    - targetCorrespondingSourceObject: {fileID: 3653346383200781759, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6096369265384158572}
+  m_SourcePrefab: {fileID: 100100000, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+--- !u!1 &1951768867371682302 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3653346383200781759, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+  m_PrefabInstance: {fileID: 3000901880004938817}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7452666407423920356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951768867371682302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0da921323fabc24fa2cf1c131e3d2fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PompaTabancasi
+  bagliIstasyon: {fileID: 5423511460529394634}
+  dolumMesafesi: 4
+  traktorDolumHizi: 20
+--- !u!114 &6096369265384158572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951768867371682302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08c51434b2c2f88449a5827bbd59f609, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HortumMesafeKontrol
+  hortumBaslangicNoktasi: {fileID: 7561640065169012502}
+  maxUzaklasmaMesafesi: 5
+--- !u!4 &3009246301782077904 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 29174222892826001, guid: 9c8e3dd8565816d4ab3f23f78c2b3688, type: 3}
+  m_PrefabInstance: {fileID: 3000901880004938817}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7786638511465907925
 PrefabInstance:

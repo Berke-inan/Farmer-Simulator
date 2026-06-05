@@ -1,7 +1,8 @@
+using GLTFast.Schema;
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Unity.Netcode;
-using System.Collections.Generic;
 
 namespace FarmerSimulator.UI
 {
@@ -15,29 +16,31 @@ namespace FarmerSimulator.UI
 
         private VisualElement _currentEnergyCircle;
         private Label _energyTextLabel;
-        private Label _energyMaxLabel; // Yeni
+        private Label _energyMaxLabel;
         private Label _lblMoney;
         private Label _lblTime;
         private Label _lblDay;
 
-        // Çizim Motoru Verileri
+        private VisualElement _promptContainer;
+
         private float _currentEnergyVal = 100f;
         private float _maxEnergyVal = 100f;
-        private float _capacityVal = 100f; // Asla geçilemeyecek üst sınır
+        private float _capacityVal = 100f;
 
-        // Fotoğraftaki Renkler
-        private Color _colorBackground = new Color(0.1f, 0.15f, 0.1f); // Koyu arka plan halkası
-        private Color _colorNormal = new Color(0f, 1f, 0.4f); // Parlak yeşil (Güncel)
-        private Color _colorCritical = new Color(0.97f, 0.25f, 0.25f); // Kırmızı (Kritik güncel enerji)
-        private Color _colorLostMax = new Color(0.15f, 0.3f, 0.2f); // Kaybedilen maksimum enerji (Koyu yeşil/saydam)
-        private Color _colorCurrent; // O anki güncel renk
+        private Color _colorBackground = new Color(0.1f, 0.15f, 0.1f);
+        private Color _colorNormal = new Color(0f, 1f, 0.4f);
+        private Color _colorCritical = new Color(0.97f, 0.25f, 0.25f);
+        private Color _colorLostMax = new Color(0.15f, 0.3f, 0.2f);
+        private Color _colorCurrent;
 
         private List<VisualElement> _uiSlots = new List<VisualElement>();
-        private List<Image> _uiIcons = new List<Image>();
+        private List<UnityEngine.UIElements.Image> _uiIcons = new List<UnityEngine.UIElements.Image>();
         private List<Label> _uiAmounts = new List<Label>();
 
         private PlayerInventory _boundInventory;
         private PlayerEnergy _boundEnergy;
+
+        private List<ActionPrompt> _sonGelenPrompts = new List<ActionPrompt>();
 
         private void Awake()
         {
@@ -61,6 +64,8 @@ namespace FarmerSimulator.UI
             _energyTextLabel = root.Q<Label>("EnergyTextLabel");
             _energyMaxLabel = root.Q<Label>("EnergyMaxLabel");
 
+            _promptContainer = root.Q<VisualElement>("ActionPromptContainer");
+
             if (_currentEnergyCircle != null)
             {
                 _currentEnergyCircle.generateVisualContent += DrawRadialEnergyBar;
@@ -71,6 +76,13 @@ namespace FarmerSimulator.UI
 
         private void Update()
         {
+            if (_uiDocument != null && _uiDocument.rootVisualElement != null)
+            {
+                _uiDocument.rootVisualElement.style.display = MainMenuController.IsMenuOpen ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+
+            if (MainMenuController.IsMenuOpen) return;
+
             if (_boundInventory == null && NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClient != null)
             {
                 var localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
@@ -81,6 +93,7 @@ namespace FarmerSimulator.UI
             }
 
             UpdateDynamicStats();
+            RenderLivePrompts();
         }
 
         private void BindPlayerSystems(GameObject player)
@@ -125,7 +138,7 @@ namespace FarmerSimulator.UI
                 numLabel.text = i < 9 ? (i + 1).ToString() : "0";
                 slot.Add(numLabel);
 
-                var icon = new Image();
+                var icon = new UnityEngine.UIElements.Image();
                 icon.AddToClassList("slot-icon");
                 slot.Add(icon);
 
@@ -176,7 +189,6 @@ namespace FarmerSimulator.UI
 
         private void UpdateDynamicStats()
         {
-            // SAAT GÜNCELLEMESİ
             if (DayNightCycleManager.Instance != null && _lblTime != null)
             {
                 float t = DayNightCycleManager.Instance.currentTime.Value;
@@ -185,42 +197,153 @@ namespace FarmerSimulator.UI
                 _lblTime.text = $"{hours:00}:{minutes:00}";
             }
 
-            // ENERJİ GÜNCELLEMESİ
             if (_boundEnergy != null && _currentEnergyCircle != null)
             {
-                _capacityVal = _boundEnergy.maksimumKapasite; // Örn: 100
-                _maxEnergyVal = _boundEnergy.maxEnerji.Value; // Örn: 75
-                _currentEnergyVal = _boundEnergy.guncelEnerji.Value; // Örn: 60
+                _capacityVal = _boundEnergy.maksimumKapasite;
+                _maxEnergyVal = _boundEnergy.maxEnerji.Value;
+                _currentEnergyVal = _boundEnergy.guncelEnerji.Value;
 
-                // Renk Belirleme
                 if (_currentEnergyVal <= _boundEnergy.eylemYapmaSiniri * 2f)
                     _colorCurrent = _colorCritical;
                 else
                     _colorCurrent = _colorNormal;
 
-                // Metinleri Güncelleme (80 / 100)
                 if (_energyTextLabel != null) _energyTextLabel.text = ((int)_currentEnergyVal).ToString();
                 if (_energyMaxLabel != null) _energyMaxLabel.text = $"/ {(int)_maxEnergyVal}";
 
-                // Çizimi Yenile
                 _currentEnergyCircle.MarkDirtyRepaint();
             }
 
-            // PARA GÜNCELLEMESİ
             if (EconomyManager.Instance != null && _lblMoney != null)
             {
                 _lblMoney.text = $"$ {EconomyManager.Instance.currentMoney}";
             }
         }
 
-        // ==========================================
-        // GÜNCELLEME: DAHA KALIN HALKALAR İLE ÇİZİM MOTORU
-        // ==========================================
+        public void UpdateActionPrompts(List<ActionPrompt> prompts)
+        {
+            _sonGelenPrompts = prompts != null ? new List<ActionPrompt>(prompts) : new List<ActionPrompt>();
+        }
+
+        private void RenderLivePrompts()
+        {
+            if (_promptContainer == null) return;
+
+            _promptContainer.Clear();
+
+            if (_boundInventory != null)
+            {
+                int activeIdx = _boundInventory.activeHotbarIndex.Value;
+                if (!_boundInventory.slots[activeIdx].IsEmpty && _boundInventory.slots[activeIdx].itemData != null)
+                {
+                    // 1. Alet Can Mekaniği
+                    if (_boundInventory.eldekiObje != null)
+                    {
+                        float canYuzdesi = -1f;
+                        LocalToolDurability localAlet = _boundInventory.eldekiObje.GetComponentInChildren<LocalToolDurability>(true);
+
+                        if (localAlet != null && localAlet.maxHealth > 0f)
+                        {
+                            canYuzdesi = (localAlet.currentHealth / localAlet.maxHealth) * 100f;
+                        }
+                        else
+                        {
+                            DurabilityManager alet = _boundInventory.eldekiObje.GetComponentInChildren<DurabilityManager>(true);
+                            if (alet != null && alet.maxHealth > 0f)
+                            {
+                                canYuzdesi = (alet.currentHealth.Value / alet.maxHealth) * 100f;
+                            }
+                        }
+
+                        if (canYuzdesi >= 0f)
+                        {
+                            var barContainer = new VisualElement();
+                            barContainer.style.width = 210f;
+                            barContainer.style.marginBottom = 14f;
+                            barContainer.style.backgroundColor = new Color(0.05f, 0.05f, 0.05f, 0.7f);
+                            barContainer.style.paddingLeft = 12f;
+                            barContainer.style.paddingRight = 12f;
+                            barContainer.style.paddingTop = 8f;
+                            barContainer.style.paddingBottom = 10f;
+
+                            // ANA KUTU KÖŞE YUVARLAMA HATASI DÜZELTİLDİ
+                            barContainer.style.borderTopLeftRadius = 6f;
+                            barContainer.style.borderTopRightRadius = 6f;
+                            barContainer.style.borderBottomLeftRadius = 6f;
+                            barContainer.style.borderBottomRightRadius = 6f;
+                            var titleLabel = new Label("ALET DURUMU");
+                            titleLabel.style.color = new Color(0.75f, 0.75f, 0.75f);
+                            titleLabel.style.fontSize = 11f;
+                            titleLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+                            titleLabel.style.marginBottom = 6f;
+
+                            var barBg = new VisualElement();
+                            barBg.style.height = 11f;
+                            barBg.style.backgroundColor = new Color(0.12f, 0.12f, 0.12f, 0.95f);
+
+                            // BAR YUVASI KÖŞE YUVARLAMA HATASI DÜZELTİLDİ
+                            barBg.style.borderTopLeftRadius = 3f;
+                            barBg.style.borderTopRightRadius = 3f;
+                            barBg.style.borderBottomLeftRadius = 3f;
+                            barBg.style.borderBottomRightRadius = 3f;
+
+                            var barFill = new VisualElement();
+                            barFill.style.height = Length.Percent(100f);
+                            barFill.style.width = Length.Percent(Mathf.Clamp(canYuzdesi, 0f, 100f));
+                            barFill.style.backgroundColor = new Color(0f, 1f, 0.4f);
+
+                            // YEŞİL DOLGU KÖŞE YUVARLAMA HATASI DÜZELTİLDİ
+                            barFill.style.borderTopLeftRadius = 3f;
+                            barFill.style.borderTopRightRadius = 3f;
+                            barFill.style.borderBottomLeftRadius = 3f;
+                            barFill.style.borderBottomRightRadius = 3f;
+
+                            barBg.Add(barFill);
+                            barContainer.Add(titleLabel);
+                            barContainer.Add(barBg);
+
+                            _promptContainer.Add(barContainer);
+                        }
+                    }
+
+                    // 2. Bidon Yakıt Göstergesi
+                    if (_boundInventory.slots[activeIdx].itemData.name.ToLower().Contains("bidon"))
+                    {
+                        _promptContainer.Add(CreateStandardPromptRow($"{_boundInventory.bidonMevcutYakit.Value:F1}L / 25L", "Bidon Yakıtı"));
+                    }
+                }
+            }
+
+            foreach (var prompt in _sonGelenPrompts)
+            {
+                _promptContainer.Add(CreateStandardPromptRow(prompt.Action, prompt.Key));
+            }
+        }
+
+        private VisualElement CreateStandardPromptRow(string action, string key)
+        {
+            var row = new VisualElement();
+            row.AddToClassList("prompt-row");
+
+            var actionLabel = new Label(action);
+            actionLabel.AddToClassList("prompt-action-text");
+
+            var keyBox = new VisualElement();
+            keyBox.AddToClassList("prompt-key-box");
+
+            var keyLabel = new Label(key);
+            keyLabel.AddToClassList("prompt-key-text");
+
+            keyBox.Add(keyLabel);
+            row.Add(actionLabel);
+            row.Add(keyBox);
+
+            return row;
+        }
+
         private void DrawRadialEnergyBar(MeshGenerationContext ctx)
         {
             var painter = ctx.painter2D;
-
-            // İSTEĞİN: Halkaları kalınlaştırdım (8f -> 14f)
             float lineWidth = 14f;
 
             painter.lineWidth = lineWidth;
@@ -234,23 +357,18 @@ namespace FarmerSimulator.UI
             Vector2 center = new Vector2(width / 2f, height / 2f);
             float radius = (Mathf.Min(width, height) / 2f) - (lineWidth / 2f);
 
-            // Açı Hesaplamaları
             float startAngle = -90f;
-
-            // Oranlar (0.0 - 1.0)
             float currentPct = Mathf.Clamp01(_currentEnergyVal / _capacityVal);
             float maxPct = Mathf.Clamp01(_maxEnergyVal / _capacityVal);
 
             float currentEndAngle = startAngle + (360f * currentPct);
             float maxEndAngle = startAngle + (360f * maxPct);
 
-            // 1. KATMAN: Koyu Arka Plan Halkası (C# ile çiziliyor)
             painter.strokeColor = _colorBackground;
             painter.BeginPath();
             painter.Arc(center, radius, 0f, 360f, ArcDirection.Clockwise);
             painter.Stroke();
 
-            // 2. KATMAN: Kaybedilen Maksimum Enerji Alanı (Koyu Yeşil)
             if (maxPct > currentPct)
             {
                 painter.strokeColor = _colorLostMax;
@@ -259,7 +377,6 @@ namespace FarmerSimulator.UI
                 painter.Stroke();
             }
 
-            // 3. KATMAN: Güncel Enerji Barı (Parlak Yeşil veya Kırmızı)
             if (currentPct > 0f)
             {
                 painter.strokeColor = _colorCurrent;
@@ -281,6 +398,20 @@ namespace FarmerSimulator.UI
             {
                 _currentEnergyCircle.generateVisualContent -= DrawRadialEnergyBar;
             }
+        }
+
+        public void SetPlayerHUDVisible(bool state)
+        {
+            var displayState = state ? UnityEngine.UIElements.DisplayStyle.Flex : UnityEngine.UIElements.DisplayStyle.None;
+            if (_uiDocument == null || _uiDocument.rootVisualElement == null) return;
+            var root = _uiDocument.rootVisualElement;
+
+            if (_hotbarContainer != null)
+                _hotbarContainer.style.display = displayState;
+
+            var energyWidget = root.Q<UnityEngine.UIElements.VisualElement>("EnergyWidget");
+            if (energyWidget != null)
+                energyWidget.style.display = displayState;
         }
     }
 }

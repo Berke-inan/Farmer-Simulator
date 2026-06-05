@@ -8,37 +8,40 @@
 
     <ui:VisualElement name="HUDContainer" class="hud-container" picking-mode="Ignore">
 
-        <ui:VisualElement name="Header" class="hud-header">
-
-            <ui:VisualElement class="hud-pill hud-pill-time">
-                <ui:Label class="hud-pill-label" text="SAAT" />
-                <ui:Label name="TimeText" class="hud-time-text" text="06:00" />
+        <ui:VisualElement class="hud-top" picking-mode="Ignore">
+            
+            <ui:VisualElement class="hud-info-block border-left-accent">
+                <ui:Label text="ZAMAN İNDEKSİ" class="hud-kicker" />
+                <ui:Label name="TimeText" text="12:33" class="hud-value-primary" />
+                <ui:Label name="DayText" text="GÜN 1 — İLKBAHAR" class="hud-value-secondary" />
             </ui:VisualElement>
 
-            <ui:VisualElement class="hud-pill hud-pill-money">
-                <ui:Label class="hud-pill-label-money" text="PARA" />
-                <ui:Label name="MoneyText" class="hud-money-text" text="$ 0" />
+            <ui:VisualElement class="hud-info-block border-right-accent">
+                <ui:Label text="BAKİYE DURUMU" class="hud-kicker" />
+                <ui:Label name="MoneyText" text="$ 1000000" class="hud-value-orange" />
             </ui:VisualElement>
+
         </ui:VisualElement>
 
-        <ui:VisualElement name="DayBadge" class="hud-day-badge" picking-mode="Ignore">
-            <ui:VisualElement class="hud-day-badge-inner">
-                <ui:Label name="DayText" class="hud-day-text" text="GÜN 1 — İLKBAHAR" />
+        <ui:VisualElement name="ActionPromptContainer" class="prompt-container" picking-mode="Ignore" />
+
+        <ui:VisualElement class="hud-bottom" picking-mode="Ignore">
+            
+            <ui:VisualElement class="hotbar-wrapper">
+                <ui:VisualElement name="HotbarContainer" class="hotbar-container" />
             </ui:VisualElement>
-        </ui:VisualElement>
 
-        <ui:VisualElement name="Footer" class="hud-footer">
-
-            <ui:VisualElement name="HotbarContainer" class="hotbar-container" />
-
-            <ui:VisualElement name="EnergyWidget" class="energy-widget">
-                <ui:VisualElement name="CurrentEnergyCircle" class="energy-current-circle" />
-                
-                <ui:VisualElement class="energy-text-container">
-                    <ui:Label name="EnergyTextLabel" class="energy-text-label" text="100" />
-                    <ui:Label name="EnergyMaxLabel" class="energy-max-label" text="/ 100" />
-                    <ui:Label class="energy-sub-label" text="ENERJİ" />
+            <ui:VisualElement class="energy-wrapper">
+                <ui:VisualElement name="EnergyWidget" class="energy-widget">
+                    <ui:VisualElement name="CurrentEnergyCircle" class="energy-current-circle" />
+                    
+                    <ui:VisualElement class="energy-text-container">
+                        <ui:Label name="EnergyTextLabel" class="energy-val-main" text="99" />
+                        <ui:Label name="EnergyMaxLabel" class="energy-val-sub" text="/ 100" />
+                    </ui:VisualElement>
                 </ui:VisualElement>
+                
+                <ui:Label text="ENERJİ" class="hud-kicker energy-kicker-bottom" />
             </ui:VisualElement>
 
         </ui:VisualElement>

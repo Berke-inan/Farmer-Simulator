@@ -267,13 +267,17 @@ GameObject:
   - component: {fileID: 8894745004739345505}
   - component: {fileID: 811778312164689461}
   - component: {fileID: 742376567548269004}
+  - component: {fileID: 2765947828299920791}
+  - component: {fileID: 1394282550774793762}
+  - component: {fileID: 707683200308369023}
+  - component: {fileID: 6845805480260302340}
   m_Layer: 0
   m_Name: EkimMakinesi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4598636690879128974
 Transform:
   m_ObjectHideFlags: 0
@@ -295,6 +299,7 @@ Transform:
   - {fileID: 8346964618028977346}
   - {fileID: 8393502647911402750}
   - {fileID: 1734796793867587933}
+  - {fileID: 2834974578458914531}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
 --- !u!114 &4588568933108818496
@@ -463,6 +468,7 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  duzelmeSuresi: 3
 --- !u!65 &811778312164689461
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -505,6 +511,75 @@ MonoBehaviour:
     m_InternalValue: 0
   minimumEkimMesafesi: 0.8
   islemAraligi: 0.15
+--- !u!114 &2765947828299920791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3082681281755153794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ef52a9701fb91c4c8b41e228a80178d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DurabilityManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 1000
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+--- !u!114 &1394282550774793762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3082681281755153794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c78a24d140deb741ad4cf334b2109e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceDamageDealer
+  ShowTopMostFoldoutHeaderGroup: 1
+  distanceThreshold: 50
+  damagePerThreshold: 1
+--- !u!114 &707683200308369023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3082681281755153794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d9b5506c2124445a9ed6f0f71f4dba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BreakDisableBehavior
+  ShowTopMostFoldoutHeaderGroup: 1
+  breakdownSound: {fileID: 0}
+  smokePrefab: {fileID: 1026303572599819439, guid: 7fc67d1a365b3b540b167e6a65cb3eb0, type: 3}
+  smokeSpawnPoint: {fileID: 2834974578458914531}
+  isBroken:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+--- !u!114 &6845805480260302340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3082681281755153794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f5aee7928339904b9a35cf800ff0fbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RepairableTarget
+  ShowTopMostFoldoutHeaderGroup: 1
+  requiredHitsToRepair: 3
 --- !u!1 &4233251346024946235
 GameObject:
   m_ObjectHideFlags: 0
@@ -700,6 +775,37 @@ WheelCollider:
   m_LayerOverridePriority: 0
   m_Enabled: 1
   m_ProvidesContacts: 0
+--- !u!1 &6056487571024643083
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2834974578458914531}
+  m_Layer: 0
+  m_Name: SmokePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2834974578458914531
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6056487571024643083}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.935, z: 0.493}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4598636690879128974}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6435981051435616091
 GameObject:
   m_ObjectHideFlags: 0

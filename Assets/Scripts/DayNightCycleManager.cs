@@ -17,38 +17,38 @@ public class DayNightCycleManager : NetworkBehaviour
     public Light sunLight;
     public Light moonLight;
 
-    [Header("Güneş Şiddeti (Gündüz 1.2, Gece 0)")]
+    [Header("Güneş Şiddeti (Gündüz 1.5, Gece 0)")]
     public AnimationCurve sunIntensity = new AnimationCurve(
         new Keyframe(0f, 0f),
         new Keyframe(5.5f, 0f),
-        new Keyframe(7f, 1.2f),
-        new Keyframe(17.5f, 1.2f),
+        new Keyframe(7f, 1.5f),   // GÜNDÜZ AYARI: 1.2'den 1.5'e çıkarıldı (Daha parlak)
+        new Keyframe(17.5f, 1.5f), // GÜNDÜZ AYARI: 1.2'den 1.5'e çıkarıldı (Daha parlak)
         new Keyframe(19f, 0f),
         new Keyframe(24f, 0f)
     );
 
     [Header("Ortam Işığı (Yerlerin Kararması İçin)")]
     public AnimationCurve ambientIntensityCurve = new AnimationCurve(
-        new Keyframe(0f, 0.15f), // GECE AYARI: 0.02'den 0.15'e çıkarıldı
-        new Keyframe(6f, 0.2f),  // SABAHA KARŞI: 0.05'ten 0.2'ye çıkarıldı
-        new Keyframe(7.5f, 1.0f),
-        new Keyframe(17f, 1.0f),
-        new Keyframe(18.5f, 0.2f), // AKŞAM ÜSTÜ: 0.05'ten 0.2'ye çıkarıldı
-        new Keyframe(24f, 0.15f) // GECE AYARI: 0.02'den 0.15'e çıkarıldı
+        new Keyframe(0f, 0.15f), // GECE AYARI: Değişmedi
+        new Keyframe(6f, 0.2f),  // SABAHA KARŞI: Değişmedi
+        new Keyframe(7.5f, 1.2f), // GÜNDÜZ AYARI: 1.0'dan 1.2'ye çıkarıldı (Daha aydınlık gölgeler)
+        new Keyframe(17f, 1.2f),  // GÜNDÜZ AYARI: 1.0'dan 1.2'ye çıkarıldı (Daha aydınlık gölgeler)
+        new Keyframe(18.5f, 0.2f), // AKŞAM ÜSTÜ: Değişmedi
+        new Keyframe(24f, 0.15f) // GECE AYARI: Değişmedi
     );
 
     [Header("Yansıma Şiddeti (Parlama Sorunu Çözümü)")]
     public AnimationCurve reflectionIntensityCurve = new AnimationCurve(
-        new Keyframe(0f, 0.05f), // GECE YANSIMASI: 0.01'den 0.05'e çıkarıldı
-        new Keyframe(6f, 0.05f), // SABAHA KARŞI YANSIMA: 0.01'den 0.05'e çıkarıldı
-        new Keyframe(8f, 1.0f),
-        new Keyframe(16.5f, 1.0f),
-        new Keyframe(18.5f, 0.05f), // AKŞAM YANSIMASI: 0.01'den 0.05'e çıkarıldı
-        new Keyframe(24f, 0.05f) // GECE YANSIMASI: 0.01'den 0.05'e çıkarıldı
+        new Keyframe(0f, 0.05f), // GECE YANSIMASI: Değişmedi
+        new Keyframe(6f, 0.05f), // SABAHA KARŞI YANSIMA: Değişmedi
+        new Keyframe(8f, 1.2f),  // GÜNDÜZ AYARI: 1.0'dan 1.2'ye çıkarıldı (Daha canlı yüzeyler)
+        new Keyframe(16.5f, 1.2f), // GÜNDÜZ AYARI: 1.0'dan 1.2'ye çıkarıldı (Daha canlı yüzeyler)
+        new Keyframe(18.5f, 0.05f), // AKŞAM YANSIMASI: Değişmedi
+        new Keyframe(24f, 0.05f) // GECE YANSIMASI: Değişmedi
     );
 
     private HashSet<ulong> sleepingPlayers = new HashSet<ulong>();
-    private bool morningTriggered = false; // Doğal sabahı yakalamak için kilit
+    private bool morningTriggered = false;
 
     private void Awake()
     {
@@ -70,7 +70,6 @@ public class DayNightCycleManager : NetworkBehaviour
         float timeMultiplier = 24f / realSecondsPerDay;
         currentTime.Value += Time.deltaTime * timeMultiplier;
 
-        // Doğal yollarla sabah saat 6'yı geçtiğinde sinyali tetikle
         if (currentTime.Value >= 6f && currentTime.Value < 7f && !morningTriggered)
         {
             morningTriggered = true;
@@ -81,7 +80,7 @@ public class DayNightCycleManager : NetworkBehaviour
         if (currentTime.Value >= 24f)
         {
             currentTime.Value = 0f;
-            morningTriggered = false; // Yeni gece yarısı olduğunda kilidi sıfırla
+            morningTriggered = false;
         }
     }
 
@@ -100,7 +99,6 @@ public class DayNightCycleManager : NetworkBehaviour
         {
             moonLight.transform.rotation = Quaternion.Euler(sunAngle + 180f, 170f, 0f);
             float moonHeight = Mathf.Clamp01(-moonLight.transform.forward.y);
-            // AY IŞIĞI ŞİDDETİ: 0.15f'den 0.35f'e çıkarıldı (Gece aydınlatmasını sağlar)
             moonLight.intensity = moonHeight * 0.35f;
         }
 
@@ -132,7 +130,7 @@ public class DayNightCycleManager : NetworkBehaviour
     private void MakeItMorning()
     {
         currentTime.Value = 6.5f;
-        morningTriggered = true; // Oyuncular uyuyarak sabahı getirdi, kilidi kapat
+        morningTriggered = true;
         sleepingPlayers.Clear();
         YeniGunBasladiSinyali?.Invoke();
         Debug.Log("Herkes uyudu, yeni gün sinyali gönderildi.");

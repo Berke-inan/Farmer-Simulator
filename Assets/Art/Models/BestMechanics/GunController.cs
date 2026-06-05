@@ -6,8 +6,6 @@ public class GunController : MonoBehaviour
     [Header("Silah Temel Ayarlarý")]
     public float fireRate = 0.1f;
     public float range = 100f;
-
-    [Tooltip("Mermilerin karakterin içinden geçmesi için! (Player katmanýný hariç tutun)")]
     public LayerMask hitLayers = ~0;
 
     [Header("Görsel ve Ses Efektleri")]
@@ -22,10 +20,16 @@ public class GunController : MonoBehaviour
     public float kickbackDistance = 0.05f;
     public float recoilRecoverSpeed = 15f;
 
+    [Header("Fiziksel Etki (Vuruþ Hissiyatý)")]
+    public float mermiItmeGucu = 500f; // Vurulan objelere uygulanacak güç
+
     private Vector3 originalVisualPosition;
     private float nextFireTime = 0f;
     private Camera mainCam;
     private InputAction shootAction;
+
+    [Header("Ses ve Etkileþim")]
+    public float silahSesiMenzili = 30f;
 
     private void Awake()
     {
@@ -81,24 +85,37 @@ public class GunController : MonoBehaviour
 
             SpawnBulletHole(hit);
 
-            // --- AAA GELÝÞMÝÞ ÇARPIÞMA KONTROLÜ ---
-            // 1. Önce doðrudan vurulan objede veya ebeveyninde ara
+            // --- AAA FÝZÝKSEL GERÝBÝLDÝRÝM ---
+            // Vurulan objenin bir fiziði (Rigidbody) varsa, merminin yönünde güç uygula
+            if (hit.rigidbody != null)
+            {
+                hit.rigidbody.AddForceAtPosition(mainCam.transform.forward * mermiItmeGucu, hit.point);
+            }
+
+            // --- GELÝÞMÝÞ KIRILMA KONTROLÜ ---
             BreakableTarget target = hit.collider.GetComponentInParent<BreakableTarget>();
 
-            // 2. Bulamazsa, objenin en tepesine (Root) çýk ve tüm alt sülaleyi tara
             if (target == null)
             {
                 target = hit.collider.transform.root.GetComponentInChildren<BreakableTarget>();
             }
 
-            // 3. Hedefi bulduysan kýr, bulamadýysan kýrmýzý hata ver
             if (target != null)
             {
                 target.TakeDamage();
             }
-            else
+        }
+        // ...
+        Collider[] duyulanlar = Physics.OverlapSphere(transform.position, silahSesiMenzili);
+        Debug.Log($"<color=orange>Silah patladý! Etrafta {duyulanlar.Length} adet obje duydu.</color>"); // EKLENEN LOG
+
+        foreach (Collider col in duyulanlar)
+        {
+            HorseController at = col.GetComponentInParent<HorseController>();
+            if (at != null)
             {
-                Debug.Log("<color=red>HATA: Mermi bardaða çarptý ama bütün hiyerarþiyi taramama raðmen BreakableTarget kodu HÝÇBÝR YERDE bulunamadý!</color>");
+                Debug.Log("<color=red>At sesi duydu ve korkutma komutu gönderiliyor!</color>"); // EKLENEN LOG
+                at.KorkutServerRpc(transform.position);
             }
         }
     }
@@ -107,7 +124,8 @@ public class GunController : MonoBehaviour
     {
         if (bulletHolePrefab != null)
         {
-            GameObject hole = Instantiate(bulletHolePrefab, hit.point + hit.normal * 0.001f, Quaternion.LookRotation(hit.normal));
+            // YÖN DÜZELTMESÝ: -hit.normal sayesinde URP Decal yüzeye tam olarak bakar
+            GameObject hole = Instantiate(bulletHolePrefab, hit.point, Quaternion.LookRotation(-hit.normal));
             hole.transform.SetParent(hit.collider.transform);
             Destroy(hole, 10f);
         }
@@ -117,7 +135,6 @@ public class GunController : MonoBehaviour
     {
         if (muzzleFlash != null)
         {
-            // Önce durdurup sonra oynatmak, seri atýþlarda partikülün takýlmasýný engeller
             muzzleFlash.Stop();
             muzzleFlash.Play();
         }

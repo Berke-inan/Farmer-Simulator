@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76a091aef649d6049a89925113a74c08, type: 3}
   m_Name: Water
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemID: 11
+  itemID: 7
   itemName: Water
   itemType: 1
   maxStack: 1
@@ -22,3 +22,4 @@ MonoBehaviour:
   groundPrefab: {fileID: 4079859512506773140, guid: f72f11151ab411d4a9263986fe24a6b5, type: 3}
   holdPositionOffset: {x: 1.08, y: -0.54, z: 1.13}
   holdRotationOffset: {x: -90, y: 0, z: 0}
+  ekinPrefab: {fileID: 0}

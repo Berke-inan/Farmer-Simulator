@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: LemonTree
   m_EditorClassIdentifier: Assembly-CSharp::TreeData
   agacAdi: "Limon A\u011Fac\u0131"
+  meyveItemID: 88
   buyumeSuresi: 10
   meyveVermeSuresi: 10
   kurumaSiniri: 60

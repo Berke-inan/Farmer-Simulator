@@ -18,13 +18,17 @@ GameObject:
   - component: {fileID: 780718131636957342}
   - component: {fileID: 2008548301937425733}
   - component: {fileID: 6542688842917265968}
+  - component: {fileID: 5728117103359932631}
+  - component: {fileID: 746696285474687518}
+  - component: {fileID: 9182858813947597641}
+  - component: {fileID: 6321688455209276603}
   m_Layer: 0
   m_Name: Bicerdover
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8176898068748685970
 Transform:
   m_ObjectHideFlags: 0
@@ -45,6 +49,7 @@ Transform:
   - {fileID: 5725968966159675808}
   - {fileID: 1799315892637850152}
   - {fileID: 1845976882105721104}
+  - {fileID: 138824664512783041}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
 --- !u!114 &1635594953305647000
@@ -59,7 +64,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1350858567
+  GlobalObjectIdHash: 1594042652
   InScenePlacedSourceGlobalObjectIdHash: 2630637714
   DeferredDespawnTick: 0
   Ownership: 1
@@ -264,6 +269,75 @@ MonoBehaviour:
   - {fileID: 6873799406410697741}
   - {fileID: 71713619148571049}
   tasZeminIndex: 3
+--- !u!114 &5728117103359932631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332215215695680826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ef52a9701fb91c4c8b41e228a80178d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DurabilityManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 1000
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+--- !u!114 &746696285474687518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332215215695680826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d9b5506c2124445a9ed6f0f71f4dba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BreakDisableBehavior
+  ShowTopMostFoldoutHeaderGroup: 1
+  breakdownSound: {fileID: 0}
+  smokePrefab: {fileID: 1026303572599819439, guid: 7fc67d1a365b3b540b167e6a65cb3eb0, type: 3}
+  smokeSpawnPoint: {fileID: 138824664512783041}
+  isBroken:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+--- !u!114 &9182858813947597641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332215215695680826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f5aee7928339904b9a35cf800ff0fbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RepairableTarget
+  ShowTopMostFoldoutHeaderGroup: 1
+  requiredHitsToRepair: 3
+--- !u!114 &6321688455209276603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332215215695680826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c78a24d140deb741ad4cf334b2109e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceDamageDealer
+  ShowTopMostFoldoutHeaderGroup: 1
+  distanceThreshold: 50
+  damagePerThreshold: 1
 --- !u!1 &1393419556098727726
 GameObject:
   m_ObjectHideFlags: 0
@@ -24772,6 +24846,37 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &9145612886883293688
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 138824664512783041}
+  m_Layer: 0
+  m_Name: SmokePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &138824664512783041
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9145612886883293688}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.07, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8176898068748685970}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2098594651663656165
 PrefabInstance:
   m_ObjectHideFlags: 0

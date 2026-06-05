@@ -15,5 +15,8 @@ MonoBehaviour:
   itemID: 11
   itemName: Breading Machine
   itemIcon: {fileID: 21300000, guid: f990fbce6479f5b419c9aaca09007239, type: 3}
-  price: 30
+  price: 2000
   prefabToSpawn: {fileID: 3082681281755153794, guid: cb2134218be48fe4cb2d84e8b0f2bf24, type: 3}
+  isMachine: 1
+  maxStock: 10
+  restockInterval: 60

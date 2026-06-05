@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableItem
   ShowTopMostFoldoutHeaderGroup: 1
-  itemID: 11
+  itemID: 7
   amount: 1
 --- !u!114 &1589343938835537428
 MonoBehaviour:

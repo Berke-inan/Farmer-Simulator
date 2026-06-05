@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 using System.Collections.Generic;
 using FarmerSimulator.Network;
 using Unity.Netcode;
+using UnityEngine.InputSystem; // YENİ INPUT SİSTEMİ EKLENDİ
 
 namespace FarmerSimulator.UI
 {
@@ -16,6 +17,8 @@ namespace FarmerSimulator.UI
         // Diğer scriptlerin okuduğu evrensel durum bayrağı
         public static bool IsMenuOpen { get; private set; } = true;
 
+        private InputSystem_Actions _inputActions;
+
         private UIDocument _uiDocument;
         private VisualElement _root;
         private VisualElement _menuContainer;
@@ -26,11 +29,13 @@ namespace FarmerSimulator.UI
         private VisualElement _panelSettings;
         private VisualElement _panelCredits;
         private VisualElement _containerJoin;
+        private VisualElement _panelPause;             // YENİ PAUSE PANELİ
+        private VisualElement _panelConfirmDisconnect; // YENİ ÇIKIŞ ONAY PANELİ
 
         // Sayfa Geçiş Geçmişi
         private readonly Stack<VisualElement> _panelHistory = new();
 
-        // UI Elementleri
+        // UI Elementleri (Ana Menü)
         private Button _btnPlay;
         private Button _btnSettings;
         private Button _btnCredits;
@@ -40,6 +45,13 @@ namespace FarmerSimulator.UI
         private Button _btnConnect;
         private TextField _txtRelayCode;
         private Slider _sliderAudio;
+
+        // UI Elementleri (Pause Menü)
+        private Button _btnResume;
+        private Button _btnPauseSettings;
+        private Button _btnDisconnectRequest;
+        private Button _btnConfirmDisconnect;
+        private Button _btnCancelDisconnect;
 
         private const string HideClass = "panel-hidden";
 
@@ -65,15 +77,52 @@ namespace FarmerSimulator.UI
             ResetAllPanels();
         }
 
+        private void Awake()
+        {
+            _inputActions = new InputSystem_Actions();
+
+            // "Pause" action'ı tetiklendiğinde OnPausePressed metodunu çalıştır
+            _inputActions.Player.Pause.started += OnPausePressed;
+        }
+
+        private void OnEnable()
+        {
+            _inputActions?.Enable();
+        }
+        private void OnDisable()
+        {
+            _inputActions?.Disable();
+        }
+
+        private void OnPausePressed(InputAction.CallbackContext context)
+        {
+            // KESİN ÇÖZÜM: Eğer market/laptop ekranı şu an açıksa, ESC menüsünü AÇMA!
+            if (MarketUIController.IsMarketOpen) return;
+
+            // Sadece ağa bağlıysak (oyun içindeysek) ESC ile menüyü aç/kapat
+            if (NetworkManager.Singleton != null && (NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsServer))
+            {
+                TogglePauseMenu();
+            }
+        }
+
         private void Update()
         {
-            // Menü açık olduğu sürece imleci koru
+            // Menü açık olduğu sürece imleci serbest bırak, kapalıysa kilitle
             if (IsMenuOpen)
             {
                 if (UnityEngine.Cursor.lockState != CursorLockMode.None)
                 {
                     UnityEngine.Cursor.lockState = CursorLockMode.None;
                     UnityEngine.Cursor.visible = true;
+                }
+            }
+            else
+            {
+                if (UnityEngine.Cursor.lockState != CursorLockMode.Locked)
+                {
+                    UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+                    UnityEngine.Cursor.visible = false;
                 }
             }
         }
@@ -86,12 +135,17 @@ namespace FarmerSimulator.UI
         private void CacheVisualElements()
         {
             _menuContainer = _root.Q<VisualElement>("MenuContainer");
+
+            // Paneller
             _panelMainMenu = _root.Q<VisualElement>("MainMenuPanel");
             _panelMultiplayer = _root.Q<VisualElement>("MultiplayerPanel");
             _panelSettings = _root.Q<VisualElement>("SettingsPanel");
             _panelCredits = _root.Q<VisualElement>("CreditsPanel");
             _containerJoin = _root.Q<VisualElement>("JoinContainer");
+            _panelPause = _root.Q<VisualElement>("PausePanel");
+            _panelConfirmDisconnect = _root.Q<VisualElement>("ConfirmDisconnectPanel");
 
+            // Ana Menü Butonları
             _btnPlay = _root.Q<Button>("PlayButton");
             _btnSettings = _root.Q<Button>("SettingsButton");
             _btnCredits = _root.Q<Button>("CreditsButton");
@@ -101,24 +155,45 @@ namespace FarmerSimulator.UI
             _btnConnect = _root.Q<Button>("ConnectButton");
             _txtRelayCode = _root.Q<TextField>("RelayCodeField");
             _sliderAudio = _root.Q<Slider>("AudioSlider");
+
+            // Pause Menü Butonları
+            _btnResume = _root.Q<Button>("ResumeButton");
+            _btnPauseSettings = _root.Q<Button>("PauseSettingsButton");
+            _btnDisconnectRequest = _root.Q<Button>("DisconnectRequestButton");
+            _btnConfirmDisconnect = _root.Q<Button>("ConfirmDisconnectButton");
+            _btnCancelDisconnect = _root.Q<Button>("CancelDisconnectButton");
         }
 
         private void RegisterCallbacks()
         {
+            // Ana Menü Yönlendirmeleri
             if (_btnPlay != null) _btnPlay.clicked += () => NavigateToPanel(_panelMultiplayer);
             if (_btnSettings != null) _btnSettings.clicked += () => NavigateToPanel(_panelSettings);
             if (_btnCredits != null) _btnCredits.clicked += () => NavigateToPanel(_panelCredits);
             if (_btnQuit != null) _btnQuit.clicked += HandleQuitGame;
 
-            _root.Q<Button>("MultiplayerBackButton").clicked += NavigateBack;
-            _root.Q<Button>("SettingsBackButton").clicked += NavigateBack;
-            _root.Q<Button>("CreditsBackButton").clicked += NavigateBack;
+            // Geri Dön Butonları (Güvenli Kontrol)
+            var btnMultiBack = _root.Q<Button>("MultiplayerBackButton");
+            if (btnMultiBack != null) btnMultiBack.clicked += NavigateBack;
+
+            var btnSetBack = _root.Q<Button>("SettingsBackButton");
+            if (btnSetBack != null) btnSetBack.clicked += NavigateBack;
+
+            var btnCredBack = _root.Q<Button>("CreditsBackButton");
+            if (btnCredBack != null) btnCredBack.clicked += NavigateBack;
 
             if (_btnHost != null) _btnHost.clicked += HandleHostGame;
             if (_btnJoinMenu != null) _btnJoinMenu.clicked += ToggleJoinInputArea;
             if (_btnConnect != null) _btnConnect.clicked += HandleJoinGame;
 
             if (_sliderAudio != null) _sliderAudio.RegisterValueChangedCallback(HandleAudioValueChange);
+
+            // Pause Menü Yönlendirmeleri
+            if (_btnResume != null) _btnResume.clicked += TogglePauseMenu;
+            if (_btnPauseSettings != null) _btnPauseSettings.clicked += () => NavigateToPanel(_panelSettings);
+            if (_btnDisconnectRequest != null) _btnDisconnectRequest.clicked += () => NavigateToPanel(_panelConfirmDisconnect);
+            if (_btnCancelDisconnect != null) _btnCancelDisconnect.clicked += NavigateBack;
+            if (_btnConfirmDisconnect != null) _btnConfirmDisconnect.clicked += ExecuteDisconnect;
         }
 
         private void UnregisterCallbacks()
@@ -128,24 +203,33 @@ namespace FarmerSimulator.UI
             if (_btnCredits != null) _btnCredits.clicked -= () => NavigateToPanel(_panelCredits);
             if (_btnQuit != null) _btnQuit.clicked -= HandleQuitGame;
 
-            _root.Q<Button>("MultiplayerBackButton").clicked -= NavigateBack;
-            _root.Q<Button>("SettingsBackButton").clicked -= NavigateBack;
-            _root.Q<Button>("CreditsBackButton").clicked -= NavigateBack;
+            // Geri Dön Butonları (Güvenli Kontrol)
+            var btnMultiBack = _root.Q<Button>("MultiplayerBackButton");
+            if (btnMultiBack != null) btnMultiBack.clicked -= NavigateBack;
+
+            var btnSetBack = _root.Q<Button>("SettingsBackButton");
+            if (btnSetBack != null) btnSetBack.clicked -= NavigateBack;
+
+            var btnCredBack = _root.Q<Button>("CreditsBackButton");
+            if (btnCredBack != null) btnCredBack.clicked -= NavigateBack;
 
             if (_btnHost != null) _btnHost.clicked -= HandleHostGame;
             if (_btnJoinMenu != null) _btnJoinMenu.clicked -= ToggleJoinInputArea;
             if (_btnConnect != null) _btnConnect.clicked -= HandleJoinGame;
 
             if (_sliderAudio != null) _sliderAudio.UnregisterValueChangedCallback(HandleAudioValueChange);
-        }
 
+            if (_btnResume != null) _btnResume.clicked -= TogglePauseMenu;
+            if (_btnPauseSettings != null) _btnPauseSettings.clicked -= () => NavigateToPanel(_panelSettings);
+            if (_btnDisconnectRequest != null) _btnDisconnectRequest.clicked -= () => NavigateToPanel(_panelConfirmDisconnect);
+            if (_btnCancelDisconnect != null) _btnCancelDisconnect.clicked -= NavigateBack;
+            if (_btnConfirmDisconnect != null) _btnConfirmDisconnect.clicked -= ExecuteDisconnect;
+        }
         private void ResetAllPanels()
         {
             if (_panelMainMenu == null) return;
 
             IsMenuOpen = true;
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
-            UnityEngine.Cursor.visible = true;
 
             if (_menuContainer != null) _menuContainer.style.display = DisplayStyle.Flex;
             _menuContainer?.RemoveFromClassList(HideClass);
@@ -155,28 +239,80 @@ namespace FarmerSimulator.UI
             _panelSettings?.AddToClassList(HideClass);
             _panelCredits?.AddToClassList(HideClass);
             _containerJoin?.AddToClassList(HideClass);
+            _panelPause?.AddToClassList(HideClass);
+            _panelConfirmDisconnect?.AddToClassList(HideClass);
 
             _panelHistory.Clear();
             _panelHistory.Push(_panelMainMenu);
         }
 
-        /// <summary>
-        /// Manuel geçişlerde butona basıldığı an direkt oyunu başlatan fonksiyon.
-        /// </summary>
+        // ==========================================
+        // YENİ: OYUN İÇİ ESC KONTROLÜ
+        // ==========================================
+        private void TogglePauseMenu()
+        {
+            if (!IsMenuOpen)
+            {
+                // Menüyü Aç (Oyun arkada akmaya devam eder)
+                IsMenuOpen = true;
+                if (_menuContainer != null) _menuContainer.style.display = DisplayStyle.Flex;
+                _menuContainer?.RemoveFromClassList(HideClass);
+
+                // Diğer her şeyi gizle, sadece Pause panelini göster
+                _panelMainMenu?.AddToClassList(HideClass);
+                _panelMultiplayer?.AddToClassList(HideClass);
+                _panelSettings?.AddToClassList(HideClass);
+                _panelCredits?.AddToClassList(HideClass);
+                _containerJoin?.AddToClassList(HideClass);
+                _panelConfirmDisconnect?.AddToClassList(HideClass);
+
+                _panelPause.RemoveFromClassList(HideClass);
+
+                _panelHistory.Clear();
+                _panelHistory.Push(_panelPause);
+            }
+            else
+            {
+                // Oyuna Dön
+                CloseMenuAndStartPlaying();
+            }
+        }
+
+        // ==========================================
+        // YENİ: BAĞLANTIYI KESME VE SIFIRLAMA
+        // ==========================================
+        private void ExecuteDisconnect()
+        {
+            // Sunucu/İstemci bağlantısını kopar
+            if (NetworkManager.Singleton != null)
+            {
+                NetworkManager.Singleton.Shutdown();
+            }
+
+            // Geliştirici Notu: Eğer oyunu sıfırlarken eski veriler kalsın istemiyorsan, 
+            // buraya sahneyi yeniden yükleme kodu ekleyebilirsin:
+            // UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+
+            // Host/Connect butonlarının kilitlerini aç
+            _btnHost?.SetEnabled(true);
+            _btnConnect?.SetEnabled(true);
+
+            // Ana menüye sıfırla
+            ResetAllPanels();
+        }
+
         private async void HandleHostGame()
         {
             if (RelayManager.Instance == null || _btnHost == null) return;
 
             _btnHost.SetEnabled(false);
 
-            // Relay ağ kurulumunu başlatır
             string code = await RelayManager.Instance.SetupAndStartRelay(3);
 
             if (!string.IsNullOrEmpty(code))
             {
                 CloseMenuAndStartPlaying();
 
-                // Üretilen kodu oyun içi sistem chatinize anında basar
                 if (ChatController.Instance != null)
                 {
                     ChatController.Instance.AddLocalMessage($"[SİSTEM] Oda Kuruldu! Arkadaşınız için Relay Kodu: {code}", "chat-style-system");
@@ -188,17 +324,11 @@ namespace FarmerSimulator.UI
             }
         }
 
-        /// <summary>
-        /// Editör modunda menüyü tamamen bypass ederek direkt oyunu kuran arka plan fonksiyonu.
-        /// </summary>
         private async void BypassUIAndAutoHost()
         {
-            // Menüyü anında görünmez yap ve kilitleri kaldır
             if (_menuContainer != null) _menuContainer.style.display = DisplayStyle.None;
 
             IsMenuOpen = false;
-            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-            UnityEngine.Cursor.visible = false;
 
             if (RelayManager.Instance != null)
             {
@@ -210,10 +340,9 @@ namespace FarmerSimulator.UI
         private void CloseMenuAndStartPlaying()
         {
             if (_menuContainer != null) _menuContainer.style.display = DisplayStyle.None;
+            _menuContainer?.AddToClassList(HideClass);
 
             IsMenuOpen = false;
-            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-            UnityEngine.Cursor.visible = false;
         }
 
         private void ToggleJoinInputArea()
