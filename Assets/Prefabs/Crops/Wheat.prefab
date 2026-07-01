@@ -128,7 +128,27 @@ MonoBehaviour:
   - {fileID: 6891804813731287702}
   - {fileID: 307648904884422102}
   - {fileID: 6276295384628157534}
-  curumeSuresi: 20
+  curumeSuresi: 5000
+  isFertilized:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  growthTimeMultiplier:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 1
+  extraYield:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  ilaclandiMi:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!65 &1668466234688490586
 BoxCollider:
   m_ObjectHideFlags: 0
